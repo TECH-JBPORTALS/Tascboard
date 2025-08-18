@@ -1,0 +1,3 @@
+- [ ] Create rich text editor which manages the content of each entity.
+- [ ] Integrate auth into the app with role based.
+- [ ] Create dedicated sidebar.
