@@ -9,6 +9,8 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import type { EditorThemeClasses } from "lexical";
+import type React from "react";
+import { cn } from "@/lib/utils";
 
 const theme: EditorThemeClasses = {
   // Theme styling goes here
@@ -21,7 +23,10 @@ function onError(error: Error) {
   console.error(error);
 }
 
-export function TextEditor() {
+export function TextEditor({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   const config: InitialConfigType = {
     namespace: "TextEditor",
     onError,
@@ -31,7 +36,10 @@ export function TextEditor() {
 
   return (
     <LexicalComposer initialConfig={config}>
-      <div className={`relative mx-auto flex flex-col`}>
+      <div
+        className={cn(`relative mx-auto flex w-full flex-col`, className)}
+        {...props}
+      >
         <div className="relative">
           <RichTextPlugin
             contentEditable={

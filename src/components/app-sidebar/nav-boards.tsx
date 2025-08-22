@@ -1,6 +1,6 @@
 "use client";
 
-import { BoxIcon, ChevronRight, PlusIcon } from "lucide-react";
+import { BoxIcon, ChevronRight, PlusIcon, SquircleIcon } from "lucide-react";
 
 import {
   Collapsible,
@@ -62,6 +62,7 @@ export function NavBoards({
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild>
                           <a href={subItem.url}>
+                            <SquircleIcon />
                             <span>{subItem.title}</span>
                           </a>
                         </SidebarMenuSubButton>

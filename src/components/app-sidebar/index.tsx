@@ -1,21 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  ChartNoAxesGanttIcon,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Home,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  Users,
-} from "lucide-react";
+import { ChartNoAxesGanttIcon, Home, Users } from "lucide-react";
 
 import {
   Sidebar,
@@ -43,7 +29,7 @@ const data = {
       title: "Chit Money",
       url: "#",
       isActive: true,
-      items: [
+      tracks: [
         {
           title: "Planning",
           url: "#",
@@ -61,7 +47,7 @@ const data = {
     {
       title: "Kitchen App",
       url: "#",
-      items: [
+      tracks: [
         {
           title: "R & D",
           url: "#",
@@ -79,7 +65,7 @@ const data = {
     {
       title: "Admissino Matrix",
       url: "#",
-      items: [
+      tracks: [
         {
           title: "Issues",
           url: "#",
@@ -135,7 +121,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

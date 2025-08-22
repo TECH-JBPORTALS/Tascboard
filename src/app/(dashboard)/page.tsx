@@ -1,13 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { TextEditor } from "@/components/text-editor";
+import { Separator } from "@/components/ui/separator";
 
 export default async function Home() {
   return (
-    <main className="flex h-svh flex-col items-center justify-center gap-3.5">
-      <h1 className="text-4xl font-extrabold">Tascboard</h1>
-      <p className="text-muted-foreground">All tasks under one roof</p>
-      <Button size={"lg"} variant={"outline"}>
-        🎯 Signin with Google
-      </Button>
-    </main>
+    <div className="flex flex-1 flex-col gap-4 px-60 py-6">
+      <input
+        placeholder="Untitled"
+        className="text-3xl font-semibold focus-visible:outline-none"
+      />
+      <Separator />
+      <TextEditor />
+    </div>
   );
 }
