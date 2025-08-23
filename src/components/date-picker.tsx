@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import React from "react";
 
-export default function DatePicker({
+export function DatePicker({
   children,
   calendarProps,
   ...props

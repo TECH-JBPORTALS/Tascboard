@@ -11,7 +11,7 @@ import {
 } from "./ui/command";
 import { Avatar, AvatarImage } from "./ui/avatar";
 
-export default function MembersPopover({
+export function MembersPopover({
   children,
   memebers = [],
   ...props
