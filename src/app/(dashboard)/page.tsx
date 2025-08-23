@@ -17,55 +17,53 @@ const users = [
 
 export default async function Home() {
   return (
-    <React.Fragment>
-      <div className="flex flex-1 flex-col gap-4 px-60 py-6">
-        <input
-          placeholder="Untitled"
-          className="text-3xl font-semibold focus-visible:outline-none"
-        />
-        <div className="flex items-center gap-4 py-1">
-          <div className="flex items-center [&>svg]:size-4">
-            <DatePicker>
-              <Button
-                size={"xs"}
-                className="data-[state=open]:bg-accent"
-                variant={"ghost"}
-              >
-                <CalendarIcon />7 Jun
-              </Button>
-            </DatePicker>
-            <ArrowRightIcon />
-            <DatePicker>
-              <Button
-                size={"xs"}
-                className="data-[state=open]:bg-accent"
-                variant={"ghost"}
-              >
-                2 Sep, 2023
-              </Button>
-            </DatePicker>
-          </div>
-
-          <MembersPopover memebers={users}>
+    <div className="md:@container/main:px-60 flex flex-1 flex-col gap-4 px-8 py-6">
+      <input
+        placeholder="Untitled"
+        className="text-3xl font-semibold focus-visible:outline-none"
+      />
+      <div className="flex items-center gap-4 py-1">
+        <div className="flex items-center [&>svg]:size-4">
+          <DatePicker>
             <Button
-              variant={"ghost"}
-              className="data-[state=open]:bg-accent"
               size={"xs"}
+              className="data-[state=open]:bg-accent"
+              variant={"ghost"}
             >
-              <span className="inline-flex -space-x-2">
-                {users.map((item, i) => (
-                  <Avatar key={i} className="border-background size-6 border-2">
-                    <AvatarImage src={item.url} />
-                  </Avatar>
-                ))}
-              </span>
-              {users.length} Members
+              <CalendarIcon />7 Jun
             </Button>
-          </MembersPopover>
+          </DatePicker>
+          <ArrowRightIcon />
+          <DatePicker>
+            <Button
+              size={"xs"}
+              className="data-[state=open]:bg-accent"
+              variant={"ghost"}
+            >
+              2 Sep, 2023
+            </Button>
+          </DatePicker>
         </div>
-        <Separator />
-        <TextEditor />
+
+        <MembersPopover memebers={users}>
+          <Button
+            variant={"ghost"}
+            className="data-[state=open]:bg-accent"
+            size={"xs"}
+          >
+            <span className="inline-flex -space-x-2">
+              {users.map((item, i) => (
+                <Avatar key={i} className="border-background size-6 border-2">
+                  <AvatarImage src={item.url} />
+                </Avatar>
+              ))}
+            </span>
+            {users.length} Members
+          </Button>
+        </MembersPopover>
       </div>
-    </React.Fragment>
+      <Separator />
+      <TextEditor />
+    </div>
   );
 }
