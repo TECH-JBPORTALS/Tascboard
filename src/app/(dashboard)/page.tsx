@@ -1,4 +1,5 @@
 import DatePicker from "@/components/date-picker";
+import MembersPopover from "@/components/members-popover";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowRightIcon, CalendarIcon } from "lucide-react";
 
 const users = [
-  { url: "https://github.com/x-sss-x.png" },
-  { url: "https://github.com/JBPORTALS.png" },
-  { url: "https://github.com/akash.png" },
+  { name: "Manu", url: "https://github.com/x-sss-x.png" },
+  { name: "JB Portals", url: "https://github.com/JBPORTALS.png" },
+  { name: "Akash", url: "https://github.com/akash.png" },
+  { name: "Gayathri Emparala", url: "https://github.com/gayathriemparala.png" },
+  { name: "Theo", url: "https://github.com/theo.png" },
 ];
 
 export default async function Home() {
@@ -41,16 +44,22 @@ export default async function Home() {
           </DatePicker>
         </div>
 
-        <Button variant={"ghost"} size={"xs"}>
-          <span className="inline-flex -space-x-2">
-            {users.map((item, i) => (
-              <Avatar key={i} className="border-background size-6 border-2">
-                <AvatarImage src={item.url} />
-              </Avatar>
-            ))}
-          </span>
-          {users.length} Members
-        </Button>
+        <MembersPopover memebers={users}>
+          <Button
+            variant={"ghost"}
+            className="data-[state=open]:bg-accent"
+            size={"xs"}
+          >
+            <span className="inline-flex -space-x-2">
+              {users.map((item, i) => (
+                <Avatar key={i} className="border-background size-6 border-2">
+                  <AvatarImage src={item.url} />
+                </Avatar>
+              ))}
+            </span>
+            {users.length} Members
+          </Button>
+        </MembersPopover>
       </div>
       <Separator />
       <TextEditor />
