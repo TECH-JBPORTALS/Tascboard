@@ -1,3 +1,4 @@
+import DatePicker from "@/components/date-picker";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,25 @@ export default async function Home() {
       />
       <div className="flex items-center gap-4 py-1">
         <div className="flex items-center [&>svg]:size-4">
-          <Button size={"xs"} variant={"ghost"}>
-            <CalendarIcon />7 Jun
-          </Button>
+          <DatePicker>
+            <Button
+              size={"xs"}
+              className="data-[state=open]:bg-accent"
+              variant={"ghost"}
+            >
+              <CalendarIcon />7 Jun
+            </Button>
+          </DatePicker>
           <ArrowRightIcon />
-          <Button size={"xs"} variant={"ghost"}>
-            2 Sep, 2023
-          </Button>
+          <DatePicker>
+            <Button
+              size={"xs"}
+              className="data-[state=open]:bg-accent"
+              variant={"ghost"}
+            >
+              2 Sep, 2023
+            </Button>
+          </DatePicker>
         </div>
 
         <Button variant={"ghost"} size={"xs"}>
