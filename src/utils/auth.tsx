@@ -58,5 +58,5 @@ export const auth = betterAuth({
 /** Get session in server environment */
 export async function getSession() {
   const nextHeaders = await headers();
-  return auth.api.getSession({ headers: nextHeaders }).then((r) => r?.session);
+  return auth.api.getSession({ headers: nextHeaders });
 }

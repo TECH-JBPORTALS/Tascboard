@@ -20,19 +20,61 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
-export function NavBoards({
-  boards,
-}: {
-  boards: {
-    title: string;
-    url: string;
-    isActive?: boolean;
-    tracks?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+const boards = [
+  {
+    title: "Chit Money",
+    url: "#",
+    isActive: true,
+    tracks: [
+      {
+        title: "Planning",
+        url: "#",
+      },
+      {
+        title: "UI Design",
+        url: "#",
+      },
+      {
+        title: "Development",
+        url: "#",
+      },
+    ],
+  },
+  {
+    title: "Kitchen App",
+    url: "#",
+    tracks: [
+      {
+        title: "R & D",
+        url: "#",
+      },
+      {
+        title: "UI & UX",
+        url: "#",
+      },
+      {
+        title: "Quantum",
+        url: "#",
+      },
+    ],
+  },
+  {
+    title: "Admissino Matrix",
+    url: "#",
+    tracks: [
+      {
+        title: "Issues",
+        url: "#",
+      },
+      {
+        title: "New Features",
+        url: "#",
+      },
+    ],
+  },
+];
+
+export function NavBoards() {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Boards</SidebarGroupLabel>

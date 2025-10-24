@@ -8,7 +8,7 @@ export default async function Layout({
 }) {
   const session = await getSession();
 
-  if (session?.userId) redirect("/");
+  if (session) redirect("/");
 
   return (
     <section className="flex h-svh w-full items-center justify-center">

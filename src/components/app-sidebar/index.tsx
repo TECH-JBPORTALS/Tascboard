@@ -1,7 +1,5 @@
-"use client";
-
 import * as React from "react";
-import { ChartNoAxesGanttIcon, Home, Users } from "lucide-react";
+import { ChartNoAxesGanttIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,80 +13,6 @@ import {
 import { NavMain } from "./nav-main";
 import { NavBoards } from "./nav-boards";
 import { NavUser } from "./nav-user";
-
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  boards: [
-    {
-      title: "Chit Money",
-      url: "#",
-      isActive: true,
-      tracks: [
-        {
-          title: "Planning",
-          url: "#",
-        },
-        {
-          title: "UI Design",
-          url: "#",
-        },
-        {
-          title: "Development",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Kitchen App",
-      url: "#",
-      tracks: [
-        {
-          title: "R & D",
-          url: "#",
-        },
-        {
-          title: "UI & UX",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Admissino Matrix",
-      url: "#",
-      tracks: [
-        {
-          title: "Issues",
-          url: "#",
-        },
-        {
-          title: "New Features",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navMain: [
-    {
-      title: "Home",
-      url: "#",
-      icon: Home,
-    },
-    {
-      title: "Employees",
-      url: "#",
-      icon: Users,
-    },
-  ],
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -112,13 +36,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <NavMain items={data.navMain} />
+        <NavMain />
       </SidebarHeader>
       <SidebarContent>
-        <NavBoards boards={data.boards} />
+        <NavBoards />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

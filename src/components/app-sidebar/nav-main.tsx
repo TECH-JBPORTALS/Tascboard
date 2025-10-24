@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
+import { Home, Users } from "lucide-react";
 
 import {
   SidebarMenu,
@@ -8,15 +8,20 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-  }[];
-}) {
+const items = [
+  {
+    title: "Home",
+    url: "#",
+    icon: Home,
+  },
+  {
+    title: "Employees",
+    url: "#",
+    icon: Users,
+  },
+];
+
+export function NavMain() {
   return (
     <SidebarMenu>
       {items.map((item, index) => (
