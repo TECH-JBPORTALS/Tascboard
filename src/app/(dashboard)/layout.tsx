@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { BlipSidebar } from "@/components/blip-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/utils/auth";
 import { BoxIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import type React from "react";

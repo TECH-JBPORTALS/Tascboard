@@ -24,7 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
 import { ChevronRight, MailIcon } from "lucide-react";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/utils/auth-client";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useTicker } from "@/hooks/use-ticker";
