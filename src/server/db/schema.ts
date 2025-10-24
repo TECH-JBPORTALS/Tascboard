@@ -3,11 +3,15 @@
 
 import { sql } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
+import { createId } from "@paralleldrive/cuid2";
 
-export const posts = pgTable(
-  "post",
+export const boards = pgTable(
+  "boards",
   (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    id: d
+      .text()
+      .primaryKey()
+      .$defaultFn(() => createId()),
     name: d.varchar({ length: 256 }),
     createdAt: d
       .timestamp({ withTimezone: true })
