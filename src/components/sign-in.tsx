@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import z from "zod";
 import {
   Form,
@@ -28,6 +28,7 @@ import { authClient } from "@/utils/auth-client";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useTicker } from "@/hooks/use-ticker";
+import { useAuthStore } from "@/stores/auth-store";
 
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -51,16 +52,14 @@ function getSignInPath(path: string) {
 
 export function SignIn() {
   const pathname = useSignInPathname();
-  const [email, setEmail] = useState<string>("");
-
-  console.log(pathname);
+  const { email, setEmail, clearEmail } = useAuthStore();
 
   switch (pathname) {
     case "/":
       return <SendVerificationForm onEmailSent={setEmail} />;
 
     case "/email-otp":
-      return <EmailOTPForm email={email} />;
+      return <EmailOTPForm email={email} onBack={clearEmail} />;
 
     default:
       notFound();
@@ -81,23 +80,19 @@ function SendVerificationForm({
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof emailSchema>) {
-    try {
-      await authClient.emailOtp.sendVerificationOtp({
-        email: values.email,
-        type: "sign-in",
-      });
-
-      onEmailSent(values.email);
-      router.push(getSignInPath("/email-otp"));
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code. Please try again.";
-      form.setError("root", {
-        message: errorMessage,
-      });
-    }
+    await authClient.emailOtp.sendVerificationOtp({
+      email: values.email,
+      type: "sign-in",
+      fetchOptions: {
+        onSuccess() {
+          onEmailSent(values.email);
+          router.push(getSignInPath("/email-otp"));
+        },
+        onError(context) {
+          form.setError("root", { message: context.error.message });
+        },
+      },
+    });
   }
 
   return (
@@ -166,7 +161,13 @@ function SendVerificationForm({
   );
 }
 
-function EmailOTPForm({ email }: { email: string }) {
+function EmailOTPForm({
+  email,
+  onBack,
+}: {
+  email: string;
+  onBack: () => void;
+}) {
   const form = useForm({
     resolver: zodResolver(otpSchema),
     defaultValues: {
@@ -176,50 +177,47 @@ function EmailOTPForm({ email }: { email: string }) {
   const router = useRouter();
   const { time, restart, isCounting } = useTicker();
   const [isResending, setIsResending] = React.useState(false);
+  const { isVerifying, setIsVerifying, reset } = useAuthStore();
 
   async function onSubmit(values: z.infer<typeof otpSchema>) {
-    try {
-      await authClient.signIn.emailOtp({
-        email: email,
-        otp: values.otp,
-      });
-
-      // Redirect to dashboard on successful sign in
-      router.push("/");
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Invalid verification code. Please try again.";
-      form.setError("root", {
-        message: errorMessage,
-      });
-    }
+    setIsVerifying(true);
+    await authClient.signIn.emailOtp({
+      email: email,
+      otp: values.otp,
+      fetchOptions: {
+        onError(context) {
+          form.setError("root", {
+            message: context.error.message,
+          });
+        },
+        onSuccess() {
+          reset();
+          router.push("/");
+        },
+      },
+    });
+    setIsVerifying(false);
   }
 
   async function resendCode() {
     setIsResending(true);
-    try {
-      await authClient.emailOtp.sendVerificationOtp({
-        email: email,
-        type: "sign-in",
-      });
+    await authClient.emailOtp.sendVerificationOtp({
+      email,
+      type: "sign-in",
+      fetchOptions: {
+        onSuccess() {
+          form.setError("root", {
+            message: "Verification code sent! Check your email.",
+          });
+          /** Restart the  */
+          restart();
+        },
+        onError(context) {
+          form.setError("root", { message: context.error.message });
+        },
+      },
+    });
 
-      form.setError("root", {
-        message: "Verification code sent! Check your email.",
-      });
-
-      /** Restart the  */
-      restart();
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to resend code. Please try again.";
-      form.setError("root", {
-        message: errorMessage,
-      });
-    }
     setIsResending(false);
   }
 
@@ -293,9 +291,9 @@ function EmailOTPForm({ email }: { email: string }) {
             <Button
               className="group"
               size={"lg"}
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isVerifying}
             >
-              {form.formState.isSubmitting ? "Verifying..." : "Verify"}
+              {isVerifying ? "Verifying..." : "Verify"}
               <ChevronRight className="transition-all duration-200 group-hover:translate-x-0.5" />
             </Button>
           </form>
@@ -305,7 +303,10 @@ function EmailOTPForm({ email }: { email: string }) {
         <Button
           variant="ghost"
           size={"lg"}
-          onClick={() => router.push(getSignInPath("/"))}
+          onClick={() => {
+            onBack();
+            router.replace(getSignInPath("/"));
+          }}
           className="text-muted-foreground w-full"
         >
           Cancel

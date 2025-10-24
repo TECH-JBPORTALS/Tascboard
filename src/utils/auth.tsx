@@ -34,7 +34,13 @@ export const auth = betterAuth({
               from: "Tascboard <send@resend.jbportals.com>",
               to: [email],
               subject,
-              react: <OtpVerification previewText={subject} otp={otp} />,
+              react: (
+                <OtpVerification
+                  previewText={subject}
+                  otp={otp}
+                  email={email}
+                />
+              ),
             });
 
             if (error)
