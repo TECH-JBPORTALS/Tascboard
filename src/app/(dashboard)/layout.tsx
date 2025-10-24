@@ -1,10 +1,20 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { BlipSidebar } from "@/components/blip-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { getSession } from "@/lib/auth";
 import { BoxIcon } from "lucide-react";
+import { redirect } from "next/navigation";
 import type React from "react";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
+
+  if (!session?.userId) redirect("/sign-in");
+
   return (
     <SidebarProvider>
       <AppSidebar />
