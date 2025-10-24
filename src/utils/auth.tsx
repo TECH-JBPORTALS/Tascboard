@@ -5,6 +5,10 @@ import { betterAuth } from "better-auth";
 import { db } from "@/server/db";
 import { headers } from "next/headers";
 import { env } from "@/env";
+import { Resend } from "resend";
+import OtpVerification from "@/emails/otp-verification";
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 const baseURL =
   env.VERCEL_ENV === "production"
@@ -22,8 +26,23 @@ export const auth = betterAuth({
   plugins: [
     admin(),
     emailOTP({
-      async sendVerificationOTP({ email, otp, type }, request) {
-        // Send email with OTP
+      async sendVerificationOTP({ email, otp, type }) {
+        switch (type) {
+          case "sign-in":
+            const subject = `Your verification code is ${otp}`;
+            const { error } = await resend.emails.send({
+              from: "Tascboard <send@resend.jbportals.com>",
+              to: [email],
+              subject,
+              react: <OtpVerification previewText={subject} otp={otp} />,
+            });
+
+            if (error)
+              throw new Error(
+                `Can't able to send code to this email right now`,
+              );
+            break;
+        }
       },
     }),
     nextCookies(),
