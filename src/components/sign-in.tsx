@@ -20,9 +20,9 @@ import {
 } from "./ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MailIcon } from "lucide-react";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 
 const signInSchema = z.object({
   email: z.string().trim().min(1, "Required!"),
@@ -67,12 +67,16 @@ export function SignIn() {
                 <FormItem>
                   <FormLabel>Email address</FormLabel>
                   <FormControl>
-                    <Input
-                      className="h-10"
-                      placeholder="your@email.com"
-                      type="email"
-                      {...field}
-                    />
+                    <InputGroup className="h-10">
+                      <InputGroupAddon>
+                        <MailIcon className="text-muted-foreground" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        placeholder="your@email.com"
+                        type="email"
+                        {...field}
+                      />
+                    </InputGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
