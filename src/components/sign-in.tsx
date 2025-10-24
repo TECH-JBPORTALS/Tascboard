@@ -22,11 +22,12 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
-import { ChevronRight, MailIcon, ArrowLeft } from "lucide-react";
+import { ChevronRight, MailIcon } from "lucide-react";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 import { authClient } from "@/lib/auth-client";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
+import { useTicker } from "@/hooks/use-ticker";
 
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -173,6 +174,8 @@ function EmailOTPForm({ email }: { email: string }) {
     },
   });
   const router = useRouter();
+  const { time, restart, isCounting } = useTicker();
+  const [isResending, setIsResending] = React.useState(false);
 
   async function onSubmit(values: z.infer<typeof otpSchema>) {
     try {
@@ -195,6 +198,7 @@ function EmailOTPForm({ email }: { email: string }) {
   }
 
   async function resendCode() {
+    setIsResending(true);
     try {
       await authClient.emailOtp.sendVerificationOtp({
         email: email,
@@ -204,6 +208,9 @@ function EmailOTPForm({ email }: { email: string }) {
       form.setError("root", {
         message: "Verification code sent! Check your email.",
       });
+
+      /** Restart the  */
+      restart();
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -213,6 +220,7 @@ function EmailOTPForm({ email }: { email: string }) {
         message: errorMessage,
       });
     }
+    setIsResending(false);
   }
 
   return (
@@ -234,7 +242,13 @@ function EmailOTPForm({ email }: { email: string }) {
         <Form {...form}>
           <form className="grid gap-3.5" onSubmit={form.handleSubmit(onSubmit)}>
             {form.formState.errors.root && (
-              <span className={`"text-destructive" text-center text-sm`}>
+              <span
+                className={`text-center text-sm ${
+                  form.formState.errors.root.message?.includes("sent")
+                    ? "text-green-600"
+                    : "text-destructive"
+                }`}
+              >
                 {form.formState.errors.root.message}
               </span>
             )}
@@ -262,8 +276,18 @@ function EmailOTPForm({ email }: { email: string }) {
 
             <span className="text-center text-sm">
               {"Didn't recieve a code?"}{" "}
-              <Button variant={"link"} className="text-primary px-0.5 text-sm">
-                Resend
+              <Button
+                onClick={() => resendCode()}
+                variant={"link"}
+                disabled={isCounting || isResending}
+                className="text-primary px-0.5 text-sm"
+                type="button"
+              >
+                {isCounting ? (
+                  `Resend (in ${time}s)`
+                ) : (
+                  <>{isResending ? "Resending..." : "Resend"}</>
+                )}
               </Button>
             </span>
             <Button
@@ -272,6 +296,7 @@ function EmailOTPForm({ email }: { email: string }) {
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? "Verifying..." : "Verify"}
+              <ChevronRight className="transition-all duration-200 group-hover:translate-x-0.5" />
             </Button>
           </form>
         </Form>
