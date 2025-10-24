@@ -4,8 +4,17 @@ import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { db } from "@/server/db";
 import { headers } from "next/headers";
+import { env } from "@/env";
+
+const baseURL =
+  env.VERCEL_ENV === "production"
+    ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : env.VERCEL_ENV === "preview"
+      ? `https://${env.VERCEL_URL}`
+      : "http://localhost:3000";
 
 export const auth = betterAuth({
+  baseURL,
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
