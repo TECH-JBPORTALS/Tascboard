@@ -26,6 +26,7 @@ export const auth = betterAuth({
   plugins: [
     admin(),
     emailOTP({
+      disableSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
         switch (type) {
           case "sign-in":
