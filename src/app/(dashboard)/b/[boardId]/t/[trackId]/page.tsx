@@ -1,3 +1,4 @@
+import { Container } from "@/components/container";
 import { DatePicker } from "@/components/date-picker";
 import { MembersPopover } from "@/components/members-popover";
 import { TextEditor } from "@/components/text-editor";
@@ -5,7 +6,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRightIcon, CalendarIcon } from "lucide-react";
-import React from "react";
 
 const users = [
   { name: "Manu", url: "https://github.com/x-sss-x.png" },
@@ -17,7 +17,7 @@ const users = [
 
 export default async function Track() {
   return (
-    <div className="md:@container/main:px-60 flex flex-1 flex-col gap-4 px-8 py-6">
+    <Container>
       <input
         placeholder="Untitled"
         className="text-3xl font-semibold focus-visible:outline-none"
@@ -64,6 +64,6 @@ export default async function Track() {
       </div>
       <Separator />
       <TextEditor />
-    </div>
+    </Container>
   );
 }
