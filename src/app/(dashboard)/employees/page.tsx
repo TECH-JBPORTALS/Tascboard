@@ -1,14 +1,14 @@
 import { Container } from "@/components/container";
 import { DataTable } from "@/components/data-table";
 import { SiteHeader } from "@/components/site-header";
-import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { SearchIcon, SendIcon, Users } from "lucide-react";
+import { SearchIcon, Users } from "lucide-react";
 import { columns, type Employee } from "./columns";
+import { InviteEmployeesButton } from "@/components/invite-employees.button";
 
 const employees: Employee[] = [
   {
@@ -37,9 +37,7 @@ export default function Employees() {
             <InputGroupInput placeholder="Search employees..." />
           </InputGroup>
 
-          <Button>
-            <SendIcon /> Invite
-          </Button>
+          <InviteEmployeesButton />
         </div>
 
         <DataTable columns={columns} data={employees} />
