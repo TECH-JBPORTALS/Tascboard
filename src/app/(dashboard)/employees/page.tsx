@@ -1,4 +1,5 @@
 import { Container } from "@/components/container";
+import { DataTable } from "@/components/data-table";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +8,15 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { SearchIcon, SendIcon, Users } from "lucide-react";
+import { columns, type Employee } from "./columns";
+
+const employees: Employee[] = [
+  {
+    id: "1",
+    name: "Manu",
+    email: "manu48617@gmail.com",
+  },
+];
 
 export default function Employees() {
   return (
@@ -31,6 +41,8 @@ export default function Employees() {
             <SendIcon /> Invite
           </Button>
         </div>
+
+        <DataTable columns={columns} data={employees} />
       </Container>
     </>
   );
