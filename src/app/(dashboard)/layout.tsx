@@ -1,5 +1,4 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { BlipSidebar } from "@/components/blip-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/utils/auth";
 import { BoxIcon } from "lucide-react";
@@ -26,7 +25,6 @@ export default async function Layout({
         </header>
         {children}
       </SidebarInset>
-      <BlipSidebar />
     </SidebarProvider>
   );
 }
