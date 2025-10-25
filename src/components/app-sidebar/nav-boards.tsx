@@ -1,6 +1,12 @@
 "use client";
 
-import { BoxIcon, ChevronRight, PlusIcon, SquircleIcon } from "lucide-react";
+import {
+  BoxIcon,
+  MoreHorizontalIcon,
+  PlusIcon,
+  SquircleIcon,
+  TriangleIcon,
+} from "lucide-react";
 
 import {
   Collapsible,
@@ -13,68 +19,73 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 const boards = [
   {
+    id: 1,
     title: "Chit Money",
-    url: "#",
     isActive: true,
     tracks: [
       {
         title: "Planning",
-        url: "#",
+        id: 1,
       },
       {
         title: "UI Design",
-        url: "#",
+        id: 2,
       },
       {
         title: "Development",
-        url: "#",
+        id: 3,
       },
     ],
   },
   {
     title: "Kitchen App",
-    url: "#",
+    id: 2,
     tracks: [
       {
         title: "R & D",
-        url: "#",
+        id: 1,
       },
       {
         title: "UI & UX",
-        url: "#",
+        id: 2,
       },
       {
         title: "Quantum",
-        url: "#",
+        id: 3,
       },
     ],
   },
   {
     title: "Admissino Matrix",
-    url: "#",
+    id: 3,
     tracks: [
       {
         title: "Issues",
-        url: "#",
+        id: 1,
       },
       {
         title: "New Features",
-        url: "#",
+        id: 2,
       },
     ],
   },
 ];
 
 export function NavBoards() {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Boards</SidebarGroupLabel>
@@ -92,22 +103,47 @@ export function NavBoards() {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuAction className="right-0 left-1 rotate-90 data-[state=open]:rotate-180 [&>svg]:size-1.5">
+                    <TriangleIcon className="fill-sidebar-foreground" />
+                    <span className="sr-only">Toggle</span>
+                  </SidebarMenuAction>
+                </CollapsibleTrigger>
+
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  className="pl-6"
+                  isActive={pathname === `/b/${item.id}`}
+                >
+                  <Link href={`/b/${item.id}`}>
                     <BoxIcon />
                     <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
+                  </Link>
+                </SidebarMenuButton>
+
+                <SidebarMenuAction className="opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100">
+                  <MoreHorizontalIcon />
+                </SidebarMenuAction>
+
                 <CollapsibleContent>
-                  <SidebarMenuSub>
+                  <SidebarMenuSub className="pr-0">
                     {item.tracks?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
+                        <SidebarMenuSubButton
+                          className="peer/menu-sub-button"
+                          asChild
+                          isActive={pathname.startsWith(
+                            `/b/${item.id}/t/${subItem.id}`,
+                          )}
+                        >
+                          <Link href={`/b/${item.id}/t/${subItem.id}`}>
                             <SquircleIcon />
                             <span>{subItem.title}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuSubButton>
+                        <SidebarMenuAction className="opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 [&>svg]:size-3">
+                          <MoreHorizontalIcon />
+                        </SidebarMenuAction>
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>
