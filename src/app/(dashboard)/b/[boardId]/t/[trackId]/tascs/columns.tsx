@@ -4,6 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export interface Tasc {
   id: string;
@@ -21,10 +23,13 @@ export const columns: ColumnDef<Tasc>[] = [
       const row = props.row.original;
 
       return (
-        <div className="flex w-full flex-1 items-center gap-2">
+        <Link
+          href={`/b/1/t/1/tascs/${row.id}`}
+          className="flex w-full flex-1 items-center gap-2"
+        >
           <span className="text-muted-foreground text-xs">{row.faceId}</span>
           <p className="font-medium">{row.title}</p>
-        </div>
+        </Link>
       );
     },
   },
