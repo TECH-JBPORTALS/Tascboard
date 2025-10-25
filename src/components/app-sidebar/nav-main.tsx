@@ -7,28 +7,40 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
+    exact: true,
   },
   {
     title: "Employees",
-    url: "#",
+    url: "/employees",
     icon: Users,
   },
 ];
 
 export function NavMain() {
+  const pathname = usePathname();
+
   return (
     <SidebarMenu>
       {items.map((item, index) => (
         <SidebarMenuItem key={index}>
-          <SidebarMenuButton>
-            {item.icon && <item.icon />}
-            {item.title}
+          <SidebarMenuButton
+            isActive={
+              item.exact ? pathname === item.url : pathname.startsWith(item.url)
+            }
+            asChild
+          >
+            <Link href={item.url}>
+              {item.icon && <item.icon />}
+              {item.title}
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}

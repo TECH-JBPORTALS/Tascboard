@@ -1,5 +1,4 @@
 import * as React from "react";
-import { ChartNoAxesGanttIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -13,6 +12,8 @@ import {
 import { NavMain } from "./nav-main";
 import { NavBoards } from "./nav-boards";
 import { NavUser } from "./nav-user";
+import Image from "next/image";
+import Link from "next/link";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -25,14 +26,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="hover:cursor-auto hover:bg-transparent active:bg-transparent"
               asChild
             >
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <ChartNoAxesGanttIcon className="size-4" />
+              <Link href={"/"}>
+                <Image
+                  width={32}
+                  height={32}
+                  alt="Tascboard Logo"
+                  src={"/tascboard.svg"}
+                />
+                <div className="grid flex-1 text-left text-lg leading-tight">
+                  <span className="truncate font-sans font-semibold">
+                    Tascboard
+                  </span>
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Tascboard</span>
-                </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
