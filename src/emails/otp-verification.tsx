@@ -60,9 +60,8 @@ const OtpVerificationEmail = ({
 
             <Text className="text-start text-sm leading-relaxed">
               If you {"didn't"} attempt to sign in but recieved this email,
-              please disregard it. The code will remail active for short amount
-              of period, for security reasons please do not share this code with
-              anyone.
+              please disregard it. The code will remail active for 5 minutes,
+              for security reasons please do not share this code with anyone.
             </Text>
 
             <Text className="text-start text-sm">
