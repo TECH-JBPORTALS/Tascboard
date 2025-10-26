@@ -8,6 +8,7 @@ import {
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { columns, type Tasc } from "./columns";
 import { Button } from "@/components/ui/button";
+import { NewTascButton } from "@/components/new-tasc.dialog";
 
 const tascs: Tasc[] = [
   {
@@ -44,9 +45,7 @@ export default function Employees() {
           <InputGroupInput placeholder="Search..." />
         </InputGroup>
 
-        <Button>
-          <PlusIcon /> New
-        </Button>
+        <NewTascButton />
       </div>
 
       <DataTable columns={columns} data={tascs} />

@@ -17,7 +17,7 @@ const users = [
 
 export default async function Track() {
   return (
-    <Container>
+    <Container className="px-52">
       <input
         placeholder="Untitled"
         className="text-3xl font-semibold focus-visible:outline-none"
