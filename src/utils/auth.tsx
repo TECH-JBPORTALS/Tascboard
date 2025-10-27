@@ -1,5 +1,5 @@
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP, admin } from "better-auth/plugins";
+import { emailOTP, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { db } from "@/server/db";
@@ -24,7 +24,11 @@ export const auth = betterAuth({
   }),
   appName: "tascboard",
   plugins: [
-    admin(),
+    organization({
+      allowUserToCreateOrganization: false,
+      disableOrganizationDeletion: true,
+      cancelPendingInvitationsOnReInvite: true,
+    }),
     emailOTP({
       disableSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {

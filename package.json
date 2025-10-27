@@ -10,7 +10,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "auth:generate": "pnpx @better-auth/cli generate --config ./src/lib/auth.ts --output ./src/server/db/auth-schema.ts",
+    "auth:generate": "pnpx @better-auth/cli generate --config ./src/utils/auth.tsx --output ./src/server/db/auth-schema.ts",
     "dev": "next dev --turbo",
     "email:dev": "email dev --port=3001 --dir=./src/emails",
     "email:build": "email build --dir=./src/emails --packageManager=pnpm",
