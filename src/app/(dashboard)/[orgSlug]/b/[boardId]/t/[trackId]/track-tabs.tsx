@@ -1,12 +1,13 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpenText, List } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
 const items = [
-  { label: "Overview", url: "" },
-  { label: "Tascs", url: "/tascs" },
+  { label: "Overview", url: "", icon: BookOpenText },
+  { label: "Tascs", url: "/tascs", icon: List },
 ];
 
 export function TrackTabs() {
@@ -23,7 +24,10 @@ export function TrackTabs() {
       <TabsList>
         {items.map((item, i) => (
           <TabsTrigger asChild key={i} value={`${basePath}${item.url}`}>
-            <Link href={`${basePath}${item.url}`}>{item.label}</Link>
+            <Link href={`${basePath}${item.url}`}>
+              <item.icon />
+              <span>{item.label}</span>
+            </Link>
           </TabsTrigger>
         ))}
       </TabsList>
