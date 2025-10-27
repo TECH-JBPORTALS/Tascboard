@@ -65,3 +65,23 @@ export async function getSession() {
   const nextHeaders = await headers();
   return auth.api.getSession({ headers: nextHeaders });
 }
+
+export async function getFullOrganization() {
+  const nextHeaders = await headers();
+  return auth.api.getFullOrganization({ headers: nextHeaders });
+}
+
+export async function setActiveOrganization() {
+  const nextHeaders = await headers();
+  const organizations = await auth.api.listOrganizations({
+    headers: nextHeaders,
+    query: {
+      filterField: "",
+    },
+  });
+
+  return auth.api.setActiveOrganization({
+    headers: nextHeaders,
+    body: { organizationId: organizations[0]?.id },
+  });
+}

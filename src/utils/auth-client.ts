@@ -3,13 +3,13 @@ import type { auth } from "./auth.js";
 import {
   inferAdditionalFields,
   emailOTPClient,
-  adminClient,
+  organizationClient,
 } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<typeof auth>(),
     emailOTPClient(),
-    adminClient(),
+    organizationClient(),
   ],
 });
