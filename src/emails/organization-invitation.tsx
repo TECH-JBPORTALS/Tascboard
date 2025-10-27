@@ -7,7 +7,6 @@ import {
   Heading,
   Html,
   Img,
-  Link,
   Preview,
   Row,
   Section,
@@ -92,7 +91,10 @@ const OrganizationInvitationEmail = ({
               </Row>
             </Section>
 
-            <Button className="my-8 w-full rounded-md bg-blue-600 py-3 text-center text-white">
+            <Button
+              href={inviteUrl}
+              className="my-8 w-full rounded-md bg-blue-600 py-3 text-center text-white"
+            >
               Accept Invitation
             </Button>
 
