@@ -7,13 +7,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 
 const items = [
   {
     title: "Home",
-    url: "/",
+    url: "",
     icon: Home,
     exact: true,
   },
@@ -26,6 +26,7 @@ const items = [
 
 export function NavMain() {
   const pathname = usePathname();
+  const params = useParams<{ orgSlug: string }>();
 
   return (
     <SidebarMenu>
@@ -33,11 +34,13 @@ export function NavMain() {
         <SidebarMenuItem key={index}>
           <SidebarMenuButton
             isActive={
-              item.exact ? pathname === item.url : pathname.startsWith(item.url)
+              item.exact
+                ? pathname === `/${params.orgSlug}${item.url}`
+                : pathname.startsWith(`/${params.orgSlug}${item.url}`)
             }
             asChild
           >
-            <Link href={item.url}>
+            <Link href={`/${params.orgSlug}${item.url}`}>
               {item.icon && <item.icon />}
               {item.title}
             </Link>

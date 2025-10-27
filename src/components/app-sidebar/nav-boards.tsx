@@ -27,7 +27,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
 const boards = [
   {
@@ -85,6 +85,7 @@ const boards = [
 
 export function NavBoards() {
   const pathname = usePathname();
+  const params = useParams<{ orgSlug: string }>();
 
   return (
     <SidebarGroup>
@@ -113,9 +114,9 @@ export function NavBoards() {
                   asChild
                   tooltip={item.title}
                   className="pl-6"
-                  isActive={pathname === `/b/${item.id}`}
+                  isActive={pathname === `/${params.orgSlug}/b/${item.id}`}
                 >
-                  <Link href={`/b/${item.id}`}>
+                  <Link href={`/${params.orgSlug}/b/${item.id}`}>
                     <BoxIcon />
                     <span>{item.title}</span>
                   </Link>
@@ -133,10 +134,12 @@ export function NavBoards() {
                           className="peer/menu-sub-button"
                           asChild
                           isActive={pathname.startsWith(
-                            `/b/${item.id}/t/${subItem.id}`,
+                            `/${params.orgSlug}/b/${item.id}/t/${subItem.id}`,
                           )}
                         >
-                          <Link href={`/b/${item.id}/t/${subItem.id}`}>
+                          <Link
+                            href={`/${params.orgSlug}/b/${item.id}/t/${subItem.id}`}
+                          >
                             <SquircleIcon />
                             <span>{subItem.title}</span>
                           </Link>

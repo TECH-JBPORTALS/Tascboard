@@ -10,11 +10,12 @@ const items = [
 ];
 
 export function TrackTabs() {
-  const { boardId, trackId } = useParams<{
+  const { boardId, trackId, orgId } = useParams<{
     boardId: string;
     trackId: string;
+    orgId: string;
   }>();
-  const basePath = `/b/${boardId}/t/${trackId}`;
+  const basePath = `/${orgId}/b/${boardId}/t/${trackId}`;
   const pathname = usePathname();
 
   return (
