@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { env } from "@/env";
 import { Resend } from "resend";
 import OtpVerification from "@/emails/otp-verification";
+import OrganizationInvitation from "@/emails/organization-invitation";
 import { employee, owner, ac } from "./permissions";
 
 const resend = new Resend(env.RESEND_API_KEY);
@@ -64,12 +65,38 @@ export const auth = betterAuth({
       disableOrganizationDeletion: true,
       cancelPendingInvitationsOnReInvite: true,
       async sendInvitationEmail(data) {
-        await resend.emails.send({
+        // Extract data from the invitation object
+        const inviter = data.inviter;
+        const organization = data.organization;
+        const invitation = data.invitation;
+
+        if (!inviter || !organization || !invitation) {
+          throw new Error("Failed to fetch invitation details");
+        }
+
+        const inviteUrl = `${baseURL}/accept-invite?token=${invitation.id}`;
+        const subject = `You've been invited to join ${organization.name}`;
+        const roleDisplayName = data.role === "owner" ? "Owner" : "Employee";
+
+        const { error } = await resend.emails.send({
           from: "Tascboard <send@resend.jbportals.com>",
           to: [data.email],
-          subject: "",
-          html: "<div>Hello</div>",
+          subject,
+          react: (
+            <OrganizationInvitation
+              previewText={subject}
+              inviterName={inviter.user.name}
+              inviterEmail={inviter.user.email}
+              organizationName={organization.name}
+              role={roleDisplayName}
+              inviteUrl={inviteUrl}
+            />
+          ),
         });
+
+        if (error) {
+          throw new Error("Failed to send invitation email");
+        }
       },
     }),
   ],
