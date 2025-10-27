@@ -7,18 +7,16 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { SearchIcon, Users } from "lucide-react";
-import { columns, type Employee } from "./columns";
+import { columns } from "./columns";
 import { InviteEmployeesButton } from "@/components/invite-employees.button";
+import { auth } from "@/utils/auth";
 
-const employees: Employee[] = [
-  {
-    id: "1",
-    name: "Manu",
-    email: "manu48617@gmail.com",
-  },
-];
+export default async function Employees() {
+  const employees = await auth.api
+    .listMembers()
+    .then((r) => r.members)
+    .catch((e) => console.log(`Error in fetching employees: `, e));
 
-export default function Employees() {
   return (
     <>
       <SiteHeader
@@ -40,7 +38,7 @@ export default function Employees() {
           <InviteEmployeesButton />
         </div>
 
-        <DataTable columns={columns} data={employees} />
+        <DataTable columns={columns} data={employees ?? []} />
       </Container>
     </>
   );

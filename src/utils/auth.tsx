@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { env } from "@/env";
 import { Resend } from "resend";
 import OtpVerification from "@/emails/otp-verification";
+import { employee, owner, ac } from "./permissions";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -24,11 +25,7 @@ export const auth = betterAuth({
   }),
   appName: "tascboard",
   plugins: [
-    organization({
-      allowUserToCreateOrganization: false,
-      disableOrganizationDeletion: true,
-      cancelPendingInvitationsOnReInvite: true,
-    }),
+    nextCookies(),
     emailOTP({
       disableSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
@@ -56,7 +53,25 @@ export const auth = betterAuth({
         }
       },
     }),
-    nextCookies(),
+    organization({
+      ac,
+      roles: {
+        owner,
+        employee,
+      },
+      creatorRole: "owner",
+      allowUserToCreateOrganization: false,
+      disableOrganizationDeletion: true,
+      cancelPendingInvitationsOnReInvite: true,
+      async sendInvitationEmail(data) {
+        await resend.emails.send({
+          from: "Tascboard <send@resend.jbportals.com>",
+          to: [data.email],
+          subject: "",
+          html: "<div>Hello</div>",
+        });
+      },
+    }),
   ],
 });
 
@@ -78,7 +93,6 @@ export async function setActiveOrganization() {
   });
 
   return auth.api.setActiveOrganization({
-    headers: nextHeaders,
     body: { organizationId: organizations[0]?.id },
   });
 }
