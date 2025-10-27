@@ -75,9 +75,6 @@ export async function setActiveOrganization() {
   const nextHeaders = await headers();
   const organizations = await auth.api.listOrganizations({
     headers: nextHeaders,
-    query: {
-      filterField: "",
-    },
   });
 
   return auth.api.setActiveOrganization({
