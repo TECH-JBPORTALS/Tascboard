@@ -104,22 +104,23 @@ export const auth = betterAuth({
 
 /** Get session in server environment */
 export async function getSession() {
-  const nextHeaders = await headers();
-  return auth.api.getSession({ headers: nextHeaders });
+  return auth.api.getSession({ headers: await headers() });
 }
 
 export async function getFullOrganization() {
-  const nextHeaders = await headers();
-  return auth.api.getFullOrganization({ headers: nextHeaders });
+  return auth.api.getFullOrganization({ headers: await headers() });
 }
 
 export async function setActiveOrganization() {
-  const nextHeaders = await headers();
   const organizations = await auth.api.listOrganizations({
-    headers: nextHeaders,
+    headers: await headers(),
   });
 
   return auth.api.setActiveOrganization({
-    body: { organizationId: organizations[0]?.id },
+    headers: await headers(),
+    body: {
+      organizationId: organizations[0]?.id,
+      organizationSlug: organizations[0]?.slug,
+    },
   });
 }

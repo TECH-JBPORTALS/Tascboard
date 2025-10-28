@@ -25,7 +25,12 @@ import { Button } from "./ui/button";
 import { ChevronRight, MailIcon } from "lucide-react";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 import { authClient } from "@/utils/auth-client";
-import { notFound, useParams, useRouter } from "next/navigation";
+import {
+  notFound,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useTicker } from "@/hooks/use-ticker";
 import { useAuthStore } from "@/stores/auth-store";
@@ -175,9 +180,12 @@ function EmailOTPForm({
     },
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { time, restart, isCounting } = useTicker();
   const [isResending, setIsResending] = React.useState(false);
   const { isVerifying, setIsVerifying, reset } = useAuthStore();
+
+  const inviteToken = searchParams.get("invite");
 
   async function onSubmit(values: z.infer<typeof otpSchema>) {
     setIsVerifying(true);
@@ -192,7 +200,12 @@ function EmailOTPForm({
         },
         onSuccess() {
           reset();
-          router.push("/");
+          // Redirect to accept invite page if invite token exists
+          if (inviteToken) {
+            router.push(`/accept-invite?token=${inviteToken}`);
+          } else {
+            router.push("/");
+          }
         },
       },
     });

@@ -18,6 +18,8 @@ import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { SendIcon } from "lucide-react";
+import { authClient } from "@/utils/auth-client";
+import { toast } from "sonner";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,7 +55,19 @@ export function InviteEmployeesButton() {
   });
 
   async function onSubmit(values: z.infer<typeof InviteEmployeesSchema>) {
-    // Do something...
+    await Promise.all(
+      values.emails.split(",").map(async (email) => {
+        await authClient.organization.inviteMember({
+          email: email.trim(),
+          role: "employee",
+          fetchOptions: {
+            onError(context) {
+              toast.error(`${email.trim()}: ${context.error.message}`);
+            },
+          },
+        });
+      }),
+    );
   }
 
   return (
@@ -95,7 +109,7 @@ export function InviteEmployeesButton() {
                 <Button variant={"outline"}>Cancel</Button>
               </DialogClose>
               <Button disabled={form.formState.isSubmitting}>
-                Send invites...
+                {form.formState.isSubmitting ? "Sending..." : "Send invites..."}
               </Button>
             </DialogFooter>
           </form>
