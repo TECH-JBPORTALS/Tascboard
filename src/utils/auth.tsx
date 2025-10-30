@@ -9,6 +9,8 @@ import { Resend } from "resend";
 import OtpVerification from "@/emails/otp-verification";
 import OrganizationInvitation from "@/emails/organization-invitation";
 import { employee, owner, ac } from "./permissions";
+import { invitation } from "@/server/db/auth-schema";
+import { eq } from "drizzle-orm";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -61,6 +63,7 @@ export const auth = betterAuth({
         employee,
       },
       creatorRole: "owner",
+      organizationLimit: 1,
       allowUserToCreateOrganization: false,
       disableOrganizationDeletion: true,
       cancelPendingInvitationsOnReInvite: true,
@@ -97,6 +100,13 @@ export const auth = betterAuth({
         if (error) {
           throw new Error("Failed to send invitation email");
         }
+      },
+      organizationHooks: {
+        async afterCancelInvitation(data) {
+          await db
+            .delete(invitation)
+            .where(eq(invitation.id, data.invitation.id));
+        },
       },
     }),
   ],

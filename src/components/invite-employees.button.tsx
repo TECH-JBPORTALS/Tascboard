@@ -150,6 +150,25 @@ function InvitationListItem({
 }: {
   inv: RouterOutputs["betterAuth"]["getInvitaions"][number];
 }) {
+  const utils = api.useUtils();
+  const [isLoading, setLoading] = useState(false);
+
+  async function onCancelInv() {
+    setLoading(true);
+    await authClient.organization.cancelInvitation({
+      invitationId: inv.id,
+      fetchOptions: {
+        async onSuccess() {
+          await utils.betterAuth.getInvitaions.invalidate();
+        },
+        onError(context) {
+          toast.error(context.error.message);
+        },
+      },
+    });
+    setLoading(false);
+  }
+
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-1.5">
@@ -166,8 +185,13 @@ function InvitationListItem({
         </div>
       </div>
 
-      <Button variant={"outline"} size={"xs"}>
-        Cancel
+      <Button
+        onClick={onCancelInv}
+        disabled={isLoading}
+        variant={"outline"}
+        size={"xs"}
+      >
+        {isLoading ? "Canceling..." : "Cancel"}
       </Button>
     </div>
   );
