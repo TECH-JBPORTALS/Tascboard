@@ -1,5 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { userRouter } from "./rooters/user";
+import { betterAuthRouter } from "./rooters/better-auth";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { userRouter } from "./rooters/user";
  */
 export const appRouter = createTRPCRouter({
   user: userRouter,
+  betterAuth: betterAuthRouter,
 });
 
 // export type definition of API
