@@ -13,7 +13,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
@@ -70,25 +77,42 @@ export function InviteEmployeesButton() {
   const utils = api.useUtils();
 
   async function onSubmit(values: z.infer<typeof InviteEmployeesSchema>) {
-    const emailList = values.emails.split(",");
-    await Promise.all(
-      emailList.map(async (email) => {
-        await authClient.organization.inviteMember({
-          email: email.trim(),
-          role: "employee",
-          fetchOptions: {
-            onError(context) {
-              toast.error(`${email.trim()}: ${context.error.message}`);
-            },
-          },
-        });
-      }),
-    );
+    try {
+      const emailList = values.emails.split(",");
+      let errorCount = 0;
 
-    await utils.betterAuth.getInvitaions.invalidate();
-    toast.success(
-      `${emailList.length == 0 ? "Invitaion" : "Invitations"} sent successfuly`,
-    );
+      await Promise.all(
+        emailList.map(async (email) => {
+          await authClient.organization.inviteMember({
+            email: email.trim(),
+            role: "employee",
+            resend: true,
+            fetchOptions: {
+              onError(context) {
+                toast.error(`${email.trim()}: ${context.error.message}`);
+                errorCount++;
+              },
+              onSuccess() {
+                toast.success(
+                  <div>
+                    Invitation sent to <b>{email.trim()}</b>
+                  </div>,
+                );
+              },
+            },
+          });
+        }),
+      );
+
+      await utils.betterAuth.getInvitaions.invalidate();
+
+      if (errorCount == 0) {
+        setOpen(false);
+        form.reset();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -126,6 +150,10 @@ export function InviteEmployeesButton() {
                       />
                     </FormControl>
                     <FormMessage />
+                    <FormDescription>
+                      To resend the invitation mention email and send again
+                      invitation.
+                    </FormDescription>
                   </FormItem>
                 )}
               />
@@ -215,9 +243,10 @@ function InvitaionListSkeleton() {
 
 function InvitationsListButton() {
   const [open, setOpen] = useState(false);
-  const { data, isLoading } = api.betterAuth.getInvitaions.useQuery(undefined, {
-    enabled: open,
-  });
+  const { data, isLoading, isRefetching } =
+    api.betterAuth.getInvitaions.useQuery(undefined, {
+      enabled: open,
+    });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -232,7 +261,7 @@ function InvitationsListButton() {
         </div>
         <ScrollArea>
           <div className="max-h-[350px] min-h-[350px] space-y-2.5 p-2.5">
-            {isLoading ? (
+            {isLoading || isRefetching ? (
               <InvitaionListSkeleton />
             ) : data?.length === 0 ? (
               <Empty>

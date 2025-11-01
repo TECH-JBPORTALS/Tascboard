@@ -202,7 +202,7 @@ function EmailOTPForm({
           reset();
           // Redirect to accept invite page if invite token exists
           if (inviteToken) {
-            router.push(`/accept-invite?token=${inviteToken}`);
+            router.push(`/accept-invite/${inviteToken}`);
           } else {
             router.push("/");
           }
