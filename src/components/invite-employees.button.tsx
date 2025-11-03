@@ -208,7 +208,7 @@ function InvitationListItem({
         <div className="-space-y-0.5">
           <div className="text-xs font-medium">{inv.email}</div>
           <time className="text-muted-foreground text-xs">
-            Expires in {formatDistanceToNow(inv.expiresAt)}
+            Expires {formatDistanceToNow(inv.expiresAt, { addSuffix: true })}
           </time>
         </div>
       </div>
