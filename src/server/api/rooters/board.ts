@@ -7,12 +7,30 @@ import {
   UpdateBoardSchema,
 } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const boardRouter = {
   create: protectedProcedure
     .input(CreateBoardSchema)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.insert(board).values(input);
+      return await ctx.db.transaction(async (tx) => {
+        // 1. Create board
+        const createdBoard = await tx.insert(board).values(input).returning();
+
+        if (!createdBoard[0])
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create board",
+          });
+
+        // 2. Make the creator of the board as member of the board
+        await tx.insert(boardMember).values({
+          userId: ctx.session.user.id,
+          boardId: createdBoard[0].id,
+        });
+
+        return createdBoard[0];
+      });
     }),
 
   update: protectedProcedure
