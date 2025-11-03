@@ -29,14 +29,16 @@ export const boardRouter = {
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.delete(board).where(eq(board.id, input.id));
     }),
+
   list: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.query.board.findMany({
-      // select({name:board.name}).from(board).where......
-      with: {
-        boardMembers: {
-          where: eq(boardMember.userId, ctx.session.user.id),
+    return ctx.db.query.boardMember
+      .findMany({
+        where: eq(boardMember.userId, ctx.session.user.id),
+        columns: {},
+        with: {
+          board: true,
         },
-      },
-    });
+      })
+      .then((r) => r.map((r) => r.board));
   }),
 };
