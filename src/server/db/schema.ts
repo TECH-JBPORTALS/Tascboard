@@ -5,6 +5,8 @@ import { relations, sql } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { invitation, organization, user } from "./auth-schema";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import { z } from "zod/v4";
 
 export const organizationRelatoions = relations(organization, ({ many }) => ({
   invitations: many(invitation),
@@ -20,10 +22,6 @@ export const invitationRealations = relations(invitation, ({ one }) => ({
     references: [user.id],
   }),
 }));
-
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { user } from "./auth-schema";
 
 export const board = pgTable(
   "board",
