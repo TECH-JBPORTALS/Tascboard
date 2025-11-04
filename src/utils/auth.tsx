@@ -77,7 +77,7 @@ export const auth = betterAuth({
           throw new Error("Failed to fetch invitation details");
         }
 
-        const inviteUrl = `${baseURL}/accept-invite/${invitation.id}`;
+        const inviteUrl = `${baseURL}/accept-invitation/${invitation.id}`;
         const subject = `You've been invited to join ${organization.name}`;
         const roleDisplayName = data.role === "owner" ? "Owner" : "Employee";
 
