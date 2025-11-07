@@ -4,6 +4,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 import { type Metadata } from "next";
 import { Ubuntu_Sans, Ubuntu_Sans_Mono } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -27,10 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <TRPCReactProvider>
-          {children}
-          <Toaster richColors />
-        </TRPCReactProvider>
+        <NuqsAdapter>
+          <TRPCReactProvider>
+            {children}
+            <Toaster richColors />
+          </TRPCReactProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

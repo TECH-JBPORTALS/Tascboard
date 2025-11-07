@@ -9,16 +9,19 @@ import {
 } from "@/components/ui/card";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { api } from "@/trpc/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { getSession } from "@/utils/auth";
 import type { RouterOutputs } from "@/trpc/react";
+import Link from "next/link";
+import AcceptInvitationButton from "./accept-invitation-button";
 
 export default async function Page({
   params,
@@ -35,7 +38,7 @@ export default async function Page({
   // Step 2: Check for invitation expiry timestamp
   if (isPast(invitation.expiresAt))
     return (
-      <Empty className="max-w-md border">
+      <Empty className="max-w-md flex-none border">
         <EmptyMedia className="grayscale-100">
           <InvitationAvatarGroup invitation={invitation} />
         </EmptyMedia>
@@ -53,44 +56,78 @@ export default async function Page({
       </Empty>
     );
 
-  // Step 3: Redirect to sign up if invited user doesn't have account
-  const user = await api.user.getByEmail({ email: invitation.email });
+  // Step 3: Look if invitaion doesn't belong to logged in user
+  const user = await api.betterAuth.getByEmail({ email: invitation.email });
 
-  if (!user) redirect(`/sign-up?token=${token}`);
-
-  // Step 4: Redirect to sign in if there is no session active
-  if (!session) redirect(`/sign-in?token=${token}`);
-
-  // Step 5: Look if invitaion doesn't belong to logged in user
-  if (invitation.email !== session.user.email)
+  if (session && invitation.email !== session?.user.email)
     return (
-      <Empty className="max-w-md border">
+      <Empty className="max-w-md flex-none border">
         <EmptyMedia>
           <InvitationAvatarGroup invitation={invitation} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle>Sign in with another account</EmptyTitle>
-          <EmptyDescription>This invitation seems not for you</EmptyDescription>
+          <EmptyTitle>Join to {invitation?.organization.name}</EmptyTitle>
+          <EmptyDescription>
+            {`Looks like this invite wasn't meant for you. Please signin with invitee account in order to accept this invitation.`}
+          </EmptyDescription>
         </EmptyHeader>
+        <EmptyContent className="text-center">
+          <p className="text-muted-foreground text-xs">
+            {"You're signed in as"}
+          </p>
+          <div className="flex items-center gap-1.5 rounded-full border p-1.5">
+            <Avatar className="size-6">
+              <AvatarImage
+                src={session?.user.image ?? "No image"}
+                alt="Profile Image"
+              />
+              <AvatarFallback>{session?.user.email.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div>{session?.user.email}</div>
+          </div>
+          <Button variant={"link"} asChild>
+            <Link
+              href={
+                !user ? `/sign-up?token=${token}` : `/sign-in?token=${token}`
+              }
+            >
+              {!user
+                ? `Create account for ${invitation.email}`
+                : `Sign in as ${invitation.email}`}
+            </Link>
+          </Button>
+        </EmptyContent>
       </Empty>
     );
 
   return (
-    <Card className="min-w-md">
-      <CardHeader className="text-center">
+    <Card className="min-w-md shadow-none">
+      <CardHeader className="space-y-6 text-center">
         <InvitationAvatarGroup invitation={invitation} />
         <CardTitle className="text-2xl font-extrabold">
           Join to {invitation?.organization.name}
         </CardTitle>
         <CardDescription>
-          {`Looks like this invite wasn't meant for you. Please sig-in with
-          another account in order to accept this invitation.`}
+          <b>{invitation.inviter.name}</b> has invited you to join{" "}
+          <b>{invitation.organization.name}</b> as a{" "}
+          <b className="capitalize">{invitation.role}</b> on Tascboard. This
+          invitation will expire{" "}
+          {formatDistanceToNow(invitation.expiresAt, { addSuffix: true })}.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button size={"lg"} className="w-full">
-          Accept Invitation
-        </Button>
+      <CardContent className="text-center">
+        {!user ? (
+          <Button variant={"link"} asChild>
+            <Link href={`/sign-up?token=${token}`}>
+              Create account for {invitation.email}
+            </Link>
+          </Button>
+        ) : (
+          <AcceptInvitationButton
+            invitationId={token}
+            organizationSlug={invitation.organization.slug}
+          />
+        )}
       </CardContent>
     </Card>
   );
@@ -102,7 +139,7 @@ function InvitationAvatarGroup({
   invitation: RouterOutputs["betterAuth"]["getInvitationById"];
 }) {
   return (
-    <div className="mx-auto flex items-center justify-center -space-x-3.5 grayscale-100">
+    <div className="mx-auto flex items-center justify-center -space-x-3.5">
       <Avatar className="size-16">
         <AvatarImage
           src={invitation?.inviter.image ?? ""}

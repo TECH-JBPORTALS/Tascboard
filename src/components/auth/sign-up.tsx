@@ -40,13 +40,13 @@ const signUpSchema = z.object({
     .max(128, "Can not be more than 128 characters."),
 });
 
-export function SignUp() {
+export function SignUp({ email }: { email: string }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email,
       password: "",
     },
   });
@@ -119,11 +119,12 @@ export function SignUp() {
                 <FormItem>
                   <FormLabel>Email address</FormLabel>
                   <FormControl>
-                    <InputGroup className="h-10">
+                    <InputGroup className="bg-accent text-accent-foreground h-10">
                       <InputGroupAddon>
                         <MailIcon className="text-muted-foreground" />
                       </InputGroupAddon>
                       <InputGroupInput
+                        readOnly
                         placeholder="your@email.com"
                         type="email"
                         {...field}
