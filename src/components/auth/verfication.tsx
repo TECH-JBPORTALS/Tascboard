@@ -1,5 +1,13 @@
 "use client";
 
+import { useTicker } from "@/hooks/use-ticker";
+import { useAuthStore } from "@/stores/auth-store";
+import { authClient } from "@/utils/auth-client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod/v4";
 import {
   Card,
   CardContent,
@@ -7,172 +15,25 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "../ui/card";
 import Image from "next/image";
-import React from "react";
-import z from "zod";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
-} from "./ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "./ui/button";
-import { ChevronRight, MailIcon } from "lucide-react";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
-import { authClient } from "@/utils/auth-client";
-import {
-  notFound,
-  useParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
-import { useTicker } from "@/hooks/use-ticker";
-import { useAuthStore } from "@/stores/auth-store";
-
-const emailSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
+} from "../ui/form";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
+import { Button } from "../ui/button";
+import { ChevronRight } from "lucide-react";
 
 const otpSchema = z.object({
   otp: z.string().min(6, "Please enter the 6-digit code"),
 });
 
-/** Return the current path according to the sign-in catch-all route */
-function useSignInPathname() {
-  const params = useParams<{ "sign-in"?: string[] }>();
-
-  return `/${params["sign-in"]?.join("/") ?? ""}`;
-}
-
-/** Helper to get the full sign-in path with base prefix */
-function getSignInPath(path: string) {
-  return `/sign-in${path}`;
-}
-
-export function SignIn() {
-  const pathname = useSignInPathname();
-  const { email, setEmail, clearEmail } = useAuthStore();
-
-  switch (pathname) {
-    case "/":
-      return <SendVerificationForm onEmailSent={setEmail} />;
-
-    case "/email-otp":
-      return <EmailOTPForm email={email} onBack={clearEmail} />;
-
-    default:
-      notFound();
-  }
-}
-
-function SendVerificationForm({
-  onEmailSent,
-}: {
-  onEmailSent: (email: string) => void;
-}) {
-  const form = useForm({
-    resolver: zodResolver(emailSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
-  const router = useRouter();
-
-  async function onSubmit(values: z.infer<typeof emailSchema>) {
-    await authClient.emailOtp.sendVerificationOtp({
-      email: values.email,
-      type: "sign-in",
-      fetchOptions: {
-        onSuccess() {
-          onEmailSent(values.email);
-          router.push(getSignInPath("/email-otp"));
-        },
-        onError(context) {
-          form.setError("root", { message: context.error.message });
-        },
-      },
-    });
-  }
-
-  return (
-    <Card className="mb-28 min-w-sm border-none shadow-none">
-      <CardHeader className="items-center justify-center">
-        <Image
-          src={"/tascboard.svg"}
-          alt="Tascboard logo"
-          width={40}
-          height={40}
-          className="mx-auto my-3.5"
-        />
-        <CardTitle className="text-center">Sign in to Tascboard</CardTitle>
-        <CardDescription className="text-center">
-          Welcome back! sign in to continue
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form className="grid gap-3.5" onSubmit={form.handleSubmit(onSubmit)}>
-            {form.formState.errors.root && (
-              <span className="text-destructive text-center text-sm">
-                {form.formState.errors.root.message}
-              </span>
-            )}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email address</FormLabel>
-                  <FormControl>
-                    <InputGroup className="h-10">
-                      <InputGroupAddon>
-                        <MailIcon className="text-muted-foreground" />
-                      </InputGroupAddon>
-                      <InputGroupInput
-                        placeholder="your@email.com"
-                        type="email"
-                        {...field}
-                      />
-                    </InputGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              className="group"
-              size={"lg"}
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Please wait..." : "Continue"}
-              <ChevronRight className="transition-all duration-200 group-hover:translate-x-0.5" />
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter>
-        <span className="text-muted-foreground text-center text-sm">
-          by continuing you will agree to our terms & conditions
-        </span>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function EmailOTPForm({
-  email,
-  onBack,
-}: {
-  email: string;
-  onBack: () => void;
-}) {
+export function Verification() {
+  const { email } = useAuthStore();
   const form = useForm({
     resolver: zodResolver(otpSchema),
     defaultValues: {
@@ -190,7 +51,7 @@ function EmailOTPForm({
   async function onSubmit(values: z.infer<typeof otpSchema>) {
     setIsVerifying(true);
     await authClient.signIn.emailOtp({
-      email: email,
+      email,
       otp: values.otp,
       fetchOptions: {
         onError(context) {
@@ -317,8 +178,7 @@ function EmailOTPForm({
           variant="ghost"
           size={"lg"}
           onClick={() => {
-            onBack();
-            router.replace(getSignInPath("/"));
+            router.replace("/sign-in");
           }}
           className="text-muted-foreground w-full"
         >

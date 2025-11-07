@@ -27,10 +27,12 @@ export const auth = betterAuth({
     provider: "pg",
   }),
   appName: "tascboard",
+  emailAndPassword: {
+    enabled: true,
+  },
   plugins: [
     nextCookies(),
     emailOTP({
-      disableSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
         switch (type) {
           case "sign-in":
