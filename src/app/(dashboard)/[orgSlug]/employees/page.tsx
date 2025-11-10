@@ -10,10 +10,13 @@ import { SearchIcon, Users } from "lucide-react";
 import { columns } from "./columns";
 import { InviteEmployeesButton } from "@/components/invite-employees.button";
 import { auth } from "@/utils/auth";
+import { headers } from "next/headers";
 
 export default async function Employees() {
   const employees = await auth.api
-    .listMembers()
+    .listMembers({
+      headers: await headers(),
+    })
     .then((r) => r.members)
     .catch((e) => console.log(`Error in fetching employees: `, e));
 

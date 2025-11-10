@@ -26,8 +26,8 @@ export default function Error({
             Something went wrong!
           </CardTitle>
           <p className="text-muted-foreground">
-            We encountered an error while loading the employees data. This might
-            be a temporary issue or a problem with your permissions.
+            We encountered an error while loading the data. This might be a
+            temporary issue or a problem with your permissions.
           </p>
           {error.digest && (
             <p className="text-muted-foreground font-mono text-xs">
