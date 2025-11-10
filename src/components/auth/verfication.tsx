@@ -4,7 +4,7 @@ import { useTicker } from "@/hooks/use-ticker";
 import { useAuthStore } from "@/stores/auth-store";
 import { authClient } from "@/utils/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { notFound, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
@@ -62,13 +62,16 @@ export function Verification() {
         otp: values.otp,
         fetchOptions: {
           onSuccess() {
+            form.setError("root", {
+              message: "Verification successful.",
+            });
             // Redirect to accept invite page if invite token exists
-            reset();
             if (inviteToken) {
               router.replace(`/accept-invitation/${inviteToken}`);
             } else {
               router.replace("/");
             }
+            reset();
           },
           onError(context) {
             form.setError("root", {
@@ -84,13 +87,16 @@ export function Verification() {
         otp: values.otp,
         fetchOptions: {
           onSuccess() {
+            form.setError("root", {
+              message: "Verification successful.",
+            });
             // Redirect to accept invite page if invite token exists
-            reset();
             if (inviteToken) {
               router.replace(`/accept-invitation/${inviteToken}`);
             } else {
               router.replace("/");
             }
+            reset();
           },
           onError(context) {
             form.setError("root", {
@@ -146,7 +152,11 @@ export function Verification() {
             {form.formState.errors.root && (
               <span
                 className={`text-center text-sm ${
-                  form.formState.errors.root.message?.includes("sent")
+                  form.formState.errors.root.message
+                    ?.split(" ")
+                    .some(
+                      (v) => v.startsWith("sent") || v.startsWith("successful"),
+                    )
                     ? "text-green-600"
                     : "text-destructive"
                 }`}
@@ -209,6 +219,7 @@ export function Verification() {
           size={"lg"}
           onClick={() => {
             router.replace("/sign-in");
+            reset();
           }}
           className="text-muted-foreground w-full"
         >

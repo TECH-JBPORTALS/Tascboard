@@ -9,7 +9,6 @@ interface AuthState {
   setEmail: (email: string) => void;
   verificationType: VerificationType;
   setVerficationType: (verificationType: VerificationType) => void;
-  clearEmail: () => void;
 
   // OTP verification state
   isVerifying: boolean;
@@ -19,6 +18,9 @@ interface AuthState {
   reset: () => void;
 }
 
+export const VERIFICATION_EMAIL_COOKIE_NAME = "verification_email";
+export const VERIFICATION_EMAIL_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -27,20 +29,24 @@ export const useAuthStore = create<AuthState>()(
       email: "",
       password: "",
       verificationType: "sign-in",
-      setEmail: (email) => set({ email }),
+      setEmail: (email) => {
+        document.cookie = `${VERIFICATION_EMAIL_COOKIE_NAME}=${email}; path=/; max-age=${VERIFICATION_EMAIL_COOKIE_MAX_AGE}`;
+        set({ email });
+      },
       setVerficationType: (verificationType) => set({ verificationType }),
-      clearEmail: () => set({ email: "" }),
 
       // Verification state
       isVerifying: false,
       setIsVerifying: (isVerifying) => set({ isVerifying }),
 
       // Reset all state
-      reset: () =>
+      reset: () => {
+        document.cookie = `${VERIFICATION_EMAIL_COOKIE_NAME}=; path=/; max-age=${VERIFICATION_EMAIL_COOKIE_MAX_AGE}`;
         set({
           email: "",
           isVerifying: false,
-        }),
+        });
+      },
     }),
     {
       name: "auth-store",
