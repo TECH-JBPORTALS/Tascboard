@@ -100,6 +100,39 @@ export default async function Page({
       </Empty>
     );
 
+  // Step 4: if no session exist then
+  if (!session)
+    return (
+      <Card className="min-w-md shadow-none">
+        <CardHeader className="space-y-6 text-center">
+          <InvitationAvatarGroup invitation={invitation} />
+          <CardTitle className="text-2xl font-extrabold">
+            Join to {invitation?.organization.name}
+          </CardTitle>
+          <CardDescription>
+            <b>{invitation.inviter.name}</b> has invited you to join{" "}
+            <b>{invitation.organization.name}</b> as a{" "}
+            <b className="capitalize">{invitation.role}</b> on Tascboard. This
+            invitation will expire{" "}
+            {formatDistanceToNow(invitation.expiresAt, { addSuffix: true })}.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+          <Button variant={"link"} asChild>
+            <Link
+              href={
+                !user ? `/sign-up?token=${token}` : `/sign-in?token=${token}`
+              }
+            >
+              {!user
+                ? `Create account for ${invitation.email}`
+                : `Sign in as ${invitation.email}`}
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+
   return (
     <Card className="min-w-md shadow-none">
       <CardHeader className="space-y-6 text-center">

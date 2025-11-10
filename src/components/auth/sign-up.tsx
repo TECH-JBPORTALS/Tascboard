@@ -29,7 +29,8 @@ import {
   InputGroupInput,
 } from "../ui/input-group";
 import { authClient } from "@/utils/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuthStore } from "@/stores/auth-store";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Minimum 2 characters required."),
@@ -42,6 +43,7 @@ const signUpSchema = z.object({
 
 export function SignUp({ email }: { email: string }) {
   const [showPassword, setShowPassword] = React.useState(false);
+  const { setEmail, setVerficationType } = useAuthStore();
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -52,13 +54,17 @@ export function SignUp({ email }: { email: string }) {
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   async function onSubmit(values: z.infer<typeof signUpSchema>) {
     await authClient.signUp.email({
       ...values,
       fetchOptions: {
-        onSuccess() {
-          router.push("/verification");
+        async onSuccess() {
+          setEmail(values.email);
+          setVerficationType("email-verification");
+          const params = new URLSearchParams(searchParams.toString());
+          router.push(`/verification?${params.toString()}`);
         },
         onError(context) {
           form.setError("root", { message: context.error.message });

@@ -6,11 +6,12 @@ import { db } from "@/server/db";
 import { headers } from "next/headers";
 import { env } from "@/env";
 import { Resend } from "resend";
-import OtpVerification from "@/emails/otp-verification";
 import OrganizationInvitation from "@/emails/organization-invitation";
 import { employee, owner, ac } from "./permissions";
 import { invitation } from "@/server/db/auth-schema";
 import { eq } from "drizzle-orm";
+import EmailVerificationEmail from "@/emails/email-verification";
+import OtpVerificationEmail from "@/emails/otp-verification";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -30,31 +31,54 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+  },
   plugins: [
     nextCookies(),
     emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        switch (type) {
-          case "sign-in":
-            const subject = `Your verification code is ${otp}`;
-            const { error } = await resend.emails.send({
-              from: "Tascboard <send@resend.jbportals.com>",
-              to: [email],
-              subject,
-              react: (
-                <OtpVerification
-                  previewText={subject}
-                  otp={otp}
-                  email={email}
-                />
-              ),
-            });
+      disableSignUp: true,
+      overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true,
+      async sendVerificationOTP(data) {
+        const { otp, email, type } = data;
 
-            if (error)
-              throw new Error(
-                `Can't able to send code to this email right now`,
-              );
-            break;
+        if (type == "email-verification") {
+          const subject = `Your verification code is ${otp}`;
+          const { error } = await resend.emails.send({
+            from: "Tascboard <send@resend.jbportals.com>",
+            to: [email],
+            subject,
+            react: (
+              <EmailVerificationEmail
+                previewText={subject}
+                otp={otp}
+                email={email}
+              />
+            ),
+          });
+
+          if (error)
+            throw new Error(`Can't able to send code to this email right now`);
+        }
+
+        if (type == "sign-in") {
+          const subject = `Your verification code is ${otp}`;
+          const { error } = await resend.emails.send({
+            from: "Tascboard <send@resend.jbportals.com>",
+            to: [email],
+            subject,
+            react: (
+              <OtpVerificationEmail
+                previewText={subject}
+                otp={otp}
+                email={email}
+              />
+            ),
+          });
+
+          if (error)
+            throw new Error(`Can't able to send code to this email right now`);
         }
       },
     }),
@@ -105,6 +129,11 @@ export const auth = betterAuth({
       },
       organizationHooks: {
         async afterCancelInvitation(data) {
+          await db
+            .delete(invitation)
+            .where(eq(invitation.id, data.invitation.id));
+        },
+        async afterAcceptInvitation(data) {
           await db
             .delete(invitation)
             .where(eq(invitation.id, data.invitation.id));

@@ -4,7 +4,7 @@ import { useTicker } from "@/hooks/use-ticker";
 import { useAuthStore } from "@/stores/auth-store";
 import { authClient } from "@/utils/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
@@ -33,7 +33,13 @@ const otpSchema = z.object({
 });
 
 export function Verification() {
-  const { email } = useAuthStore();
+  const {
+    email,
+    isVerifying,
+    setIsVerifying,
+    reset,
+    verificationType: type,
+  } = useAuthStore();
   const form = useForm({
     resolver: zodResolver(otpSchema),
     defaultValues: {
@@ -44,32 +50,56 @@ export function Verification() {
   const searchParams = useSearchParams();
   const { time, restart, isCounting } = useTicker();
   const [isResending, setIsResending] = React.useState(false);
-  const { isVerifying, setIsVerifying, reset } = useAuthStore();
 
-  const inviteToken = searchParams.get("invite");
+  const inviteToken = searchParams.get("token");
 
   async function onSubmit(values: z.infer<typeof otpSchema>) {
     setIsVerifying(true);
-    await authClient.signIn.emailOtp({
-      email,
-      otp: values.otp,
-      fetchOptions: {
-        onError(context) {
-          form.setError("root", {
-            message: context.error.message,
-          });
+
+    if (type == "email-verification")
+      await authClient.emailOtp.verifyEmail({
+        email,
+        otp: values.otp,
+        fetchOptions: {
+          onSuccess() {
+            // Redirect to accept invite page if invite token exists
+            reset();
+            if (inviteToken) {
+              router.replace(`/accept-invitation/${inviteToken}`);
+            } else {
+              router.replace("/");
+            }
+          },
+          onError(context) {
+            form.setError("root", {
+              message: context.error.message,
+            });
+          },
         },
-        onSuccess() {
-          reset();
-          // Redirect to accept invite page if invite token exists
-          if (inviteToken) {
-            router.push(`/accept-invite/${inviteToken}`);
-          } else {
-            router.push("/");
-          }
+      });
+
+    if (type == "sign-in")
+      await authClient.signIn.emailOtp({
+        email,
+        otp: values.otp,
+        fetchOptions: {
+          onSuccess() {
+            // Redirect to accept invite page if invite token exists
+            reset();
+            if (inviteToken) {
+              router.replace(`/accept-invitation/${inviteToken}`);
+            } else {
+              router.replace("/");
+            }
+          },
+          onError(context) {
+            form.setError("root", {
+              message: context.error.message,
+            });
+          },
         },
-      },
-    });
+      });
+
     setIsVerifying(false);
   }
 
@@ -77,7 +107,7 @@ export function Verification() {
     setIsResending(true);
     await authClient.emailOtp.sendVerificationOtp({
       email,
-      type: "sign-in",
+      type,
       fetchOptions: {
         onSuccess() {
           form.setError("root", {

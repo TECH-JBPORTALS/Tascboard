@@ -21,29 +21,32 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { ChevronRight, MailIcon } from "lucide-react";
+import { ChevronRight, LockKeyhole, MailIcon } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "../ui/input-group";
 import { authClient } from "@/utils/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { cn } from "@/lib/utils";
+import React from "react";
 
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-export function SignIn() {
-  const { setEmail } = useAuthStore();
+export function SignIn({ email = "" }: { email?: string }) {
+  const { setEmail, setVerficationType } = useAuthStore();
   const form = useForm({
     resolver: zodResolver(emailSchema),
     defaultValues: {
-      email: "",
+      email,
     },
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   async function onSubmit(values: z.infer<typeof emailSchema>) {
     await authClient.emailOtp.sendVerificationOtp({
@@ -52,7 +55,9 @@ export function SignIn() {
       fetchOptions: {
         onSuccess() {
           setEmail(values.email);
-          router.push("/verification");
+          setVerficationType("sign-in");
+          const params = new URLSearchParams(searchParams.toString());
+          router.push(`/verification?${params.toString()}`);
         },
         onError(context) {
           form.setError("root", { message: context.error.message });
@@ -91,13 +96,19 @@ export function SignIn() {
                 <FormItem>
                   <FormLabel>Email address</FormLabel>
                   <FormControl>
-                    <InputGroup className="h-10">
+                    <InputGroup
+                      className={cn(
+                        "h-10",
+                        !!email && "bg-accent text-accent-foreground",
+                      )}
+                    >
                       <InputGroupAddon>
                         <MailIcon className="text-muted-foreground" />
                       </InputGroupAddon>
                       <InputGroupInput
                         placeholder="your@email.com"
                         type="email"
+                        readOnly={!!email}
                         {...field}
                       />
                     </InputGroup>
