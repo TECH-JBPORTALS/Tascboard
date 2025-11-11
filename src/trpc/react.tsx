@@ -1,48 +1,38 @@
 "use client";
 
-import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { httpBatchStreamLink, loggerLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
-import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import type { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import {
+  createTRPCClient,
+  httpBatchStreamLink,
+  loggerLink,
+} from "@trpc/client";
+import { createTRPCContext } from "@trpc/tanstack-react-query";
 import SuperJSON from "superjson";
 
-import { type AppRouter } from "@/server/api/root";
 import { createQueryClient } from "./query-client";
+import type { AppRouter } from "@/server/api/root";
+import { env } from "@/env";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
   if (typeof window === "undefined") {
     // Server: always make a new query client
     return createQueryClient();
+  } else {
+    // Browser: use singleton pattern to keep the same query client
+    return (clientQueryClientSingleton ??= createQueryClient());
   }
-  // Browser: use singleton pattern to keep the same query client
-  clientQueryClientSingleton ??= createQueryClient();
-
-  return clientQueryClientSingleton;
 };
 
-export const api = createTRPCReact<AppRouter>();
-
-/**
- * Inference helper for inputs.
- *
- * @example type HelloInput = RouterInputs['example']['hello']
- */
-export type RouterInputs = inferRouterInputs<AppRouter>;
-
-/**
- * Inference helper for outputs.
- *
- * @example type HelloOutput = RouterOutputs['example']['hello']
- */
-export type RouterOutputs = inferRouterOutputs<AppRouter>;
+export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>();
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
-    api.createClient({
+    createTRPCClient<AppRouter>({
       links: [
         loggerLink({
           enabled: (op) =>
@@ -52,7 +42,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + "/api/trpc",
-          headers: () => {
+          headers() {
             const headers = new Headers();
             headers.set("x-trpc-source", "nextjs-react");
             return headers;
@@ -64,15 +54,15 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
         {props.children}
-      </api.Provider>
+      </TRPCProvider>
     </QueryClientProvider>
   );
 }
 
-function getBaseUrl() {
+const getBaseUrl = () => {
   if (typeof window !== "undefined") return window.location.origin;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`;
   return `http://localhost:${process.env.PORT ?? 3000}`;
-}
+};

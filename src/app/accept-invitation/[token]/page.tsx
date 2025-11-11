@@ -15,7 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { api } from "@/trpc/server";
+import { trpc, getQueryClient } from "@/trpc/server";
 import { notFound } from "next/navigation";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { getSession } from "@/utils/auth";
@@ -29,7 +29,10 @@ export default async function Page({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const invitation = await api.betterAuth.getInvitationById({ id: token });
+  const queryClient = getQueryClient();
+  const invitation = await queryClient.fetchQuery(
+    trpc.betterAuth.getInvitationById.queryOptions({ id: token }),
+  );
   const session = await getSession();
 
   // Step 1: Check for invitation existance
@@ -57,7 +60,9 @@ export default async function Page({
     );
 
   // Step 3: Look if invitaion doesn't belong to logged in user
-  const user = await api.betterAuth.getByEmail({ email: invitation.email });
+  const user = await queryClient.fetchQuery(
+    trpc.betterAuth.getByEmail.queryOptions({ email: invitation.email }),
+  );
 
   if (session && invitation.email !== session?.user.email)
     return (

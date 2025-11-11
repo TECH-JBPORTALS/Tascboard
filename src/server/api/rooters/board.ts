@@ -25,7 +25,7 @@ export const boardRouter = {
 
         // 2. Make the creator of the board as member of the board
         await tx.insert(boardMember).values({
-          userId: ctx.session.user.id,
+          userId: ctx.auth.user.id,
           boardId: createdBoard[0].id,
         });
 
@@ -51,7 +51,7 @@ export const boardRouter = {
   list: protectedProcedure.query(({ ctx }) => {
     return ctx.db.query.boardMember
       .findMany({
-        where: eq(boardMember.userId, ctx.session.user.id),
+        where: eq(boardMember.userId, ctx.auth.user.id),
         columns: {},
         with: {
           board: true,

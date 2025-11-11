@@ -1,6 +1,6 @@
 import { SignUp } from "@/components/auth/sign-up";
 import { loadAuthSearchParams } from "@/lib/search-params";
-import { api } from "@/trpc/server";
+import { trpc, getQueryClient } from "@/trpc/server";
 import { notFound } from "next/navigation";
 import type { SearchParams } from "nuqs/server";
 
@@ -10,10 +10,13 @@ type PageProps = {
 
 export default async function Page(props: PageProps) {
   const { token } = await loadAuthSearchParams(props.searchParams);
+  const queryClient = getQueryClient();
 
   if (!token) notFound();
 
-  const invitation = await api.betterAuth.getInvitationById({ id: token });
+  const invitation = await queryClient.fetchQuery(
+    trpc.betterAuth.getInvitationById.queryOptions({ id: token }),
+  );
 
   if (!invitation) notFound();
 

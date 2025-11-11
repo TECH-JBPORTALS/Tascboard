@@ -30,7 +30,7 @@ import { toast } from "sonner";
 import { ButtonGroup, ButtonGroupSeparator } from "./ui/button-group";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { api, type RouterOutputs } from "@/trpc/react";
+import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { Skeleton } from "./ui/skeleton";
 import { ScrollArea } from "./ui/scroll-area";
 import {
@@ -41,6 +41,7 @@ import {
   EmptyTitle,
 } from "./ui/empty";
 import { formatDistanceToNow } from "date-fns";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -74,7 +75,8 @@ export function InviteEmployeesButton() {
     },
     mode: "onChange",
   });
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
 
   async function onSubmit(values: z.infer<typeof InviteEmployeesSchema>) {
     try {
@@ -104,7 +106,9 @@ export function InviteEmployeesButton() {
         }),
       );
 
-      await utils.betterAuth.getInvitaions.invalidate();
+      await queryClient.invalidateQueries(
+        trpc.betterAuth.getInvitaions.queryOptions(),
+      );
 
       if (errorCount == 0) {
         setOpen(false);
@@ -178,7 +182,8 @@ function InvitationListItem({
 }: {
   inv: RouterOutputs["betterAuth"]["getInvitaions"][number];
 }) {
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
   const [isLoading, setLoading] = useState(false);
 
   async function onCancelInv() {
@@ -187,7 +192,9 @@ function InvitationListItem({
       invitationId: inv.id,
       fetchOptions: {
         async onSuccess() {
-          await utils.betterAuth.getInvitaions.invalidate();
+          await queryClient.invalidateQueries(
+            trpc.betterAuth.getInvitaions.queryOptions(),
+          );
         },
         onError(context) {
           toast.error(context.error.message);
@@ -243,10 +250,12 @@ function InvitaionListSkeleton() {
 
 function InvitationsListButton() {
   const [open, setOpen] = useState(false);
-  const { data, isLoading, isRefetching } =
-    api.betterAuth.getInvitaions.useQuery(undefined, {
+  const trpc = useTRPC();
+  const { data, isLoading, isRefetching } = useQuery(
+    trpc.betterAuth.getInvitaions.queryOptions(undefined, {
       enabled: open,
-    });
+    }),
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

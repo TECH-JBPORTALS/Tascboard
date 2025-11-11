@@ -16,3 +16,9 @@ export const authSearchParams = {
 };
 
 export const loadAuthSearchParams = createLoader(authSearchParams);
+
+export const querySearchParams = {
+  q: parseAsString.withOptions({ clearOnDefault: true }).withDefault(""),
+};
+
+export const loadQuerySearchParams = createLoader(querySearchParams);

@@ -2,13 +2,11 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import type { auth } from "@/utils/auth";
+import type { RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 
-export type Employee = Awaited<
-  ReturnType<typeof auth.api.listMembers>
->["members"][number];
+export type Employee = RouterOutputs["betterAuth"]["listMembers"][number];
 
 export const columns: ColumnDef<Employee>[] = [
   {

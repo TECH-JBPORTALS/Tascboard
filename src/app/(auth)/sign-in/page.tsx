@@ -1,6 +1,6 @@
 import { SignIn } from "@/components/auth/sign-in";
 import { loadAuthSearchParams } from "@/lib/search-params";
-import { api } from "@/trpc/server";
+import { getQueryClient, trpc } from "@/trpc/server";
 import type { SearchParams } from "nuqs/server";
 
 type PageProps = {
@@ -9,11 +9,14 @@ type PageProps = {
 
 export default async function Page(props: PageProps) {
   const { token } = await loadAuthSearchParams(props.searchParams);
+  const queryCient = getQueryClient();
 
   let email: string | undefined;
 
   if (token) {
-    const invitation = await api.betterAuth.getInvitationById({ id: token });
+    const invitation = await queryCient.fetchQuery(
+      trpc.betterAuth.getInvitationById.queryOptions({ id: token }),
+    );
     email = invitation?.email;
   }
 

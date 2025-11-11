@@ -35,7 +35,6 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
   },
   plugins: [
-    nextCookies(),
     emailOTP({
       disableSignUp: true,
       overrideDefaultEmailVerification: true,
@@ -140,8 +139,11 @@ export const auth = betterAuth({
         },
       },
     }),
+    nextCookies(),
   ],
 });
+
+export type Auth = typeof auth;
 
 /** Get session in server environment */
 export async function getSession() {
