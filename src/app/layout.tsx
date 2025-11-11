@@ -1,8 +1,10 @@
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Ubuntu_Sans, Ubuntu_Sans_Mono } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -10,18 +12,28 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
+const sans = Ubuntu_Sans({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
+});
+
+const mono = Ubuntu_Sans_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="dark">
+        <NuqsAdapter>
+          <TRPCReactProvider>
+            {children}
+            <Toaster richColors />
+          </TRPCReactProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

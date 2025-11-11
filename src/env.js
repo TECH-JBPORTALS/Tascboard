@@ -4,6 +4,11 @@ import { z } from "zod";
 
 export const env = createEnv({
   extends: [vercel()],
+  shared: {
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+  },
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars.
@@ -12,9 +17,6 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     BETTER_AUTH_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
   },
 
   /**

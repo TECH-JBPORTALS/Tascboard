@@ -2,15 +2,11 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import type { RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 
-export interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-}
+export type Employee = RouterOutputs["betterAuth"]["listMembers"][number];
 
 export const columns: ColumnDef<Employee>[] = [
   {
@@ -22,12 +18,15 @@ export const columns: ColumnDef<Employee>[] = [
       return (
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src={row.image} alt={row.name} />
-            <AvatarFallback>{row.name.charAt(0)}</AvatarFallback>
+            <AvatarImage
+              src={row.user.image ?? "No image"}
+              alt={row.user.name}
+            />
+            <AvatarFallback>{row.user.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="space-y-0.5">
-            <span className="text-sm font-medium">{row.name}</span>
-            <p className="text-muted-foreground text-sm">{row.email}</p>
+            <span className="text-sm font-medium">{row.user.name}</span>
+            <p className="text-muted-foreground text-sm">{row.user.email}</p>
           </div>
         </div>
       );

@@ -13,11 +13,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
-import { SendIcon } from "lucide-react";
+import { ChevronDown, SendIcon, User2Icon } from "lucide-react";
+import { authClient } from "@/utils/auth-client";
+import { toast } from "sonner";
+import { ButtonGroup, ButtonGroupSeparator } from "./ui/button-group";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { useTRPC, type RouterOutputs } from "@/trpc/react";
+import { Skeleton } from "./ui/skeleton";
+import { ScrollArea } from "./ui/scroll-area";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./ui/empty";
+import { formatDistanceToNow } from "date-fns";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,18 +75,62 @@ export function InviteEmployeesButton() {
     },
     mode: "onChange",
   });
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
 
   async function onSubmit(values: z.infer<typeof InviteEmployeesSchema>) {
-    // Do something...
+    try {
+      const emailList = values.emails.split(",");
+      let errorCount = 0;
+
+      await Promise.all(
+        emailList.map(async (email) => {
+          await authClient.organization.inviteMember({
+            email: email.trim(),
+            role: "employee",
+            resend: true,
+            fetchOptions: {
+              onError(context) {
+                toast.error(`${email.trim()}: ${context.error.message}`);
+                errorCount++;
+              },
+              onSuccess() {
+                toast.success(
+                  <div>
+                    Invitation sent to <b>{email.trim()}</b>
+                  </div>,
+                );
+              },
+            },
+          });
+        }),
+      );
+
+      await queryClient.invalidateQueries(
+        trpc.betterAuth.getInvitaions.queryOptions(),
+      );
+
+      if (errorCount == 0) {
+        setOpen(false);
+        form.reset();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <SendIcon /> Invite
-        </Button>
-      </DialogTrigger>
+      <ButtonGroup>
+        <DialogTrigger asChild>
+          <Button>
+            <SendIcon /> Invite
+          </Button>
+        </DialogTrigger>
+        <ButtonGroupSeparator />
+
+        <InvitationsListButton />
+      </ButtonGroup>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite employees</DialogTitle>
@@ -86,6 +154,10 @@ export function InviteEmployeesButton() {
                       />
                     </FormControl>
                     <FormMessage />
+                    <FormDescription>
+                      To resend the invitation mention email and send again
+                      invitation.
+                    </FormDescription>
                   </FormItem>
                 )}
               />
@@ -95,12 +167,130 @@ export function InviteEmployeesButton() {
                 <Button variant={"outline"}>Cancel</Button>
               </DialogClose>
               <Button disabled={form.formState.isSubmitting}>
-                Send invites...
+                {form.formState.isSubmitting ? "Sending..." : "Send invites..."}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InvitationListItem({
+  inv,
+}: {
+  inv: RouterOutputs["betterAuth"]["getInvitaions"][number];
+}) {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+  const [isLoading, setLoading] = useState(false);
+
+  async function onCancelInv() {
+    setLoading(true);
+    await authClient.organization.cancelInvitation({
+      invitationId: inv.id,
+      fetchOptions: {
+        async onSuccess() {
+          await queryClient.invalidateQueries(
+            trpc.betterAuth.getInvitaions.queryOptions(),
+          );
+        },
+        onError(context) {
+          toast.error(context.error.message);
+        },
+      },
+    });
+    setLoading(false);
+  }
+
+  return (
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-1.5">
+        <Avatar className="size-10 border border-dashed">
+          <AvatarFallback className="bg-transparent">
+            <User2Icon strokeWidth={1} className="text-muted-border" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="-space-y-0.5">
+          <div className="text-xs font-medium">{inv.email}</div>
+          <time className="text-muted-foreground text-xs">
+            Expires {formatDistanceToNow(inv.expiresAt, { addSuffix: true })}
+          </time>
+        </div>
+      </div>
+
+      <Button
+        onClick={onCancelInv}
+        disabled={isLoading}
+        variant={"outline"}
+        size={"xs"}
+      >
+        {isLoading ? "Canceling..." : "Cancel"}
+      </Button>
+    </div>
+  );
+}
+
+function InvitaionListSkeleton() {
+  return Array.from({ length: 10 }).map((_, i) => (
+    <div className="flex w-full items-center justify-between" key={i}>
+      <div className="flex items-center gap-1.5">
+        <Skeleton className="size-10 rounded-full" />
+        <div className="space-y-1.5">
+          <Skeleton className="h-3 w-32" />
+          <Skeleton className="h-3 w-10" />
+        </div>
+      </div>
+
+      <Skeleton className="h-7 w-14" />
+    </div>
+  ));
+}
+
+function InvitationsListButton() {
+  const [open, setOpen] = useState(false);
+  const trpc = useTRPC();
+  const { data, isLoading, isRefetching } = useQuery(
+    trpc.betterAuth.getInvitaions.queryOptions(undefined, {
+      enabled: open,
+    }),
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button size={"icon"} className="data-[state=open]:bg-primary/90">
+          <ChevronDown />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="min-w-[350px] p-0">
+        <div className="flex w-full items-center border-b p-2.5">
+          <div className="text-sm font-semibold">Invitaions</div>
+        </div>
+        <ScrollArea>
+          <div className="max-h-[350px] min-h-[350px] space-y-2.5 p-2.5">
+            {isLoading || isRefetching ? (
+              <InvitaionListSkeleton />
+            ) : data?.length === 0 ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant={"icon"}>
+                    <SendIcon />
+                  </EmptyMedia>
+                  <EmptyTitle className="text-base">No invitations</EmptyTitle>
+                  <EmptyDescription className="text-xs">
+                    When you invite the people using their email, those will be
+                    shown here.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              data?.map((inv) => <InvitationListItem inv={inv} key={inv.id} />)
+            )}
+          </div>
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
   );
 }

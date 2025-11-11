@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
-import { auth } from "@/utils/auth";
+import type { Auth } from "@/utils/auth";
 
 /**
  * 1. CONTEXT
@@ -26,12 +26,22 @@ import { auth } from "@/utils/auth";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth.api.getSession({ headers: opts.headers });
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  auth: Auth;
+}) => {
+  const authApi = opts.auth.api;
+  const session = await authApi.getSession({ headers: opts.headers });
+  console.log(
+    opts.headers.get("x-trpc-source"),
+    ":",
+    opts.headers.get("Cookie"),
+  );
 
   return {
     db,
     session,
+    authApi,
     ...opts,
   };
 };
@@ -101,6 +111,23 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
+const protectingMiddleware = t.middleware(({ ctx, next }) => {
+  console.log("session", ctx.session);
+  if (!ctx.session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User not authenticated.",
+    });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      auth: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -120,14 +147,37 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
+  .use(protectingMiddleware);
+
+/**
+ * Organization (authenticated) procedure
+ *
+ * If you want a query or mutation to ONLY be accessible to logged in users and who have active
+ * organization, use this. It verifies the session is valid and guarantees `ctx.session.activeOrganizationId` is
+ * not null.
+ *
+ * @see https://trpc.io/docs/procedures
+ */
+export const organizationProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(protectingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!ctx.session?.session.activeOrganizationId) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "No organization selected.",
+      });
     }
     return next({
       ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        auth: {
+          ...ctx,
+          // infers the `session.activeOrganizationId` as non-nullable
+          session: {
+            ...ctx.session.session,
+            activeOrganizationId: ctx.session.session.activeOrganizationId,
+          },
+        },
       },
     });
   });

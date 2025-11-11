@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type VerificationType = "sign-in" | "email-verification";
+
 interface AuthState {
   // Email for OTP verification
   email: string;
   setEmail: (email: string) => void;
-  clearEmail: () => void;
+  verificationType: VerificationType;
+  setVerficationType: (verificationType: VerificationType) => void;
 
   // OTP verification state
   isVerifying: boolean;
@@ -15,24 +18,35 @@ interface AuthState {
   reset: () => void;
 }
 
+export const VERIFICATION_EMAIL_COOKIE_NAME = "verification_email";
+export const VERIFICATION_EMAIL_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       // Email state
+      name: "",
       email: "",
-      setEmail: (email: string) => set({ email }),
-      clearEmail: () => set({ email: "" }),
+      password: "",
+      verificationType: "sign-in",
+      setEmail: (email) => {
+        document.cookie = `${VERIFICATION_EMAIL_COOKIE_NAME}=${email}; path=/; max-age=${VERIFICATION_EMAIL_COOKIE_MAX_AGE}`;
+        set({ email });
+      },
+      setVerficationType: (verificationType) => set({ verificationType }),
 
       // Verification state
       isVerifying: false,
-      setIsVerifying: (isVerifying: boolean) => set({ isVerifying }),
+      setIsVerifying: (isVerifying) => set({ isVerifying }),
 
       // Reset all state
-      reset: () =>
+      reset: () => {
+        document.cookie = `${VERIFICATION_EMAIL_COOKIE_NAME}=; path=/; max-age=${VERIFICATION_EMAIL_COOKIE_MAX_AGE}`;
         set({
           email: "",
           isVerifying: false,
-        }),
+        });
+      },
     }),
     {
       name: "auth-store",
