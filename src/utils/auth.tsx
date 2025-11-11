@@ -24,6 +24,7 @@ const baseURL =
 
 export const auth = betterAuth({
   baseURL,
+  secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -34,6 +35,7 @@ export const auth = betterAuth({
   emailVerification: {
     autoSignInAfterVerification: true,
   },
+  trustedOrigins: [baseURL, "https://*.vercel.app"],
   plugins: [
     emailOTP({
       disableSignUp: true,

@@ -24,7 +24,9 @@ export const betterAuthRouter = {
   getByEmail: publicProcedure
     .input(z.object({ email: z.string() }))
     .query(({ ctx, input }) =>
-      ctx.db.query.user.findFirst({ where: eq(user.email, input.email) }),
+      ctx.db.query.user
+        .findFirst({ where: eq(user.email, input.email) })
+        .then((r) => r ?? null),
     ),
 
   listMembers: organizationProcedure
