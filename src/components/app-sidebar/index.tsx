@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { CreateBoardDialog } from "../dialogs/create-board.dialog";
 
 export async function AppSidebar({
   ...props
@@ -58,9 +59,11 @@ export async function AppSidebar({
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Boards</SidebarGroupLabel>
-            <SidebarGroupAction>
-              <PlusIcon />
-            </SidebarGroupAction>
+            <CreateBoardDialog>
+              <SidebarGroupAction>
+                <PlusIcon />
+              </SidebarGroupAction>
+            </CreateBoardDialog>
             <React.Suspense fallback={<SidebarBoardsMenuSkeleton />}>
               <NavBoards />
             </React.Suspense>

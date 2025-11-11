@@ -10,6 +10,30 @@
   --font-mono:
     var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
+  --animate-slide-up: slide-up 0.25s ease-in-out;
+  --animate-slide-down: slide-down 0.25s ease-in-out;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0%;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 100%;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0%);
+    opacity: 100%;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0%;
+  }
 }
 
 @theme inline {
