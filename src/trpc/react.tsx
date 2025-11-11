@@ -14,6 +14,7 @@ import SuperJSON from "superjson";
 import { createQueryClient } from "./query-client";
 import type { AppRouter } from "@/server/api/root";
 import { env } from "@/env";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
@@ -27,6 +28,20 @@ const getQueryClient = () => {
 };
 
 export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>();
+
+/**
+ * Inference helper for inputs.
+ *
+ * @example type HelloInput = RouterInputs['example']['hello']
+ */
+export type RouterInputs = inferRouterInputs<AppRouter>;
+
+/**
+ * Inference helper for outputs.
+ *
+ * @example type HelloOutput = RouterOutputs['example']['hello']
+ */
+export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
