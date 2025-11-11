@@ -4,6 +4,9 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -14,6 +17,7 @@ import { NavBoards } from "./nav-boards";
 import { NavUser } from "./nav-user";
 import Image from "next/image";
 import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -45,7 +49,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain />
       </SidebarHeader>
       <SidebarContent>
-        <NavBoards />
+        <SidebarGroup>
+          <SidebarGroupLabel>Boards</SidebarGroupLabel>
+          <SidebarGroupAction>
+            <PlusIcon />
+          </SidebarGroupAction>
+          <NavBoards />
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
