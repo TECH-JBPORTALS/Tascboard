@@ -39,7 +39,8 @@ export const boardRouter = {
       return await ctx.db
         .update(board)
         .set(input)
-        .where(eq(board.id, input.id));
+        .where(eq(board.id, input.id))
+        .returning();
     }),
 
   delete: protectedProcedure
@@ -57,6 +58,17 @@ export const boardRouter = {
           board: true,
         },
       })
-      .then((r) => r.map((r) => r.board));
+      .then((r) =>
+        r.map((r) => ({
+          ...r.board,
+          name: !r.board.name ? "Untitled" : r.board.name,
+        })),
+      );
   }),
+
+  getById: protectedProcedure
+    .input(z.object({ boardId: z.string() }))
+    .query(({ ctx, input }) =>
+      ctx.db.query.board.findFirst({ where: eq(board.id, input.boardId) }),
+    ),
 };
