@@ -41,8 +41,8 @@ export const board = pgTable(
       .notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
     description: d.text(),
-    startDate: d.date(),
-    endDate: d.date(),
+    startDate: d.date({ mode: "date" }),
+    endDate: d.date({ mode: "date" }),
   }),
   (t) => [index("name_idx").on(t.name)],
 );
@@ -57,10 +57,7 @@ export const CreateBoardSchema = createInsertSchema(board, {
 });
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
-  name: z
-    .string()
-    .min(3, "Board name cannot be less than 3 characters")
-    .optional(),
+  name: z.string().optional(),
   id: z.string().min(1),
 }).omit({
   createdAt: true,
