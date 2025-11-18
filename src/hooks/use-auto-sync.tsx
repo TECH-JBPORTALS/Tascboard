@@ -152,6 +152,7 @@ export function AutoSyncButton<T extends object>(
     <Button
       size={"xs"}
       variant={"ghost"}
+      type="button"
       className={cn(
         "w-fit rounded-full capitalize",
         status === "saving" && "text-amber-600",
