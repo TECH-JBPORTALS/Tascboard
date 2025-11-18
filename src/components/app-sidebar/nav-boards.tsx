@@ -19,6 +19,7 @@ import { useParams, usePathname } from "next/navigation";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/react";
 import isEmpty from "lodash/isEmpty";
+import { BoardActionDropdownMenu } from "./board-action.dropdown.menu";
 
 export function NavBoards() {
   const pathname = usePathname();
@@ -63,9 +64,11 @@ export function NavBoards() {
                 </Link>
               </SidebarMenuButton>
 
-              <SidebarMenuAction className="opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100">
-                <MoreHorizontalIcon />
-              </SidebarMenuAction>
+              <BoardActionDropdownMenu boardId={item.id}>
+                <SidebarMenuAction className="opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100">
+                  <MoreHorizontalIcon />
+                </SidebarMenuAction>
+              </BoardActionDropdownMenu>
 
               <CollapsibleContent>
                 {/* <SidebarMenuSub className="pr-0">

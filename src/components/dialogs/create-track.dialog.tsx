@@ -22,7 +22,13 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import type { DateRange } from "react-day-picker";
 
-export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
+export function CreateTrackDialog({
+  children,
+  boardId,
+}: {
+  children: React.ReactNode;
+  boardId: string;
+}) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -30,11 +36,11 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: createBoard, isPending } = useMutation(
-    trpc.board.create.mutationOptions({
+    trpc.track.create.mutationOptions({
       async onSuccess() {
         await queryClient.invalidateQueries(trpc.board.list.queryFilter());
         setOpen(false);
-        toast.success("Board created successfuly");
+        toast.success("Track created successfuly");
       },
       onError(error) {
         toast.error(error.message);
@@ -47,13 +53,13 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="flex max-h-[80%] min-h-[40%] flex-col sm:min-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-md font-medium">New board</DialogTitle>
+          <DialogTitle className="text-md font-medium">New track</DialogTitle>
         </DialogHeader>
         <div className="h-full flex-1 space-y-2 overflow-y-scroll">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Board name"
+            placeholder="Track name"
             className="bg-transparent! px-0 text-2xl! font-semibold outline-none"
           />
           <div className="flex items-center gap-1.5">
@@ -114,6 +120,7 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
           <Button
             onClick={() =>
               createBoard({
+                boardId,
                 name,
                 description,
                 startDate: dueDate?.from,
