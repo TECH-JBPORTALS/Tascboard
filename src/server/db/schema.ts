@@ -41,8 +41,8 @@ export const board = pgTable(
       .notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
     description: d.text(),
-    startDate: d.date({ mode: "date" }),
-    endDate: d.date({ mode: "date" }),
+    startDate: d.timestamp({ mode: "date", withTimezone: true }),
+    endDate: d.timestamp({ mode: "date", withTimezone: true }),
   }),
   (t) => [index("name_idx").on(t.name)],
 );
