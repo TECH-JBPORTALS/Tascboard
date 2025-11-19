@@ -67,7 +67,8 @@ export function TextEditor({
       LinkNode,
       AutoLinkNode,
     ],
-    editorState: () => $convertFromMarkdownString(markdown, TRANSFORMERS),
+    editorState: () =>
+      $convertFromMarkdownString(markdown, TRANSFORMERS, undefined, true, true),
     editable: true,
     theme,
   };
@@ -96,7 +97,11 @@ export function TextEditor({
         <OnChangePlugin
           onChange={(_, editor) => {
             editor.update(() => {
-              const markdown = $convertToMarkdownString(TRANSFORMERS);
+              const markdown = $convertToMarkdownString(
+                TRANSFORMERS,
+                undefined,
+                true,
+              );
               onChange?.(markdown);
             });
           }}
