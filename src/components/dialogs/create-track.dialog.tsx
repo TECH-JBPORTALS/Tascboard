@@ -38,7 +38,7 @@ export function CreateTrackDialog({
   const { mutate: createBoard, isPending } = useMutation(
     trpc.track.create.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(trpc.board.list.queryFilter());
+        await queryClient.invalidateQueries(trpc.track.list.queryFilter());
         setOpen(false);
         toast.success("Track created successfuly");
       },
