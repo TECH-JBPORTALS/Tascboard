@@ -50,7 +50,6 @@ export const boardRelations = relations(board, ({ many }) => ({
 
 export const CreateBoardSchema = createInsertSchema(board, {
   name: z.string().min(3, "Board name cannot be less than 3 characters"),
-  description: z.string().min(1, "Description must be atleast 1 character"),
 });
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
@@ -108,7 +107,6 @@ export const trackRelations = relations(track, ({ many, one }) => ({
 
 export const CreateTrackSchema = createInsertSchema(track, {
   name: z.string().min(3, "Track name cannot be less than 3 characters"),
-  description: z.string().min(1, "Description must be atleast 1 character"),
   boardId: z.string().min(1, "Board Id is required to create track"),
 });
 

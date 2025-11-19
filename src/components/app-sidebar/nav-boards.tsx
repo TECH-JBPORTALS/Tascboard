@@ -1,6 +1,12 @@
 "use client";
 
-import { BoxIcon, MoreHorizontalIcon, TriangleIcon } from "lucide-react";
+import {
+  AlertOctagonIcon,
+  BoxIcon,
+  MoreHorizontalIcon,
+  SquircleIcon,
+  TriangleIcon,
+} from "lucide-react";
 
 import {
   Collapsible,
@@ -13,19 +19,23 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useTRPC } from "@/trpc/react";
 import isEmpty from "lodash/isEmpty";
 import { BoardActionDropdownMenu } from "./board-action.dropdown.menu";
+import { useBoardList } from "@/hooks/use-board-list";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/react";
 
 export function NavBoards() {
   const pathname = usePathname();
   const params = useParams<{ orgSlug: string }>();
-  const trpc = useTRPC();
-  const { data: boards } = useSuspenseQuery(trpc.board.list.queryOptions());
+  const { boards, toggleBoard } = useBoardList();
 
   if (isEmpty(boards))
     return (
@@ -42,63 +52,118 @@ export function NavBoards() {
   return (
     <SidebarGroupContent>
       <SidebarMenu>
-        {boards.map((item) => (
-          <Collapsible key={item.id} asChild className="group/collapsible">
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuAction className="right-0 left-1 rotate-90 data-[state=open]:rotate-180 [&>svg]:size-1.5">
-                  <TriangleIcon className="fill-sidebar-foreground" />
-                  <span className="sr-only">Toggle</span>
-                </SidebarMenuAction>
-              </CollapsibleTrigger>
+        {boards.map((item) => {
+          return (
+            <Collapsible
+              key={item.id}
+              asChild
+              open={item.open}
+              onOpenChange={() => toggleBoard(item.id)}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuAction className="right-0 left-1 rotate-90 data-[state=open]:rotate-180 [&>svg]:size-1.5">
+                    <TriangleIcon className="fill-sidebar-foreground" />
+                    <span className="sr-only">Toggle</span>
+                  </SidebarMenuAction>
+                </CollapsibleTrigger>
 
-              <SidebarMenuButton
-                asChild
-                tooltip={item.name}
-                className="pl-6"
-                isActive={pathname === `/${params.orgSlug}/b/${item.id}`}
-              >
-                <Link href={`/${params.orgSlug}/b/${item.id}`}>
-                  <BoxIcon />
-                  <span>{item.name}</span>
-                </Link>
-              </SidebarMenuButton>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.name}
+                  className="pl-6"
+                  isActive={pathname === `/${params.orgSlug}/b/${item.id}`}
+                >
+                  <Link href={`/${params.orgSlug}/b/${item.id}`}>
+                    <BoxIcon />
+                    <span>{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
 
-              <BoardActionDropdownMenu boardId={item.id}>
-                <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
-                  <MoreHorizontalIcon />
-                </SidebarMenuAction>
-              </BoardActionDropdownMenu>
+                <BoardActionDropdownMenu boardId={item.id}>
+                  <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
+                    <MoreHorizontalIcon />
+                  </SidebarMenuAction>
+                </BoardActionDropdownMenu>
 
-              <CollapsibleContent>
-                {/* <SidebarMenuSub className="pr-0">
-                  {item.tracks?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton
-                        className="peer/menu-sub-button"
-                        asChild
-                        isActive={pathname.startsWith(
-                          `/${params.orgSlug}/b/${item.id}/t/${subItem.id}`,
-                        )}
-                      >
-                        <Link
-                          href={`/${params.orgSlug}/b/${item.id}/t/${subItem.id}`}
-                        >
-                          <SquircleIcon />
-                          <span>{subItem.title}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                      <SidebarMenuAction className="opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 [&>svg]:size-3">
-                        <MoreHorizontalIcon />
-                      </SidebarMenuAction>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub> */}
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+                <CollapsibleContent>
+                  <SidebarMenuSub className="pr-0">
+                    {item.open && (
+                      <TrackList
+                        boardId={item.id}
+                        boardMemberId={item.boardMemberId}
+                      />
+                    )}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroupContent>
+  );
+}
+
+function TrackList({
+  boardMemberId,
+  boardId,
+}: {
+  boardMemberId: string;
+  boardId: string;
+}) {
+  const trpc = useTRPC();
+  const {
+    data: tracks,
+    isLoading,
+    isError,
+  } = useQuery(trpc.track.list.queryOptions({ boardMemberId }));
+
+  const pathname = usePathname();
+  const params = useParams<{ orgSlug: string }>();
+
+  if (isLoading)
+    return Array.from({ length: 3 }).map((_, i) => (
+      <SidebarMenuSkeleton key={i} />
+    ));
+
+  if (isError || !tracks)
+    return (
+      <div className="text-xs text-amber-600">
+        <AlertOctagonIcon className="mr-1 inline size-3" />
+        Unable to fetch tracks
+      </div>
+    );
+
+  if (isEmpty(tracks))
+    return (
+      <div className="text-muted-foreground text-xs">
+        No tracks in this board
+      </div>
+    );
+
+  return (
+    <>
+      {tracks.map((subItem) => (
+        <SidebarMenuSubItem key={subItem.id}>
+          <SidebarMenuSubButton
+            className="peer/menu-sub-button"
+            asChild
+            isActive={pathname.startsWith(
+              `/${params.orgSlug}/b/${boardId}/t/${subItem.id}`,
+            )}
+          >
+            <Link href={`/${params.orgSlug}/b/${boardId}/t/${subItem.id}`}>
+              <SquircleIcon />
+              <span>{subItem.name}</span>
+            </Link>
+          </SidebarMenuSubButton>
+          <SidebarMenuAction className="opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 [&>svg]:size-3">
+            <MoreHorizontalIcon />
+          </SidebarMenuAction>
+        </SidebarMenuSubItem>
+      ))}
+    </>
   );
 }

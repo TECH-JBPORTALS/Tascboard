@@ -70,22 +70,27 @@ export const trackRouter = {
       return await ctx.db.delete(track).where(eq(track.id, input.id));
     }),
 
-  list: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.query.trackMember
-      .findMany({
-        where: eq(trackMember.userId, ctx.auth.user.id),
-        columns: {},
-        with: {
-          track: true,
-        },
-      })
-      .then((r) =>
-        r.map((r) => ({
-          ...r.track,
-          name: !r.track.name ? "Untitled" : r.track.name,
-        })),
-      );
-  }),
+  list: protectedProcedure
+    .input(z.object({ boardMemberId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.query.trackMember
+        .findMany({
+          where: and(
+            eq(trackMember.userId, ctx.auth.user.id),
+            eq(trackMember.boardMemberId, input.boardMemberId),
+          ),
+          columns: {},
+          with: {
+            track: true,
+          },
+        })
+        .then((r) =>
+          r.map((r) => ({
+            ...r.track,
+            name: !r.track.name ? "Untitled" : r.track.name,
+          })),
+        );
+    }),
 
   getById: protectedProcedure
     .input(z.object({ trackId: z.string() }))

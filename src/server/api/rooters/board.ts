@@ -53,7 +53,7 @@ export const boardRouter = {
     return ctx.db.query.boardMember
       .findMany({
         where: eq(boardMember.userId, ctx.auth.user.id),
-        columns: {},
+        columns: { id: true },
         with: {
           board: true,
         },
@@ -62,6 +62,7 @@ export const boardRouter = {
         r.map((r) => ({
           ...r.board,
           name: !r.board.name ? "Untitled" : r.board.name,
+          boardMemberId: r.id,
         })),
       );
   }),
