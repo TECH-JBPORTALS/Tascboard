@@ -6,9 +6,12 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { CreateTrackDialog } from "../dialogs/create-track.dialog";
+import { DeleteIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 export function BoardActionDropdownMenu({
   children,
@@ -21,14 +24,18 @@ export function BoardActionDropdownMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent>
+        <DropdownMenuLabel className="text-muted-foreground text-xs">
+          Actions
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <CreateTrackDialog boardId={boardId}>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Create track...
+              <PlusIcon /> Create track...
             </DropdownMenuItem>
           </CreateTrackDialog>
           <DropdownMenuItem variant="destructive">
-            Delete board
+            <DeleteIcon /> Delete board
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

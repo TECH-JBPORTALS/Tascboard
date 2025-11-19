@@ -65,7 +65,7 @@ export function NavBoards() {
               </SidebarMenuButton>
 
               <BoardActionDropdownMenu boardId={item.id}>
-                <SidebarMenuAction className="opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100">
+                <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
                   <MoreHorizontalIcon />
                 </SidebarMenuAction>
               </BoardActionDropdownMenu>
