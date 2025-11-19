@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { AutoSyncButton } from "@/hooks/use-auto-sync";
-import { UpdateBoardSchema } from "@/server/db/schema";
+import { UpdateTrackSchema } from "@/server/db/schema";
 import { useTRPC } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -35,18 +35,18 @@ const users = [
   { name: "Theo", url: "https://github.com/theo.png" },
 ];
 
-export function BoardDetailsPage() {
-  const { boardId } = useParams<{ boardId: string }>();
+export function TrackDetailsPage() {
+  const { trackId } = useParams<{ trackId: string }>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(
-    trpc.board.getById.queryOptions({ boardId }),
+    trpc.track.getById.queryOptions({ trackId }),
   );
 
   const form = useForm({
-    resolver: zodResolver(UpdateBoardSchema),
+    resolver: zodResolver(UpdateTrackSchema),
     defaultValues: {
-      id: boardId,
+      id: trackId,
       name: data?.name ?? "Untitled",
       description: data?.description ?? "",
       endDate: data?.endDate,
@@ -54,11 +54,11 @@ export function BoardDetailsPage() {
     },
   });
   const { mutateAsync: updateBoard } = useMutation(
-    trpc.board.update.mutationOptions({
+    trpc.track.update.mutationOptions({
       async onSuccess(data) {
         await Promise.all([
-          queryClient.invalidateQueries(trpc.board.getById.queryFilter()),
-          queryClient.invalidateQueries(trpc.board.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.track.getById.queryFilter()),
+          queryClient.invalidateQueries(trpc.track.list.queryFilter()),
         ]);
         form.reset(data[0]);
       },
@@ -78,7 +78,7 @@ export function BoardDetailsPage() {
             isDirty={form.formState.isDirty}
             values={{
               ...values,
-              id: boardId,
+              id: trackId,
             }}
             onSave={updateBoard}
           />

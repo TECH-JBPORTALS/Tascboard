@@ -1,6 +1,4 @@
-import { SiteHeader } from "@/components/site-header";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
-import { BoxIcon } from "lucide-react";
 import { BoardDetailsPage } from "./board-details.page.client";
 import { SiteHeaderClient } from "./site-header.client";
 
