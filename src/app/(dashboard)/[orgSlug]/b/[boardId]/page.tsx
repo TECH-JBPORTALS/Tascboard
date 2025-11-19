@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { BoxIcon } from "lucide-react";
 import { BoardDetailsPage } from "./board-details.page.client";
+import { SiteHeaderClient } from "./site-header.client";
 
 export default async function Board({
   params,
@@ -13,13 +14,7 @@ export default async function Board({
 
   return (
     <HydrateClient>
-      <SiteHeader
-        startElement={
-          <div className="flex items-center gap-1.5 text-sm">
-            <BoxIcon className="size-4" /> Board Title
-          </div>
-        }
-      />
+      <SiteHeaderClient />
       <BoardDetailsPage />
     </HydrateClient>
   );
