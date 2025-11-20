@@ -40,6 +40,10 @@ export const board = pgTable(
     ...dueDateColumns,
     name: d.varchar({ length: 256 }).notNull(),
     description: d.text(),
+    organizationId: d
+      .text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
   }),
   (t) => [index().on(t.name)],
 );
@@ -50,7 +54,7 @@ export const boardRelations = relations(board, ({ many }) => ({
 
 export const CreateBoardSchema = createInsertSchema(board, {
   name: z.string().min(3, "Board name cannot be less than 3 characters"),
-});
+}).omit({ organizationId: true });
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
   name: z.string().optional(),

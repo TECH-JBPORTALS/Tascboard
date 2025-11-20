@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { protectedProcedure } from "../trpc";
+import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import {
   track,
   trackMember,
@@ -11,7 +11,13 @@ import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trackRouter = {
-  create: protectedProcedure
+  create: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { track: ["create"] } },
+        "You don't have permission to create track",
+      ),
+    )
     .input(CreateTrackSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
@@ -54,7 +60,13 @@ export const trackRouter = {
       });
     }),
 
-  update: protectedProcedure
+  update: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { track: ["update"] } },
+        "You don't have permission to update track details",
+      ),
+    )
     .input(UpdateTrackSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db
@@ -64,13 +76,19 @@ export const trackRouter = {
         .returning();
     }),
 
-  delete: protectedProcedure
+  delete: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { track: ["delete"] } },
+        "You don't have permission to delete track",
+      ),
+    )
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.delete(track).where(eq(track.id, input.id));
     }),
 
-  list: protectedProcedure
+  list: organizationProcedure
     .input(z.object({ boardMemberId: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.query.trackMember
@@ -92,7 +110,7 @@ export const trackRouter = {
         );
     }),
 
-  getById: protectedProcedure
+  getById: organizationProcedure
     .input(z.object({ trackId: z.string() }))
     .query(({ ctx, input }) =>
       ctx.db.query.track.findFirst({ where: eq(track.id, input.trackId) }),

@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
-import type { Auth } from "@/utils/auth";
+import type { auth, Auth } from "@/utils/auth";
 
 /**
  * 1. CONTEXT
@@ -39,10 +39,10 @@ export const createTRPCContext = async (opts: {
   );
 
   return {
-    db,
-    session,
-    authApi,
     ...opts,
+    db,
+    authApi,
+    auth: session,
   };
 };
 
@@ -112,8 +112,8 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const protectingMiddleware = t.middleware(({ ctx, next }) => {
-  console.log("session", ctx.session);
-  if (!ctx.session) {
+  console.log("session", ctx.auth);
+  if (!ctx.auth) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "User not authenticated.",
@@ -123,10 +123,39 @@ const protectingMiddleware = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      auth: { ...ctx.session, user: ctx.session.user },
+      auth: { ...ctx.auth, user: ctx.auth.user },
     },
   });
 });
+
+/**
+ * Check the permission in selected organization
+ *
+ */
+export const hasPermissionMiddleware = (
+  body: Pick<
+    Parameters<(typeof auth)["api"]["hasPermission"]>[0],
+    "body"
+  >["body"],
+  errorMessage?: string,
+) =>
+  t.middleware(async ({ ctx, next }) => {
+    const hasRequiredPermissions = await ctx.authApi.hasPermission({
+      body,
+      headers: ctx.headers,
+    });
+
+    if (!hasRequiredPermissions.success) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message:
+          errorMessage ??
+          "Seems like you don't have permission to do this action.",
+      });
+    }
+
+    return next();
+  });
 
 /**
  * Public (unauthenticated) procedure
@@ -162,7 +191,7 @@ export const organizationProcedure = t.procedure
   .use(timingMiddleware)
   .use(protectingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.session.activeOrganizationId) {
+    if (!ctx.auth?.session.activeOrganizationId) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "No organization selected.",
@@ -171,11 +200,11 @@ export const organizationProcedure = t.procedure
     return next({
       ctx: {
         auth: {
-          ...ctx,
-          // infers the `session.activeOrganizationId` as non-nullable
+          ...ctx.auth,
           session: {
-            ...ctx.session.session,
-            activeOrganizationId: ctx.session.session.activeOrganizationId,
+            ...ctx.auth.session,
+            // infers the `auth.session.activeOrganizationId` as non-nullable
+            activeOrganizationId: ctx.auth.session.activeOrganizationId,
           },
         },
       },
