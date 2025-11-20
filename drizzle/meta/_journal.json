@@ -15,6 +15,13 @@
       "when": 1763534445085,
       "tag": "0001_bitter_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763635805854,
+      "tag": "0002_chubby_valeria_richards",
+      "breakpoints": true
     }
   ]
 }
