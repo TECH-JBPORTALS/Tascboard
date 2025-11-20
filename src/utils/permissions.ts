@@ -2,6 +2,7 @@ import { createAccessControl } from "better-auth/plugins/access";
 import {
   defaultStatements,
   ownerAc,
+  memberAc,
 } from "better-auth/plugins/organization/access";
 
 /**
@@ -27,4 +28,5 @@ export const employee = ac.newRole({
   board: [],
   track: [],
   tasc: [],
+  ...memberAc.statements,
 });

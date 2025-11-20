@@ -140,12 +140,12 @@ export const hasPermissionMiddleware = (
   errorMessage?: string,
 ) =>
   t.middleware(async ({ ctx, next }) => {
-    const hasRequiredPermissions = await ctx.authApi.hasPermission({
+    const { success } = await ctx.authApi.hasPermission({
       body,
       headers: ctx.headers,
     });
 
-    if (!hasRequiredPermissions.success) {
+    if (!success) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message:

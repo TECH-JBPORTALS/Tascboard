@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { CreateTrackDialog } from "../dialogs/create-track.dialog";
-import { DeleteIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { DeleteIcon, PlusIcon } from "lucide-react";
 
 export function BoardActionDropdownMenu({
   children,
