@@ -2,7 +2,7 @@ import { boardMember } from "@/server/db/schema";
 import { protectedProcedure } from "../trpc";
 
 import { z } from "zod/v4";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const boardMemberRouter = {
   add: protectedProcedure
@@ -11,11 +11,16 @@ export const boardMemberRouter = {
       return await ctx.db.insert(boardMember).values(input);
     }),
   remove: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db
+    .input(z.object({ userId: z.string().min(1), boardId: z.string().min(1) }))
+    .mutation(({ ctx, input }) => {
+      return ctx.db
         .delete(boardMember)
-        .where(eq(boardMember.id, input.id));
+        .where(
+          and(
+            eq(boardMember.userId, input.userId),
+            eq(boardMember.boardId, input.boardId),
+          ),
+        );
     }),
   list: protectedProcedure
     .input(z.object({ boardId: z.string().min(1) }))

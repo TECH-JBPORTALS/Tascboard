@@ -32,11 +32,6 @@ export const createTRPCContext = async (opts: {
 }) => {
   const authApi = opts.auth.api;
   const session = await authApi.getSession({ headers: opts.headers });
-  console.log(
-    opts.headers.get("x-trpc-source"),
-    ":",
-    opts.headers.get("Cookie"),
-  );
 
   return {
     ...opts,
@@ -112,7 +107,6 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const protectingMiddleware = t.middleware(({ ctx, next }) => {
-  console.log("session", ctx.auth);
   if (!ctx.auth) {
     throw new TRPCError({
       code: "UNAUTHORIZED",

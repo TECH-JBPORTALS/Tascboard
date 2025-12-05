@@ -1,8 +1,7 @@
 "use client";
 import { Container } from "@/components/container";
-import { MembersPopover } from "@/components/members-popover";
+import { BoardMembersButton } from "@/components/board-members.button";
 import { TextEditor } from "@/components/text-editor";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField } from "@/components/ui/form";
@@ -26,14 +25,7 @@ import { ArrowRightIcon, CalendarIcon, CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-const users = [
-  { name: "Manu", url: "https://github.com/x-sss-x.png" },
-  { name: "JB Portals", url: "https://github.com/JBPORTALS.png" },
-  { name: "Akash", url: "https://github.com/akash.png" },
-  { name: "Gayathri Emparala", url: "https://github.com/gayathriemparala.png" },
-  { name: "Theo", url: "https://github.com/theo.png" },
-];
+import { useEffect } from "react";
 
 export function BoardDetailsPage() {
   const { boardId } = useParams<{ boardId: string }>();
@@ -51,6 +43,7 @@ export function BoardDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
+      boardMembersUserIds: data.boardMembersUserIds ?? [],
     },
   });
   const { mutateAsync: updateBoard } = useMutation(
@@ -67,6 +60,24 @@ export function BoardDetailsPage() {
       },
     }),
   );
+
+  useEffect(() => {
+    form.reset({
+      name: data?.name ?? "Untitled",
+      description: data?.description ?? "",
+      endDate: data?.endDate,
+      startDate: data?.startDate,
+      boardMembersUserIds: data.boardMembersUserIds ?? [],
+    });
+  }, [
+    data.name,
+    data.description,
+    data.endDate,
+    data.startDate,
+    data.boardMembersUserIds,
+    form,
+    boardId,
+  ]);
 
   const values = form.watch();
 
@@ -140,25 +151,7 @@ export function BoardDetailsPage() {
               </PopoverContent>
             </Popover>
 
-            <MembersPopover memebers={users}>
-              <Button
-                variant={"ghost"}
-                className="data-[state=open]:bg-accent"
-                size={"xs"}
-              >
-                <span className="inline-flex -space-x-2">
-                  {users.map((item, i) => (
-                    <Avatar
-                      key={i}
-                      className="border-background size-6 border-2"
-                    >
-                      <AvatarImage src={item.url} />
-                    </Avatar>
-                  ))}
-                </span>
-                {users.length} Members
-              </Button>
-            </MembersPopover>
+            <BoardMembersButton membersUserIds={values.boardMembersUserIds} />
           </div>
           <Separator />
           <FormField

@@ -94,6 +94,21 @@ export const boardRouter = {
   getById: organizationProcedure
     .input(z.object({ boardId: z.string() }))
     .query(({ ctx, input }) =>
-      ctx.db.query.board.findFirst({ where: eq(board.id, input.boardId) }),
+      ctx.db.query.board
+        .findFirst({
+          where: eq(board.id, input.boardId),
+          with: {
+            boardMembers: {
+              columns: {
+                id: true,
+                userId: true,
+              },
+            },
+          },
+        })
+        .then((r) => ({
+          ...r,
+          boardMembersUserIds: r?.boardMembers.map((v) => v.userId),
+        })),
     ),
 };

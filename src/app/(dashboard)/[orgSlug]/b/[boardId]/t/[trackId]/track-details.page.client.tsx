@@ -1,6 +1,5 @@
 "use client";
 import { Container } from "@/components/container";
-import { MembersPopover } from "@/components/members-popover";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -140,7 +139,7 @@ export function TrackDetailsPage() {
               </PopoverContent>
             </Popover>
 
-            <MembersPopover memebers={users}>
+            {/* <MembersPopover memebers={users}>
               <Button
                 variant={"ghost"}
                 className="data-[state=open]:bg-accent"
@@ -158,7 +157,7 @@ export function TrackDetailsPage() {
                 </span>
                 {users.length} Members
               </Button>
-            </MembersPopover>
+            </MembersPopover> */}
           </div>
           <Separator />
           <FormField

@@ -19,7 +19,6 @@ import { z } from "zod/v4";
 import { Plus, UserCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import { MembersPopover } from "./members-popover";
 
 export const NewTascSchema = z.object({
   title: z.string().optional(),
@@ -71,18 +70,7 @@ export function NewTascButton() {
                 )}
               />
 
-              <div className="flex w-full">
-                <MembersPopover
-                  memebers={[
-                    { name: "Manu", url: "https://github.com/x-sss-x.png" },
-                  ]}
-                >
-                  <Button size={"xs"} variant={"secondary"}>
-                    <UserCircle />
-                    Assign
-                  </Button>
-                </MembersPopover>
-              </div>
+              <div className="flex w-full"></div>
               <Separator />
               <FormField
                 control={form.control}

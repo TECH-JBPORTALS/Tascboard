@@ -52,18 +52,6 @@ export const boardRelations = relations(board, ({ many }) => ({
   boardMembers: many(boardMember),
 }));
 
-export const CreateBoardSchema = createInsertSchema(board, {
-  name: z.string().min(3, "Board name cannot be less than 3 characters"),
-}).omit({ organizationId: true });
-
-export const UpdateBoardSchema = createUpdateSchema(board, {
-  name: z.string().optional(),
-  id: z.string().min(1),
-}).omit({
-  createdAt: true,
-  updatedAt: true,
-});
-
 /** ## Board Member */
 export const boardMember = pgTable("board_member", (d) => ({
   ...initialColumns,
@@ -85,6 +73,20 @@ export const boardMemberRelations = relations(boardMember, ({ one }) => ({
   user: one(user, { fields: [boardMember.userId], references: [user.id] }),
   board: one(board, { fields: [boardMember.boardId], references: [board.id] }),
 }));
+
+export const CreateBoardSchema = createInsertSchema(board, {
+  name: z.string().min(3, "Board name cannot be less than 3 characters"),
+}).omit({ organizationId: true });
+
+export const UpdateBoardSchema = createUpdateSchema(board, {
+  name: z.string().optional(),
+  id: z.string().min(1),
+})
+  .omit({
+    createdAt: true,
+    updatedAt: true,
+  })
+  .and(z.object({ boardMembersUserIds: z.array(z.string()) }));
 
 /** ## Track */
 export const track = pgTable(
@@ -199,3 +201,24 @@ export const tascMember = pgTable("tasc_member", (d) => ({
     .references(() => user.id, { onDelete: "cascade" })
     .notNull(),
 }));
+
+export const CreateTascSchema = createInsertSchema(tasc, {
+  name: z.string().min(3, "Tasc name cannot be less than 3 characters"),
+  trackId: z.string().min(1, "Track Id is required to create tasc"),
+  status: z.enum(["todo", "in_progress", "completed", "verified"]),
+}).pick({
+  name: true,
+  description: true,
+  trackId: true,
+});
+
+export const UpdateTascSchema = createUpdateSchema(tasc, {
+  name: z.string().optional(),
+  id: z.string().min(1),
+  status: z.enum(["todo", "in_progress", "completed", "verified"]),
+}).omit({
+  createdAt: true,
+  updatedAt: true,
+  faceId: true,
+  trackId: true,
+});

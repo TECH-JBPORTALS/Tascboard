@@ -5,9 +5,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { columns, type Tasc } from "./columns";
-import { Button } from "@/components/ui/button";
 import { NewTascButton } from "@/components/new-tasc.dialog";
 
 const tascs: Tasc[] = [

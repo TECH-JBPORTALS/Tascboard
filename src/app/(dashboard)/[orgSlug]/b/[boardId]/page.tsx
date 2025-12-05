@@ -9,6 +9,7 @@ export default async function Board({
 }) {
   const { boardId } = await params;
   prefetch(trpc.board.getById.queryOptions({ boardId }));
+  prefetch(trpc.member.list.queryOptions());
 
   return (
     <HydrateClient>
