@@ -1,53 +1,38 @@
 import { Container } from "@/components/container";
-import { DataTable } from "@/components/data-table";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { SearchIcon } from "lucide-react";
-import { columns, type Tasc } from "./columns";
 import { NewTascButton } from "@/components/new-tasc.dialog";
+import DataTableClient from "./data-table.client";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
-const tascs: Tasc[] = [
-  {
-    id: "1",
-    faceId: "CHIT-01",
-    title: "fix: Sidebar button when it's active",
-    createdBy: "Manu",
-    status: "not-started",
-  },
-  {
-    id: "CHIT-02",
-    faceId: "CHIT-02",
-    title: "fix: Hover state of profile avatar",
-    createdBy: "Manu",
-    status: "in-progress",
-  },
-  {
-    id: "1",
-    faceId: "CHIT-03",
-    title: "feat: Post the new comments in side bar",
-    createdBy: "Manu",
-    status: "in-progress",
-  },
-];
+export default async function Employees({
+  params,
+}: {
+  params: Promise<{ trackId: string }>;
+}) {
+  const { trackId } = await params;
+  prefetch(trpc.tasc.list.queryOptions({ trackId }));
 
-export default function Employees() {
   return (
-    <Container>
-      <div className="flex justify-between">
-        <InputGroup className="max-w-sm">
-          <InputGroupAddon>
-            <SearchIcon />
-          </InputGroupAddon>
-          <InputGroupInput placeholder="Search..." />
-        </InputGroup>
+    <HydrateClient>
+      <Container>
+        <div className="flex justify-between">
+          <InputGroup className="max-w-sm">
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+            <InputGroupInput placeholder="Search..." />
+          </InputGroup>
 
-        <NewTascButton />
-      </div>
+          <NewTascButton />
+        </div>
 
-      <DataTable columns={columns} data={tascs} />
-    </Container>
+        <DataTableClient />
+      </Container>
+    </HydrateClient>
   );
 }
