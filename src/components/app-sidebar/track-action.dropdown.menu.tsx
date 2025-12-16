@@ -10,8 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { CreateTrackDialog } from "../dialogs/create-track.dialog";
-import { DeleteIcon, PlusIcon } from "lucide-react";
+import { DeleteIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -65,7 +64,7 @@ export function TrackActionDropdownMenu({
         <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Track</AlertDialogTitle>
+            <AlertDialogTitle>Delete track</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this track. By deleting this track
               it will remove all contents paramentatly and it is irreversable
