@@ -1,19 +1,12 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import type { RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
-export interface Tasc {
-  id: string;
-  title: string;
-  faceId: string;
-  status: "in-progress" | "not-started" | "completed";
-  createdBy: string;
-}
+export type Tasc = RouterOutputs["tasc"]["list"][number];
 
 export const columns: ColumnDef<Tasc>[] = [
   {
@@ -28,7 +21,7 @@ export const columns: ColumnDef<Tasc>[] = [
           className="flex w-full flex-1 items-center gap-2"
         >
           <span className="text-muted-foreground text-xs">{row.faceId}</span>
-          <p className="font-medium">{row.title}</p>
+          <p className="font-medium">{row.name}</p>
         </Link>
       );
     },
@@ -42,24 +35,6 @@ export const columns: ColumnDef<Tasc>[] = [
       return (
         <div className="text-right">
           <Button variant={"ghost"}>{row.status}</Button>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "createdBy",
-    header: () => <div className="text-right">Created by</div>,
-    cell(props) {
-      const row = props.row.original;
-
-      return (
-        <div className="text-right">
-          <div className="flex items-center justify-end gap-2">
-            <Avatar>
-              <AvatarFallback>{row.createdBy.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>{row.createdBy}</div>
-          </div>
         </div>
       );
     },

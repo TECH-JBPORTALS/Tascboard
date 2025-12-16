@@ -18,9 +18,13 @@ import { NavBoards } from "./nav-boards";
 import { NavUser } from "./nav-user";
 import Image from "next/image";
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { auth } from "@/utils/auth";
+import { headers } from "next/headers";
+import { Skeleton } from "../ui/skeleton";
+import { Protect } from "../protect";
 import { CreateBoardDialog } from "../dialogs/create-board.dialog";
+import { PlusIcon } from "lucide-react";
 
 export async function AppSidebar({
   ...props
@@ -59,11 +63,9 @@ export async function AppSidebar({
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Boards</SidebarGroupLabel>
-            <CreateBoardDialog>
-              <SidebarGroupAction>
-                <PlusIcon />
-              </SidebarGroupAction>
-            </CreateBoardDialog>
+
+            <ProtectedCreateBoard />
+
             <React.Suspense fallback={<SidebarBoardsMenuSkeleton />}>
               <NavBoards />
             </React.Suspense>
@@ -84,5 +86,32 @@ function SidebarBoardsMenuSkeleton() {
         <SidebarMenuSkeleton key={i} />
       ))}
     </SidebarMenu>
+  );
+}
+
+async function ProtectedCreateBoard() {
+  const hasCreateBoardPermission = auth.api
+    .hasPermission({
+      body: { permission: { board: ["create"] } },
+      headers: await headers(),
+    })
+    .then((r) => r.success);
+
+  return (
+    <React.Suspense
+      fallback={
+        <SidebarGroupAction disabled asChild>
+          <Skeleton className="size-6" />
+        </SidebarGroupAction>
+      }
+    >
+      <Protect hasAccess={hasCreateBoardPermission}>
+        <CreateBoardDialog>
+          <SidebarGroupAction>
+            <PlusIcon />
+          </SidebarGroupAction>
+        </CreateBoardDialog>
+      </Protect>
+    </React.Suspense>
   );
 }

@@ -1,6 +1,4 @@
 import { Container } from "@/components/container";
-import { DatePicker } from "@/components/date-picker";
-import { MembersPopover } from "@/components/members-popover";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -24,7 +22,7 @@ export default async function Track() {
       />
       <div className="flex items-center gap-4 py-1">
         <div className="flex items-center [&>svg]:size-4">
-          <DatePicker>
+          {/* <DatePicker>
             <Button
               size={"xs"}
               className="data-[state=open]:bg-accent"
@@ -42,25 +40,8 @@ export default async function Track() {
             >
               2 Sep, 2023
             </Button>
-          </DatePicker>
+          </DatePicker> */}
         </div>
-
-        <MembersPopover memebers={users}>
-          <Button
-            variant={"ghost"}
-            className="data-[state=open]:bg-accent"
-            size={"xs"}
-          >
-            <span className="inline-flex -space-x-2">
-              {users.map((item, i) => (
-                <Avatar key={i} className="border-background size-6 border-2">
-                  <AvatarImage src={item.url} />
-                </Avatar>
-              ))}
-            </span>
-            {users.length} Members
-          </Button>
-        </MembersPopover>
       </div>
       <Separator />
       <TextEditor />

@@ -1,0 +1,151 @@
+"use client";
+
+import React from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "./ui/command";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { useTRPC, type RouterOutputs } from "@/trpc/react";
+import { Button } from "./ui/button";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
+
+export function BoardMembersButton({
+  membersUserIds = [],
+  ...props
+}: React.ComponentProps<typeof Popover> & {
+  membersUserIds: string[];
+}) {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.member.list.queryOptions());
+
+  const membersOfBoard = data?.filter((mem) =>
+    membersUserIds.includes(mem.userId),
+  );
+
+  const remainingMembers = data?.filter(
+    (mem) => !membersUserIds.includes(mem.userId),
+  );
+
+  return (
+    <Popover {...props}>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"ghost"}
+          className="data-[state=open]:bg-accent"
+          size={"xs"}
+        >
+          <span className="inline-flex -space-x-2">
+            {membersOfBoard?.map((mem) => (
+              <Avatar key={mem.id} className="size-6">
+                <AvatarImage src={mem.user.image ?? "No image"} />
+                <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+            ))}
+          </span>
+          {membersOfBoard?.length} Members
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="max-w-52 p-0">
+        <Command>
+          <CommandInput placeholder="Search..." />
+          <CommandList>
+            <CommandGroup heading="Members of board">
+              {membersOfBoard?.map((mem) => (
+                <MemberItem key={mem.id} mem={mem} />
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
+            {remainingMembers?.length !== 0 && (
+              <CommandGroup heading="Members of organization">
+                {remainingMembers?.map((mem) => (
+                  <RemainingMemberItem mem={mem} key={mem.id} />
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function MemberItem({ mem }: { mem: RouterOutputs["member"]["list"][number] }) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { boardId } = useParams<{ boardId: string }>();
+  const { mutate: removeMember, isPending } = useMutation(
+    trpc.boardMember.remove.mutationOptions({
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          trpc.board.getById.queryOptions({ boardId }),
+        );
+      },
+      onError(error) {
+        toast.error(error.message);
+      },
+    }),
+  );
+
+  return (
+    <CommandItem
+      onSelect={() => {
+        removeMember({ userId: mem.userId, boardId });
+      }}
+      disabled={isPending}
+    >
+      <Avatar className="size-6">
+        <AvatarImage src={mem.user.image ?? "No image"} />
+        <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
+      </Avatar>
+      <span>{mem.user.name}</span>
+    </CommandItem>
+  );
+}
+function RemainingMemberItem({
+  mem,
+}: {
+  mem: RouterOutputs["member"]["list"][number];
+}) {
+  const trpc = useTRPC();
+  const { boardId } = useParams<{ boardId: string }>();
+  const queryClient = useQueryClient();
+  const { mutate: addMember, isPending } = useMutation(
+    trpc.boardMember.add.mutationOptions({
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          trpc.board.getById.queryOptions({ boardId }),
+        );
+      },
+      onError(error) {
+        toast.error(error.message);
+      },
+    }),
+  );
+
+  return (
+    <CommandItem
+      onSelect={() => {
+        addMember({ userId: mem.userId, boardId });
+      }}
+      disabled={isPending}
+    >
+      <Avatar className="size-6">
+        <AvatarImage src={mem.user.image ?? "No image"} />
+        <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
+      </Avatar>
+      <span>{mem.user.name}</span>
+    </CommandItem>
+  );
+}

@@ -1,42 +1,20 @@
-import { SiteHeader } from "@/components/site-header";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { BoxIcon, Squircle } from "lucide-react";
 import React from "react";
-import { TrackTabs } from "./track-tabs";
+import { SiteHeaderClient } from "./site-header.client";
+import { prefetch, trpc } from "@/trpc/server";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ trackId: string }>;
+}) {
+  const { trackId } = await params;
+  prefetch(trpc.track.getById.queryOptions({ trackId }));
+
   return (
     <>
-      <SiteHeader
-        startElement={
-          <div className="flex items-center gap-3.5">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink className="flex items-center gap-1.5">
-                    <BoxIcon className="size-4" /> Board Title
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="flex items-center gap-1.5">
-                    <Squircle className="size-4" /> Track Title
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <TrackTabs />
-          </div>
-        }
-      />
+      <SiteHeaderClient />
       {children}
     </>
   );

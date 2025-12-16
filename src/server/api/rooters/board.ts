@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { protectedProcedure } from "../trpc";
+import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import {
   board,
   boardMember,
@@ -10,12 +10,24 @@ import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const boardRouter = {
-  create: protectedProcedure
+  create: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { board: ["create"] } },
+        "You don't have permission to create board",
+      ),
+    )
     .input(CreateBoardSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         // 1. Create board
-        const createdBoard = await tx.insert(board).values(input).returning();
+        const createdBoard = await tx
+          .insert(board)
+          .values({
+            ...input,
+            organizationId: ctx.auth.session.activeOrganizationId,
+          })
+          .returning();
 
         if (!createdBoard[0])
           throw new TRPCError({
@@ -33,30 +45,70 @@ export const boardRouter = {
       });
     }),
 
-  update: protectedProcedure
+  update: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { board: ["update"] } },
+        "You don't have permission to update board",
+      ),
+    )
     .input(UpdateBoardSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db
         .update(board)
         .set(input)
-        .where(eq(board.id, input.id));
+        .where(eq(board.id, input.id))
+        .returning();
     }),
 
-  delete: protectedProcedure
+  delete: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { board: ["delete"] } },
+        "You don't have permission to delete board",
+      ),
+    )
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.delete(board).where(eq(board.id, input.id));
     }),
 
-  list: protectedProcedure.query(({ ctx }) => {
+  list: organizationProcedure.query(({ ctx }) => {
     return ctx.db.query.boardMember
       .findMany({
         where: eq(boardMember.userId, ctx.auth.user.id),
-        columns: {},
+        columns: { id: true },
         with: {
           board: true,
         },
       })
-      .then((r) => r.map((r) => r.board));
+      .then((r) =>
+        r.map((r) => ({
+          ...r.board,
+          name: !r.board.name ? "Untitled" : r.board.name,
+          boardMemberId: r.id,
+        })),
+      );
   }),
+
+  getById: organizationProcedure
+    .input(z.object({ boardId: z.string() }))
+    .query(({ ctx, input }) =>
+      ctx.db.query.board
+        .findFirst({
+          where: eq(board.id, input.boardId),
+          with: {
+            boardMembers: {
+              columns: {
+                id: true,
+                userId: true,
+              },
+            },
+          },
+        })
+        .then((r) => ({
+          ...r,
+          boardMembersUserIds: r?.boardMembers.map((v) => v.userId),
+        })),
+    ),
 };
