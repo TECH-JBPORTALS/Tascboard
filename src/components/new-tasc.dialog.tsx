@@ -15,29 +15,44 @@ import {
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { useForm } from "react-hook-form";
-import { z } from "zod/v4";
-import { Plus, UserCircle } from "lucide-react";
+import { type z } from "zod/v4";
+import { Plus } from "lucide-react";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-
-export const NewTascSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-});
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/react";
+import { toast } from "sonner";
+import { CreateTascSchema } from "@/server/db/schema";
+import { useParams } from "next/navigation";
 
 export function NewTascButton() {
   const [open, setOpen] = useState(false);
+  const { trackId } = useParams<{ trackId: string }>();
   const form = useForm({
-    resolver: zodResolver(NewTascSchema),
+    resolver: zodResolver(CreateTascSchema),
     defaultValues: {
-      title: "",
+      name: "",
       description: "",
+      trackId,
     },
     mode: "onChange",
   });
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutateAsync: createTasc } = useMutation(
+    trpc.tasc.create.mutationOptions({
+      async onSuccess() {
+        await queryClient.invalidateQueries(trpc.tasc.list.queryFilter());
+        setOpen(false);
+      },
+      onError(error) {
+        toast.error(error.message);
+      },
+    }),
+  );
 
-  async function onSubmit(values: z.infer<typeof NewTascSchema>) {
-    // Do something...
+  async function onSubmit(values: z.infer<typeof CreateTascSchema>) {
+    await createTasc(values);
   }
 
   return (
@@ -56,7 +71,7 @@ export function NewTascButton() {
             <div className="grid gap-2">
               <FormField
                 control={form.control}
-                name="title"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -93,7 +108,9 @@ export function NewTascButton() {
               <DialogClose asChild>
                 <Button variant={"outline"}>Cancel</Button>
               </DialogClose>
-              <Button disabled={form.formState.isSubmitting}>Create</Button>
+              <Button disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating..." : "Create"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

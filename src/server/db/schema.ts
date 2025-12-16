@@ -206,6 +206,7 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   name: z.string().min(3, "Tasc name cannot be less than 3 characters"),
   trackId: z.string().min(1, "Track Id is required to create tasc"),
   status: z.enum(["todo", "in_progress", "completed", "verified"]),
+  description: z.string().trim().optional(),
 }).pick({
   name: true,
   description: true,
