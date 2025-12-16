@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRightIcon, CalendarIcon } from "lucide-react";
 
-const users = [
-  { name: "Manu", url: "https://github.com/x-sss-x.png" },
-  { name: "JB Portals", url: "https://github.com/JBPORTALS.png" },
-  { name: "Akash", url: "https://github.com/akash.png" },
-  { name: "Gayathri Emparala", url: "https://github.com/gayathriemparala.png" },
-  { name: "Theo", url: "https://github.com/theo.png" },
-];
-
 export default async function Track() {
   return (
     <Container className="px-52">
