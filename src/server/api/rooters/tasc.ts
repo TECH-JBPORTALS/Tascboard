@@ -222,12 +222,17 @@ export const tascRouter = {
   getById: organizationProcedure
     .input(z.object({ tascId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      const data = await ctx.db.query.tasc.findFirst({
-        where: eq(tasc.id, input.tascId),
-        with: {
-          trackMembers: true,
-        },
-      });
+      const data = await ctx.db.query.tasc
+        .findFirst({
+          where: eq(tasc.id, input.tascId),
+          with: {
+            tascMembers: true,
+          },
+        })
+        .then((r) => ({
+          ...r,
+          tascMembersUserIds: r?.tascMembers.map((v) => v.userId),
+        }));
 
       if (!data) {
         throw new TRPCError({

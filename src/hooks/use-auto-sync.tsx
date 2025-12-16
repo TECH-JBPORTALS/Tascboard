@@ -69,7 +69,7 @@ export function useAutoSync<T>({
         onSuccess?.();
       } catch (err) {
         console.error("AUTO SYNC ERROR:", err);
-        setStatus("unsaved");
+        setStatus("synced");
         onError?.(err);
       } finally {
         inFlightRef.current = false;

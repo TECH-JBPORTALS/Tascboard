@@ -182,8 +182,8 @@ export const tasc = pgTable(
 );
 
 export const tascRelations = relations(tasc, ({ many, one }) => ({
-  trackMembers: many(trackMember),
-  board: one(track, { fields: [tasc.trackId], references: [track.id] }),
+  tascMembers: many(tascMember),
+  track: one(track, { fields: [tasc.trackId], references: [track.id] }),
 }));
 
 export const tascMember = pgTable("tasc_member", (d) => ({
@@ -200,6 +200,11 @@ export const tascMember = pgTable("tasc_member", (d) => ({
     .text()
     .references(() => user.id, { onDelete: "cascade" })
     .notNull(),
+}));
+
+export const tascMemberRelations = relations(tascMember, ({ one }) => ({
+  tasc: one(tasc, { fields: [tascMember.tascId], references: [tasc.id] }),
+  user: one(user, { fields: [tascMember.userId], references: [user.id] }),
 }));
 
 export const CreateTascSchema = createInsertSchema(tasc, {
