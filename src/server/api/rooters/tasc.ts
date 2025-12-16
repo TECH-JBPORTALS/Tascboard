@@ -67,12 +67,6 @@ export const tascRouter = {
           });
         }
 
-        const trackData = membership.track;
-        const prefix =
-          trackData?.name?.trim().length && trackData.name.length >= 3
-            ? trackData.name.trim().slice(0, 3).toUpperCase()
-            : "TSC";
-
         const lastTasc = await tx.query.tasc.findFirst({
           where: eq(tasc.trackId, input.trackId),
           orderBy: asc(tasc.createdAt),
@@ -80,7 +74,7 @@ export const tascRouter = {
 
         const faceId = getNextFaceId({
           lastFaceId: lastTasc?.faceId,
-          prefix,
+          prefix: "#",
         });
 
         const created = await tx
