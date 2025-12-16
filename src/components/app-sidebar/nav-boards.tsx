@@ -31,6 +31,7 @@ import { BoardActionDropdownMenu } from "./board-action.dropdown.menu";
 import { useBoardList } from "@/hooks/use-board-list";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/react";
+import { TrackActionDropdownMenu } from "./track-action.dropdown.menu";
 
 export function NavBoards() {
   const pathname = usePathname();
@@ -159,9 +160,11 @@ function TrackList({
               <span>{subItem.name}</span>
             </Link>
           </SidebarMenuSubButton>
-          <SidebarMenuAction className="opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 [&>svg]:size-3">
-            <MoreHorizontalIcon />
-          </SidebarMenuAction>
+          <TrackActionDropdownMenu trackId={subItem.id}>
+            <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
+              <MoreHorizontalIcon />
+            </SidebarMenuAction>
+          </TrackActionDropdownMenu>
         </SidebarMenuSubItem>
       ))}
     </>
