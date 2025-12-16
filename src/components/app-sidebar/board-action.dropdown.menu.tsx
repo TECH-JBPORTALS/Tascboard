@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import { authClient } from "@/utils/auth-client";
 
 export function BoardActionDropdownMenu({
   children,

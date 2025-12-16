@@ -32,11 +32,17 @@ import { useBoardList } from "@/hooks/use-board-list";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/react";
 import { TrackActionDropdownMenu } from "./track-action.dropdown.menu";
+import { authClient } from "@/utils/auth-client";
 
 export function NavBoards() {
   const pathname = usePathname();
   const params = useParams<{ orgSlug: string }>();
   const { boards, toggleBoard } = useBoardList();
+  const canCreateTrackOrDeleteBoard =
+    authClient.organization.checkRolePermission({
+      role: "owner",
+      permissions: { board: ["delete"], track: ["create"] },
+    });
 
   if (isEmpty(boards))
     return (
@@ -82,11 +88,13 @@ export function NavBoards() {
                   </Link>
                 </SidebarMenuButton>
 
-                <BoardActionDropdownMenu boardId={item.id}>
-                  <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
-                    <MoreHorizontalIcon />
-                  </SidebarMenuAction>
-                </BoardActionDropdownMenu>
+                {canCreateTrackOrDeleteBoard && (
+                  <BoardActionDropdownMenu boardId={item.id}>
+                    <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
+                      <MoreHorizontalIcon />
+                    </SidebarMenuAction>
+                  </BoardActionDropdownMenu>
+                )}
 
                 <CollapsibleContent>
                   <SidebarMenuSub className="pr-0">
