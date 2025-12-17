@@ -98,12 +98,7 @@ export function NavBoards() {
 
                 <CollapsibleContent>
                   <SidebarMenuSub className="pr-0">
-                    {item.open && (
-                      <TrackList
-                        boardId={item.id}
-                        boardMemberId={item.boardMemberId}
-                      />
-                    )}
+                    {item.open && <TrackList boardId={item.id} />}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>
@@ -115,19 +110,13 @@ export function NavBoards() {
   );
 }
 
-function TrackList({
-  boardMemberId,
-  boardId,
-}: {
-  boardMemberId: string;
-  boardId: string;
-}) {
+function TrackList({ boardId }: { boardId: string }) {
   const trpc = useTRPC();
   const {
     data: tracks,
     isLoading,
     isError,
-  } = useQuery(trpc.track.list.queryOptions({ boardMemberId }));
+  } = useQuery(trpc.track.list.queryOptions());
 
   const pathname = usePathname();
   const params = useParams<{ orgSlug: string }>();
