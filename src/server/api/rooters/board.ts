@@ -27,22 +27,32 @@ export const boardRouter = {
             ...input,
             organizationId: ctx.auth.session.activeOrganizationId,
           })
-          .returning();
+          .returning()
+          .then((r) => r[0]);
 
-        if (!createdBoard[0])
+        if (!createdBoard)
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create board",
           });
 
-        // 2. Make the creator of the board as member of the board
-        await tx.insert(boardMember).values({
+        // 2. Make the user creator of the board and add initial members if there are any
+        const creator: typeof boardMember.$inferInsert = {
           userId: ctx.auth.user.id,
-          boardId: createdBoard[0].id,
+          boardId: createdBoard.id,
           role: "creator",
-        });
+        };
 
-        return createdBoard[0];
+        const initialMembers: (typeof boardMember.$inferInsert)[] =
+          input.membersUserIds.map((userId) => ({
+            userId,
+            boardId: createdBoard.id,
+            role: "member",
+          }));
+
+        await tx.insert(boardMember).values([creator, ...initialMembers]);
+
+        return createdBoard;
       });
     }),
 

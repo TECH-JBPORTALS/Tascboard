@@ -1,7 +1,6 @@
 "use client";
 import { Container } from "@/components/container";
 import { TextEditor } from "@/components/text-editor";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField } from "@/components/ui/form";
@@ -25,14 +24,6 @@ import { ArrowRightIcon, CalendarIcon, CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-const users = [
-  { name: "Manu", url: "https://github.com/x-sss-x.png" },
-  { name: "JB Portals", url: "https://github.com/JBPORTALS.png" },
-  { name: "Akash", url: "https://github.com/akash.png" },
-  { name: "Gayathri Emparala", url: "https://github.com/gayathriemparala.png" },
-  { name: "Theo", url: "https://github.com/theo.png" },
-];
 
 export function TrackDetailsPage() {
   const { trackId } = useParams<{ trackId: string }>();

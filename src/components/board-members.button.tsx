@@ -122,6 +122,7 @@ function MemberItem({ mem }: { mem: RouterOutputs["member"]["list"][number] }) {
     </CommandItem>
   );
 }
+
 function RemainingMemberItem({
   mem,
 }: {

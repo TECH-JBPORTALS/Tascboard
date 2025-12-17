@@ -79,7 +79,9 @@ export const boardMemberRelations = relations(boardMember, ({ one }) => ({
 
 export const CreateBoardSchema = createInsertSchema(board, {
   name: z.string().min(3, "Board name cannot be less than 3 characters"),
-}).omit({ organizationId: true });
+})
+  .omit({ organizationId: true })
+  .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
   name: z.string().optional(),
