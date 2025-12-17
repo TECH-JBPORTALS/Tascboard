@@ -1,6 +1,7 @@
 "use client";
 import { Container } from "@/components/container";
 import { TascMembersButton } from "@/components/tasc-members.button";
+import { TascStatusButton } from "@/components/tasc-status.button";
 import { TextEditor } from "@/components/text-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,7 +42,7 @@ export function TascDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
-      status: data.status ?? "todo",
+      status: data.status,
       tascMembersUserIds: data.tascMembersUserIds ?? [],
     },
   });
@@ -70,7 +71,7 @@ export function TascDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
-      tascMembersUserIds: data.tascMembersUserIds ?? [],
+      tascMembersUserIds: data.tascMembersUserIds,
     });
   }, [
     data.name,
@@ -108,7 +109,13 @@ export function TascDetailsPage() {
             )}
           />
           <div className="flex items-center gap-4 py-1">
-            <TascMembersButton membersUserIds={values.tascMembersUserIds} />
+            <TascStatusButton
+              status={data.status}
+              buttonProps={{ size: "xs", variant: "ghost" }}
+            />
+            <TascMembersButton
+              membersUserIds={values.tascMembersUserIds ?? []}
+            />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant={"ghost"} size={"xs"}>

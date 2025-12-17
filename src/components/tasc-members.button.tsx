@@ -4,6 +4,7 @@ import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -67,6 +68,7 @@ export function TascMembersButton({
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandList>
+            <CommandEmpty>No members found.</CommandEmpty>
             {membersOfTasc.length > 0 && (
               <>
                 <CommandGroup heading={"Members of board"}>

@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Skeleton } from "../ui/skeleton";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -110,6 +111,7 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
           <Command>
             <CommandInput placeholder="Search..." />
             <CommandList>
+              <CommandEmpty>No members found.</CommandEmpty>
               {membersOfBoard && membersOfBoard.length > 0 && (
                 <>
                   <CommandGroup heading={"Members of board"}>

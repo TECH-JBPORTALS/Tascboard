@@ -28,6 +28,7 @@ import { Calendar } from "../ui/calendar";
 import type { DateRange } from "react-day-picker";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -116,6 +117,8 @@ export function CreateTrackDialog({
           <Command>
             <CommandInput placeholder="Search..." />
             <CommandList>
+              <CommandEmpty>No members found.</CommandEmpty>
+
               {membersOfBoard && membersOfBoard.length > 0 && (
                 <>
                   <CommandGroup heading={"Members of track"}>

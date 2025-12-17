@@ -4,6 +4,7 @@ import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -62,8 +63,9 @@ export function BoardMembersButton({
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandEmpty>No members found.</CommandEmpty>
           <CommandList>
+            <CommandInput placeholder="Search..." />
             {membersOfBoard.length > 0 && (
               <>
                 <CommandGroup heading={"Members of board"}>

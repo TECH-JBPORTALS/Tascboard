@@ -122,6 +122,7 @@ export function CreateTascDialog({
           <Command>
             <CommandInput placeholder="Search..." />
             <CommandList>
+              <CommandEmpty>No members found.</CommandEmpty>
               {membersOfBoard && membersOfBoard.length > 0 && (
                 <>
                   <CommandGroup heading={"Members of track"}>
