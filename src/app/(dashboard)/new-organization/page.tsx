@@ -117,20 +117,20 @@ export default function Page() {
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
         New Organization
       </h3>
-      <p className="text-muted-foreground max-w-sm text-center text-sm">
+      <p className="text-muted-foreground max-w-lg text-center text-sm">
         Create new organizaiotn to start managing your tasks in project life
         cycle.
       </p>
 
       <Form {...form}>
         {form.formState.errors.root && (
-          <span className="text-destructive max-w-sm text-center text-sm">
+          <span className="text-destructive max-w-lg text-center text-sm">
             {form.formState.errors.root.message}
           </span>
         )}
         <form
           onSubmit={form.handleSubmit(onSumbit)}
-          className="w-full max-w-sm space-y-6"
+          className="w-full max-w-lg space-y-6"
         >
           <div>
             <FormField
@@ -182,7 +182,7 @@ export default function Page() {
           </div>
 
           <Button
-            className="w-full max-w-sm"
+            className="w-full max-w-lg"
             disabled={!form.formState.isValid || form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? "Creating..." : "Create"}
