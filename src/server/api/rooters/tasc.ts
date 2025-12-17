@@ -80,10 +80,8 @@ export const tascRouter = {
         const created = await tx
           .insert(tasc)
           .values({
+            ...input,
             name: input.name ?? "Untitled",
-            description: input.description,
-            trackId: input.trackId,
-            status: "todo",
             faceId,
           })
           .returning();
@@ -97,11 +95,18 @@ export const tascRouter = {
           });
         }
 
-        await tx.insert(tascMember).values({
+        const creator: typeof tascMember.$inferInsert = {
           tascId: createdTasc.id,
-          trackMemberId: membership.id,
           userId: ctx.auth.user.id,
-        });
+        };
+
+        const initialMembers: (typeof tascMember.$inferInsert)[] =
+          input.membersUserIds.map((userId) => ({
+            userId,
+            tascId: createdTasc.id,
+          }));
+
+        await tx.insert(tascMember).values([creator, ...initialMembers]);
 
         return createdTasc;
       });

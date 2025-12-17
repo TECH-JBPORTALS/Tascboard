@@ -4,10 +4,11 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { SearchIcon } from "lucide-react";
-import { NewTascButton } from "@/components/new-tasc.dialog";
+import { Plus, SearchIcon } from "lucide-react";
 import DataTableClient from "./data-table.client";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { Button } from "@/components/ui/button";
+import { CreateTascDialog } from "@/components/dialogs/create-tasc.dialog";
 
 export default async function Employees({
   params,
@@ -28,7 +29,11 @@ export default async function Employees({
             <InputGroupInput placeholder="Search..." />
           </InputGroup>
 
-          <NewTascButton />
+          <CreateTascDialog trackId={trackId}>
+            <Button>
+              <Plus /> New
+            </Button>
+          </CreateTascDialog>
         </div>
 
         <DataTableClient />

@@ -159,6 +159,8 @@ export const trackMemberRelations = relations(trackMember, ({ one }) => ({
 
 export type TascStatus = "todo" | "in_progress" | "completed" | "verified";
 
+export type TascRole = "creator" | "member";
+
 export const tasc = pgTable(
   "tasc",
   (d) => ({
@@ -191,14 +193,11 @@ export const tascMember = pgTable("tasc_member", (d) => ({
     .text()
     .references(() => tasc.id, { onDelete: "cascade" })
     .notNull(),
-  trackMemberId: d
-    .text()
-    .references(() => trackMember.id, { onDelete: "cascade" })
-    .notNull(),
   userId: d
     .text()
     .references(() => user.id, { onDelete: "cascade" })
     .notNull(),
+  role: d.text().$type<TascRole>().notNull().default("member"),
 }));
 
 export const tascMemberRelations = relations(tascMember, ({ one }) => ({
@@ -211,11 +210,9 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   trackId: z.string().min(1, "Track Id is required to create tasc"),
   status: z.enum(["todo", "in_progress", "completed", "verified"]),
   description: z.string().trim().optional(),
-}).pick({
-  name: true,
-  description: true,
-  trackId: true,
-});
+})
+  .omit({ faceId: true })
+  .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
   name: z.string().optional(),
