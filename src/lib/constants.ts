@@ -7,13 +7,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type TascStatusList = {
+export type TascStatusItem = {
   value: TascStatus;
   label: string;
   icon: LucideIcon;
 };
 
-export const TASC_STATUS_LIST: TascStatusList[] = [
+export const TASC_STATUS_LIST: TascStatusItem[] = [
   { value: "todo", label: "TODO", icon: CircleIcon },
   { value: "completed", label: "Completed", icon: CircleCheckIcon },
   { value: "in_progress", label: "In progress", icon: TimerIcon },

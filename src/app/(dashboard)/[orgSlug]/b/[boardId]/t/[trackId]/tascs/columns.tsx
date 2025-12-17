@@ -21,7 +21,7 @@ function TascItem({ row }: { row: Tasc }) {
       href={`/${orgSlug}/b/${boardId}/t/${trackId}/tascs/${row.id}`}
       className="flex w-full flex-1 items-center gap-2"
     >
-      <span className="text-muted-foreground text-xs">{row.faceId}</span>
+      <span className="text-muted-foreground">{row.faceId}</span>
       <p className="font-medium">{row.name}</p>
     </Link>
   );
@@ -54,9 +54,11 @@ export const columns: ColumnDef<Tasc>[] = [
     id: "more-action",
     cell(_props) {
       return (
-        <Button variant={"ghost"} size={"icon-sm"}>
-          <MoreHorizontalIcon />
-        </Button>
+        <div className="text-right">
+          <Button variant={"ghost"} size={"icon-sm"}>
+            <MoreHorizontalIcon />
+          </Button>
+        </div>
       );
     },
   },
