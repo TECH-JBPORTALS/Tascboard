@@ -1,5 +1,6 @@
 "use client";
 import { Container } from "@/components/container";
+import { TascMembersButton } from "@/components/tasc-members.button";
 import { TextEditor } from "@/components/text-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,6 +23,7 @@ import {
 import { format } from "date-fns";
 import { ArrowRightIcon, CalendarIcon, CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -39,9 +41,12 @@ export function TascDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
-      status: data.status,
+      status: data.status ?? "todo",
+      tascMembersUserIds: data.tascMembersUserIds ?? [],
     },
   });
+  const values = form.watch();
+
   const { mutateAsync: updateTasc } = useMutation(
     trpc.tasc.update.mutationOptions({
       async onSuccess(data) {
@@ -49,7 +54,7 @@ export function TascDetailsPage() {
           queryClient.invalidateQueries(trpc.tasc.getById.queryFilter()),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
         ]);
-        form.reset(data);
+        form.reset({ ...data, tascMembersUserIds: values.tascMembersUserIds });
       },
       async onError(error) {
         toast.error(`Unable to save the changes`, {
@@ -59,7 +64,23 @@ export function TascDetailsPage() {
     }),
   );
 
-  const values = form.watch();
+  useEffect(() => {
+    form.reset({
+      name: data?.name ?? "Untitled",
+      description: data?.description ?? "",
+      endDate: data?.endDate,
+      startDate: data?.startDate,
+      tascMembersUserIds: data.tascMembersUserIds ?? [],
+    });
+  }, [
+    data.name,
+    data.description,
+    data.endDate,
+    data.startDate,
+    data.tascMembersUserIds,
+    form,
+    tascId,
+  ]);
 
   return (
     <Form {...form}>
@@ -87,6 +108,7 @@ export function TascDetailsPage() {
             )}
           />
           <div className="flex items-center gap-4 py-1">
+            <TascMembersButton membersUserIds={values.tascMembersUserIds} />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant={"ghost"} size={"xs"}>

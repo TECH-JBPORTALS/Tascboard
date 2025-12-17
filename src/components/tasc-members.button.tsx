@@ -29,9 +29,9 @@ export function TascMembersButton({
   membersUserIds: string[];
 }) {
   const trpc = useTRPC();
-  const { boardId } = useParams<{ boardId: string }>();
+  const { trackId } = useParams<{ trackId: string }>();
   const { data } = useSuspenseQuery(
-    trpc.boardMember.list.queryOptions({ boardId }),
+    trpc.trackMember.list.queryOptions({ trackId }),
   );
 
   const membersOfTasc = data?.filter((mem) =>
@@ -95,16 +95,16 @@ export function TascMembersButton({
 function MemberItem({
   mem,
 }: {
-  mem: RouterOutputs["boardMember"]["list"][number];
+  mem: RouterOutputs["trackMember"]["list"][number];
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { trackId } = useParams<{ trackId: string }>();
+  const { tascId } = useParams<{ tascId: string }>();
   const { mutate: removeMember, isPending } = useMutation(
-    trpc.trackMember.remove.mutationOptions({
+    trpc.tascMember.remove.mutationOptions({
       async onSuccess() {
         await queryClient.invalidateQueries(
-          trpc.track.getById.queryOptions({ trackId }),
+          trpc.tasc.getById.queryOptions({ tascId }),
         );
       },
       onError(error) {
@@ -116,7 +116,7 @@ function MemberItem({
   return (
     <CommandItem
       onSelect={() => {
-        removeMember({ userId: mem.userId, trackId });
+        removeMember({ userId: mem.userId, tascId });
       }}
       disabled={isPending}
     >
@@ -133,16 +133,16 @@ function MemberItem({
 function RemainingMemberItem({
   mem,
 }: {
-  mem: RouterOutputs["boardMember"]["list"][number];
+  mem: RouterOutputs["trackMember"]["list"][number];
 }) {
   const trpc = useTRPC();
-  const { trackId } = useParams<{ trackId: string }>();
+  const { tascId } = useParams<{ tascId: string }>();
   const queryClient = useQueryClient();
   const { mutate: addMember, isPending } = useMutation(
-    trpc.trackMember.add.mutationOptions({
+    trpc.tascMember.add.mutationOptions({
       async onSuccess() {
         await queryClient.invalidateQueries(
-          trpc.track.getById.queryOptions({ trackId }),
+          trpc.tasc.getById.queryOptions({ tascId }),
         );
       },
       onError(error) {
@@ -154,7 +154,7 @@ function RemainingMemberItem({
   return (
     <CommandItem
       onSelect={() => {
-        addMember({ userId: mem.userId, trackId });
+        addMember({ userId: mem.userId, tascId });
       }}
       disabled={isPending}
     >

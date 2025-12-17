@@ -6,6 +6,7 @@ import { trackRouter } from "./rooters/track";
 import { memberRouter } from "./rooters/members";
 import { tascRouter } from "./rooters/tasc";
 import { trackMemberRouter } from "./rooters/track-member";
+import { tascMemberRouter } from "./rooters/track-member copy";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   trackMember: trackMemberRouter,
   member: memberRouter,
   tasc: tascRouter,
+  tascMember: tascMemberRouter,
 });
 
 // export type definition of API

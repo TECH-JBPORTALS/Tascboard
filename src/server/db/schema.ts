@@ -217,10 +217,11 @@ export const CreateTascSchema = createInsertSchema(tasc, {
 export const UpdateTascSchema = createUpdateSchema(tasc, {
   name: z.string().optional(),
   id: z.string().min(1),
-  status: z.enum(["todo", "in_progress", "completed", "verified"]),
-}).omit({
-  createdAt: true,
-  updatedAt: true,
-  faceId: true,
-  trackId: true,
-});
+})
+  .omit({
+    createdAt: true,
+    updatedAt: true,
+    faceId: true,
+    trackId: true,
+  })
+  .and(z.object({ tascMembersUserIds: z.array(z.string()) }));
