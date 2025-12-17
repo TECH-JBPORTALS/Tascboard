@@ -12,6 +12,7 @@ import { invitation } from "@/server/db/auth-schema";
 import { eq } from "drizzle-orm";
 import EmailVerificationEmail from "@/emails/email-verification";
 import OtpVerificationEmail from "@/emails/otp-verification";
+import { redirect } from "next/navigation";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -91,7 +92,6 @@ export const auth = betterAuth({
       },
       creatorRole: "owner",
       organizationLimit: 1,
-      allowUserToCreateOrganization: false,
       disableOrganizationDeletion: true,
       cancelPendingInvitationsOnReInvite: true,
       async sendInvitationEmail(data) {
@@ -160,6 +160,8 @@ export async function setActiveOrganization() {
   const organizations = await auth.api.listOrganizations({
     headers: await headers(),
   });
+
+  if (organizations.length == 0) redirect("/new-organization");
 
   return auth.api.setActiveOrganization({
     headers: await headers(),
