@@ -92,7 +92,6 @@ export function CreateTrackDialog({
                 align="end"
               >
                 <Calendar
-                  captionLayout="dropdown"
                   mode="range"
                   defaultMonth={dueDate?.to ?? dueDate?.from}
                   selected={{

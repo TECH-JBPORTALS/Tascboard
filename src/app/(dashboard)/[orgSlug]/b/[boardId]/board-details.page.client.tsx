@@ -136,7 +136,6 @@ export function BoardDetailsPage() {
                 align="end"
               >
                 <Calendar
-                  captionLayout="dropdown"
                   mode="range"
                   selected={{
                     from: values.startDate ?? undefined,

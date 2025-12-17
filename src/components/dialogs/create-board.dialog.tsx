@@ -86,7 +86,6 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
                 align="end"
               >
                 <Calendar
-                  captionLayout="dropdown"
                   mode="range"
                   defaultMonth={dueDate?.to ?? dueDate?.from}
                   selected={{
