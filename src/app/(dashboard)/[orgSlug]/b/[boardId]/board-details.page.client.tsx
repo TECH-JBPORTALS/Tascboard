@@ -46,6 +46,8 @@ export function BoardDetailsPage() {
       boardMembersUserIds: data.boardMembersUserIds ?? [],
     },
   });
+  const values = form.watch();
+
   const { mutateAsync: updateBoard } = useMutation(
     trpc.board.update.mutationOptions({
       async onSuccess(data) {
@@ -53,7 +55,10 @@ export function BoardDetailsPage() {
           queryClient.invalidateQueries(trpc.board.getById.queryFilter()),
           queryClient.invalidateQueries(trpc.board.list.queryFilter()),
         ]);
-        form.reset(data[0]);
+        form.reset({
+          ...data[0],
+          boardMembersUserIds: values.boardMembersUserIds,
+        });
       },
       async onError() {
         toast.error(`Unable to save the changes`);
@@ -78,8 +83,6 @@ export function BoardDetailsPage() {
     form,
     boardId,
   ]);
-
-  const values = form.watch();
 
   return (
     <Form {...form}>

@@ -6,7 +6,7 @@ import {
   CreateBoardSchema,
   UpdateBoardSchema,
 } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, not } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const boardRouter = {
@@ -39,6 +39,7 @@ export const boardRouter = {
         await tx.insert(boardMember).values({
           userId: ctx.auth.user.id,
           boardId: createdBoard[0].id,
+          role: "creator",
         });
 
         return createdBoard[0];
@@ -103,6 +104,7 @@ export const boardRouter = {
                 id: true,
                 userId: true,
               },
+              where: not(eq(boardMember.userId, ctx.auth.session.userId)),
             },
           },
         })

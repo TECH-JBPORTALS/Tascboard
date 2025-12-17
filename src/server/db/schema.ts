@@ -52,6 +52,8 @@ export const boardRelations = relations(board, ({ many }) => ({
   boardMembers: many(boardMember),
 }));
 
+export type BoardRole = "member" | "creator";
+
 /** ## Board Member */
 export const boardMember = pgTable("board_member", (d) => ({
   ...initialColumns,
@@ -67,6 +69,7 @@ export const boardMember = pgTable("board_member", (d) => ({
       onDelete: "cascade",
     })
     .notNull(),
+  role: d.text().$type<BoardRole>().notNull().default("member"),
 }));
 
 export const boardMemberRelations = relations(boardMember, ({ one }) => ({

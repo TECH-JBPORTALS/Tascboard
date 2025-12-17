@@ -20,6 +20,7 @@ import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { Button } from "./ui/button";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { Loader2Icon } from "lucide-react";
 
 export function BoardMembersButton({
   membersUserIds = [],
@@ -54,19 +55,26 @@ export function BoardMembersButton({
               </Avatar>
             ))}
           </span>
-          {membersOfBoard?.length} Members
+          {membersOfBoard?.length > 0
+            ? `${membersOfBoard.length} members`
+            : "Assign members"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandList>
-            <CommandGroup heading="Members of board">
-              {membersOfBoard?.map((mem) => (
-                <MemberItem key={mem.id} mem={mem} />
-              ))}
-            </CommandGroup>
-            <CommandSeparator />
+            {membersOfBoard.length > 0 && (
+              <>
+                <CommandGroup heading={"Members of board"}>
+                  {membersOfBoard?.map((mem) => (
+                    <MemberItem key={mem.id} mem={mem} />
+                  ))}
+                </CommandGroup>
+                <CommandSeparator />
+              </>
+            )}
+
             {remainingMembers?.length !== 0 && (
               <CommandGroup heading="Members of organization">
                 {remainingMembers?.map((mem) => (
@@ -110,6 +118,7 @@ function MemberItem({ mem }: { mem: RouterOutputs["member"]["list"][number] }) {
         <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
       </Avatar>
       <span>{mem.user.name}</span>
+      {isPending && <Loader2Icon className="ml-auto size-4 animate-spin" />}
     </CommandItem>
   );
 }
@@ -146,6 +155,7 @@ function RemainingMemberItem({
         <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
       </Avatar>
       <span>{mem.user.name}</span>
+      {isPending && <Loader2Icon className="ml-auto size-4 animate-spin" />}
     </CommandItem>
   );
 }
