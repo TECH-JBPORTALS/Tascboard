@@ -119,7 +119,7 @@ export const trackRelations = relations(track, ({ many, one }) => ({
 export const CreateTrackSchema = createInsertSchema(track, {
   name: z.string().min(3, "Track name cannot be less than 3 characters"),
   boardId: z.string().min(1, "Board Id is required to create track"),
-});
+}).and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTrackSchema = createUpdateSchema(track, {
   name: z.string().optional(),
@@ -130,6 +130,8 @@ export const UpdateTrackSchema = createUpdateSchema(track, {
   updatedAt: true,
 });
 
+export type TrackRole = "member" | "creator" | "leader";
+
 /** ## Track Member */
 export const trackMember = pgTable("track_member", (d) => ({
   ...initialColumns,
@@ -139,25 +141,15 @@ export const trackMember = pgTable("track_member", (d) => ({
       onDelete: "cascade",
     })
     .notNull(),
-  boardMemberId: d
-    .text()
-    .references(() => boardMember.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
   userId: d
     .text()
     .references(() => user.id, { onDelete: "cascade" })
     .notNull(),
-  isLeader: d.boolean().default(false),
+  role: d.text().$type<TrackRole>().notNull().default("member"),
 }));
 
 export const trackMemberRelations = relations(trackMember, ({ one }) => ({
   track: one(track, { fields: [trackMember.trackId], references: [track.id] }),
-  boardMember: one(boardMember, {
-    fields: [trackMember.boardMemberId],
-    references: [boardMember.id],
-  }),
   user: one(user, { fields: [trackMember.userId], references: [user.id] }),
 }));
 

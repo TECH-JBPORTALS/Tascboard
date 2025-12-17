@@ -75,7 +75,7 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
       (mem) => !membersUserIds.includes(mem.userId),
     );
 
-    if (isLoading) return <Skeleton className="h-8 w-14" />;
+    if (isLoading) return <Skeleton className="h-7 w-20" />;
 
     if (isError)
       return (

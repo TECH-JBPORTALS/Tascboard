@@ -22,7 +22,7 @@ export const trackRouter = {
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         // 1. Check user is part of the board members list before proceeding to create the track
-        const boardMemberId = await tx.query.boardMember
+        const _boardMember = await tx.query.boardMember
           .findFirst({
             where: and(
               eq(boardMember.boardId, input.boardId),
@@ -34,29 +34,40 @@ export const trackRouter = {
           })
           .then((r) => r?.id);
 
-        if (!boardMemberId)
+        if (!_boardMember)
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: `Failed to create track, because your not a member of the board`,
           });
 
         // 2. Create track
-        const createdtrack = await tx.insert(track).values(input).returning();
+        const createdtrack = await tx
+          .insert(track)
+          .values(input)
+          .returning()
+          .then((r) => r[0]);
 
-        if (!createdtrack[0])
+        if (!createdtrack)
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create track",
           });
 
-        // 3. Make the creator of the track as member of the track
-        await tx.insert(trackMember).values({
-          boardMemberId,
+        // 3. Make the user as creator of the track and and remaining members
+        const creator: typeof trackMember.$inferInsert = {
           userId: ctx.auth.user.id,
-          trackId: createdtrack[0].id,
-        });
+          trackId: createdtrack.id,
+        };
 
-        return createdtrack[0];
+        const initialMembers: (typeof trackMember.$inferInsert)[] =
+          input.membersUserIds.map((userId) => ({
+            trackId: createdtrack.id,
+            userId,
+          }));
+
+        await tx.insert(trackMember).values([creator, ...initialMembers]);
+
+        return createdtrack;
       });
     }),
 
@@ -88,27 +99,22 @@ export const trackRouter = {
       return await ctx.db.delete(track).where(eq(track.id, input.id));
     }),
 
-  list: organizationProcedure
-    .input(z.object({ boardMemberId: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.trackMember
-        .findMany({
-          where: and(
-            eq(trackMember.userId, ctx.auth.user.id),
-            eq(trackMember.boardMemberId, input.boardMemberId),
-          ),
-          columns: {},
-          with: {
-            track: true,
-          },
-        })
-        .then((r) =>
-          r.map((r) => ({
-            ...r.track,
-            name: !r.track.name ? "Untitled" : r.track.name,
-          })),
-        );
-    }),
+  list: organizationProcedure.query(async ({ ctx }) => {
+    return ctx.db.query.trackMember
+      .findMany({
+        where: eq(trackMember.userId, ctx.auth.user.id),
+        columns: {},
+        with: {
+          track: true,
+        },
+      })
+      .then((r) =>
+        r.map((r) => ({
+          ...r.track,
+          name: !r.track.name ? "Untitled" : r.track.name,
+        })),
+      );
+  }),
 
   getById: organizationProcedure
     .input(z.object({ trackId: z.string() }))

@@ -2,7 +2,7 @@ import { boardMember } from "@/server/db/schema";
 import { protectedProcedure } from "../trpc";
 
 import { z } from "zod/v4";
-import { and, eq } from "drizzle-orm";
+import { and, eq, not } from "drizzle-orm";
 
 export const boardMemberRouter = {
   add: protectedProcedure
@@ -26,7 +26,11 @@ export const boardMemberRouter = {
     .input(z.object({ boardId: z.string().min(1) }))
     .query(({ ctx, input }) => {
       return ctx.db.query.boardMember.findMany({
-        where: eq(boardMember.boardId, input.boardId),
+        where: and(
+          eq(boardMember.boardId, input.boardId),
+          not(eq(boardMember.userId, ctx.auth.session.userId)),
+          not(eq(boardMember.role, "creator")),
+        ),
         with: {
           user: true,
         },
