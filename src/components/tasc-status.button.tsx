@@ -13,7 +13,6 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/react";
 import { Button } from "./ui/button";
-import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { CheckIcon, Loader2Icon } from "lucide-react";
 import type { TascStatus } from "@/server/db/schema";
@@ -22,9 +21,11 @@ import { TASC_STATUS_LIST, type TascStatusItem } from "@/lib/constants";
 export function TascStatusButton({
   status,
   buttonProps,
+  tascId,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   status?: TascStatus;
+  tascId: string;
   buttonProps?: React.ComponentProps<typeof Button>;
 }) {
   const currentStatus = TASC_STATUS_LIST.find((item) => item.value === status);
@@ -32,7 +33,6 @@ export function TascStatusButton({
   function StatusItem({ item }: { item: TascStatusItem }) {
     const trpc = useTRPC();
     const queryClient = useQueryClient();
-    const { tascId } = useParams<{ tascId: string; trackId: string }>();
     const { mutate: updateTasc, isPending } = useMutation(
       trpc.tasc.update.mutationOptions({
         async onSuccess() {

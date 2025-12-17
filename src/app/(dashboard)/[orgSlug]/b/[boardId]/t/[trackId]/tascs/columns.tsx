@@ -1,5 +1,6 @@
 "use client";
 
+import { TascStatusButton } from "@/components/tasc-status.button";
 import { Button } from "@/components/ui/button";
 import type { RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -44,8 +45,12 @@ export const columns: ColumnDef<Tasc>[] = [
       const row = props.row.original;
 
       return (
-        <div className="text-right">
-          <Button variant={"ghost"}>{row.status}</Button>
+        <div className="min-w-sm text-right">
+          <TascStatusButton
+            tascId={row.id}
+            status={row.status}
+            buttonProps={{ size: "xs", variant: "ghost" }}
+          />
         </div>
       );
     },

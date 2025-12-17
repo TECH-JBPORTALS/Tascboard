@@ -110,6 +110,7 @@ export function TascDetailsPage() {
           />
           <div className="flex items-center gap-4 py-1">
             <TascStatusButton
+              tascId={tascId}
               status={data.status}
               buttonProps={{ size: "xs", variant: "ghost" }}
             />
