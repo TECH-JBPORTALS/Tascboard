@@ -5,6 +5,7 @@ import { boardMemberRouter } from "./rooters/board-member";
 import { trackRouter } from "./rooters/track";
 import { memberRouter } from "./rooters/members";
 import { tascRouter } from "./rooters/tasc";
+import { trackMemberRouter } from "./rooters/track-member";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   board: boardRouter,
   boardMember: boardMemberRouter,
   track: trackRouter,
+  trackMember: trackMemberRouter,
   member: memberRouter,
   tasc: tascRouter,
 });

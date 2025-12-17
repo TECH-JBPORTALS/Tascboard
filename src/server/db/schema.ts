@@ -124,11 +124,13 @@ export const CreateTrackSchema = createInsertSchema(track, {
 export const UpdateTrackSchema = createUpdateSchema(track, {
   name: z.string().optional(),
   id: z.string().min(1),
-}).omit({
-  boardId: true,
-  createdAt: true,
-  updatedAt: true,
-});
+})
+  .omit({
+    boardId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .and(z.object({ trackMembersUserIds: z.array(z.string()) }));
 
 export type TrackRole = "member" | "creator" | "leader";
 

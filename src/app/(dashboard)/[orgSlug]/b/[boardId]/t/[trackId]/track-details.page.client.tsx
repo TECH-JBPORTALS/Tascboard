@@ -1,6 +1,7 @@
 "use client";
 import { Container } from "@/components/container";
 import { TextEditor } from "@/components/text-editor";
+import { TrackMembersButton } from "@/components/track-members.button";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField } from "@/components/ui/form";
@@ -22,6 +23,7 @@ import {
 import { format } from "date-fns";
 import { ArrowRightIcon, CalendarIcon, CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -41,8 +43,12 @@ export function TrackDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
+      trackMembersUserIds: data?.trackMembersUserIds ?? [],
     },
   });
+
+  const values = form.watch();
+
   const { mutateAsync: updateBoard } = useMutation(
     trpc.track.update.mutationOptions({
       async onSuccess(data) {
@@ -50,7 +56,10 @@ export function TrackDetailsPage() {
           queryClient.invalidateQueries(trpc.track.getById.queryFilter()),
           queryClient.invalidateQueries(trpc.track.list.queryFilter()),
         ]);
-        form.reset(data[0]);
+        form.reset({
+          ...data[0],
+          trackMembersUserIds: values.trackMembersUserIds,
+        });
       },
       async onError() {
         toast.error(`Unable to save the changes`);
@@ -58,7 +67,23 @@ export function TrackDetailsPage() {
     }),
   );
 
-  const values = form.watch();
+  useEffect(() => {
+    form.reset({
+      name: data?.name ?? "Untitled",
+      description: data?.description ?? "",
+      endDate: data?.endDate,
+      startDate: data?.startDate,
+      trackMembersUserIds: data.trackMembersUserIds ?? [],
+    });
+  }, [
+    data.name,
+    data.description,
+    data.endDate,
+    data.startDate,
+    data.trackMembersUserIds,
+    form,
+    trackId,
+  ]);
 
   return (
     <Form {...form}>
@@ -129,25 +154,7 @@ export function TrackDetailsPage() {
               </PopoverContent>
             </Popover>
 
-            {/* <MembersPopover memebers={users}>
-              <Button
-                variant={"ghost"}
-                className="data-[state=open]:bg-accent"
-                size={"xs"}
-              >
-                <span className="inline-flex -space-x-2">
-                  {users.map((item, i) => (
-                    <Avatar
-                      key={i}
-                      className="border-background size-6 border-2"
-                    >
-                      <AvatarImage src={item.url} />
-                    </Avatar>
-                  ))}
-                </span>
-                {users.length} Members
-              </Button>
-            </MembersPopover> */}
+            <TrackMembersButton membersUserIds={values.trackMembersUserIds} />
           </div>
           <Separator />
           <FormField

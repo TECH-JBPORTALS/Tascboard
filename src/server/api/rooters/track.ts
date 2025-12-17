@@ -7,7 +7,7 @@ import {
   UpdateTrackSchema,
   boardMember,
 } from "@/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, not } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trackRouter = {
@@ -119,6 +119,22 @@ export const trackRouter = {
   getById: organizationProcedure
     .input(z.object({ trackId: z.string() }))
     .query(({ ctx, input }) =>
-      ctx.db.query.track.findFirst({ where: eq(track.id, input.trackId) }),
+      ctx.db.query.track
+        .findFirst({
+          where: eq(track.id, input.trackId),
+          with: {
+            trackMembers: {
+              columns: {
+                id: true,
+                userId: true,
+              },
+              where: not(eq(trackMember.userId, ctx.auth.session.userId)),
+            },
+          },
+        })
+        .then((r) => ({
+          ...r,
+          trackMembersUserIds: r?.trackMembers.map((v) => v.userId),
+        })),
     ),
 };
