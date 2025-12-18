@@ -21,13 +21,18 @@ import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { Button } from "./ui/button";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, UserCircleIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function TascMembersButton({
   membersUserIds = [],
+  tascId,
+  showLabel = true,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
+  tascId: string;
+  showLabel?: boolean;
 }) {
   const trpc = useTRPC();
   const { trackId } = useParams<{ trackId: string }>();
@@ -51,17 +56,36 @@ export function TascMembersButton({
           className="data-[state=open]:bg-accent"
           size={"xs"}
         >
-          <span className="inline-flex -space-x-2">
-            {membersOfTasc?.map((mem) => (
-              <Avatar key={mem.id} className="size-6">
-                <AvatarImage src={mem.user.image ?? "No image"} />
-                <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            ))}
-          </span>
-          {membersOfTasc?.length > 0
-            ? `${membersOfTasc.length} members`
-            : "Assign members"}
+          {membersOfTasc.length > 0 && (
+            <Tooltip>
+              <TooltipTrigger>
+                <span className="inline-flex -space-x-2">
+                  {membersOfTasc?.map((mem) => (
+                    <Avatar key={mem.id} className="size-6">
+                      <AvatarImage src={mem.user.image ?? "No image"} />
+                      <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  ))}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {membersOfTasc.map((mem) => mem.user.name).join(", ")}
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {membersOfTasc?.length > 0 ? (
+            showLabel && `${membersOfTasc.length} members`
+          ) : (
+            <>
+              <UserCircleIcon
+                strokeWidth={1.25}
+                className="text-muted-foreground size-5"
+              />{" "}
+              {showLabel && (
+                <span className="text-muted-foreground">Assign...</span>
+              )}
+            </>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
@@ -73,7 +97,7 @@ export function TascMembersButton({
               <>
                 <CommandGroup heading={"Members of board"}>
                   {membersOfTasc?.map((mem) => (
-                    <MemberItem key={mem.id} mem={mem} />
+                    <MemberItem tascId={tascId} key={mem.id} mem={mem} />
                   ))}
                 </CommandGroup>
                 <CommandSeparator />
@@ -83,7 +107,7 @@ export function TascMembersButton({
             {remainingMembers?.length !== 0 && (
               <CommandGroup heading="Members of organization">
                 {remainingMembers?.map((mem) => (
-                  <RemainingMemberItem mem={mem} key={mem.id} />
+                  <RemainingMemberItem tascId={tascId} mem={mem} key={mem.id} />
                 ))}
               </CommandGroup>
             )}
@@ -96,18 +120,22 @@ export function TascMembersButton({
 
 function MemberItem({
   mem,
+  tascId,
 }: {
   mem: RouterOutputs["trackMember"]["list"][number];
+  tascId: string;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { tascId } = useParams<{ tascId: string }>();
   const { mutate: removeMember, isPending } = useMutation(
     trpc.tascMember.remove.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.tasc.getById.queryOptions({ tascId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(
+            trpc.tasc.getById.queryOptions({ tascId }),
+          ),
+          queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);
@@ -134,18 +162,22 @@ function MemberItem({
 
 function RemainingMemberItem({
   mem,
+  tascId,
 }: {
   mem: RouterOutputs["trackMember"]["list"][number];
+  tascId: string;
 }) {
   const trpc = useTRPC();
-  const { tascId } = useParams<{ tascId: string }>();
   const queryClient = useQueryClient();
   const { mutate: addMember, isPending } = useMutation(
     trpc.tascMember.add.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.tasc.getById.queryOptions({ tascId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(
+            trpc.tasc.getById.queryOptions({ tascId }),
+          ),
+          queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);

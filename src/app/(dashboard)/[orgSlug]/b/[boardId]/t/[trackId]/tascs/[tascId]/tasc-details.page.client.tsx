@@ -115,6 +115,7 @@ export function TascDetailsPage() {
               buttonProps={{ size: "xs", variant: "ghost" }}
             />
             <TascMembersButton
+              tascId={tascId}
               membersUserIds={values.tascMembersUserIds ?? []}
             />
             <Popover>

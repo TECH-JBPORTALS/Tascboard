@@ -1,6 +1,7 @@
 "use client";
 
 import { DeleteTascAlertDialog } from "@/components/delete-tasc.alert-dialog";
+import { TascMembersButton } from "@/components/tasc-members.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,7 @@ function TascItem({ row }: { row: Tasc }) {
   return (
     <Link
       href={`/${orgSlug}/b/${boardId}/t/${trackId}/tascs/${row.id}`}
-      className="flex w-full flex-1 items-center gap-2"
+      className="flex w-full max-w-full min-w-full flex-1 items-center gap-2"
     >
       <span className="text-muted-foreground">{row.faceId}</span>
       <p className="font-medium">{row.name}</p>
@@ -49,13 +50,17 @@ export const columns: ColumnDef<Tasc>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: () => <div className="px-4 text-right">Status</div>,
+    id: "status-and-members",
     cell(props) {
       const row = props.row.original;
 
       return (
-        <div className="min-w-sm text-right">
+        <div className="flex min-w-xs items-center justify-end gap-6 text-right">
+          <TascMembersButton
+            tascId={row.id}
+            membersUserIds={row.tascMemberUserIds}
+            showLabel={false}
+          />
           <TascStatusButton
             tascId={row.id}
             status={row.status}
@@ -65,6 +70,7 @@ export const columns: ColumnDef<Tasc>[] = [
       );
     },
   },
+
   {
     id: "more-action",
     cell(props) {

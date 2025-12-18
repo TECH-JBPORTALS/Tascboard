@@ -1,16 +1,22 @@
 import { trackMember } from "@/server/db/schema";
-import { protectedProcedure } from "../trpc";
+import {
+  hasPermissionMiddleware,
+  organizationProcedure,
+  protectedProcedure,
+} from "../trpc";
 
 import { z } from "zod/v4";
 import { and, eq, not } from "drizzle-orm";
 
 export const trackMemberRouter = {
-  add: protectedProcedure
+  add: organizationProcedure
+    .use(hasPermissionMiddleware({ permission: { track: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), trackId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.insert(trackMember).values(input);
     }),
-  remove: protectedProcedure
+  remove: organizationProcedure
+    .use(hasPermissionMiddleware({ permission: { track: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), trackId: z.string().min(1) }))
     .mutation(({ ctx, input }) => {
       return ctx.db
