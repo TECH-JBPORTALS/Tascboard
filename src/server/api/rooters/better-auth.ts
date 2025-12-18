@@ -38,7 +38,13 @@ export const betterAuthRouter = {
           ...getTableColumns(member),
         })
         .from(member)
-        .innerJoin(user, and(eq(user.id, member.userId)))
+        .innerJoin(
+          user,
+          and(
+            eq(user.id, member.userId),
+            eq(member.organizationId, ctx.auth.session.activeOrganizationId),
+          ),
+        )
         .where(input?.q ? ilike(user.email, `%${input.q}%`) : undefined),
     ),
 };
