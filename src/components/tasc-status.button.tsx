@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { CheckIcon, Loader2Icon } from "lucide-react";
 import type { TascStatus } from "@/server/db/schema";
 import { TASC_STATUS_LIST, type TascStatusItem } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export function TascStatusButton({
   status,
@@ -54,7 +55,7 @@ export function TascStatusButton({
         }}
         disabled={isPending}
       >
-        <item.icon />
+        <item.icon className={cn(item.className)} />
         <span>{item.label}</span>
         {isPending ? (
           <Loader2Icon className="ml-auto size-4 animate-spin" />
@@ -70,7 +71,7 @@ export function TascStatusButton({
   return (
     <Popover {...props}>
       <PopoverTrigger asChild>
-        <Button {...buttonProps}>
+        <Button {...buttonProps} className={cn(currentStatus.className)}>
           <currentStatus.icon />
           {currentStatus.label}
         </Button>

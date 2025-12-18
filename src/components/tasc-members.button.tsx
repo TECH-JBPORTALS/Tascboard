@@ -58,7 +58,7 @@ export function TascMembersButton({
         >
           {membersOfTasc.length > 0 && (
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <span className="inline-flex -space-x-2">
                   {membersOfTasc?.map((mem) => (
                     <Avatar key={mem.id} className="size-6">
