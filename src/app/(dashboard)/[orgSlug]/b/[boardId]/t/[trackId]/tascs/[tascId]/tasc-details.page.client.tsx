@@ -85,97 +85,92 @@ export function TascDetailsPage() {
 
   return (
     <Form {...form}>
-      <form>
-        <Container className="px-52">
-          <AutoSyncButton
-            isDirty={form.formState.isDirty}
-            values={{
-              ...values,
-              id: tascId,
-            }}
-            onSave={updateTasc}
+      <Container className="px-52">
+        <AutoSyncButton
+          isDirty={form.formState.isDirty}
+          values={{
+            ...values,
+            id: tascId,
+          }}
+          onSave={updateTasc}
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormControl>
+              <input
+                {...field}
+                placeholder="Untitled"
+                className="text-3xl font-semibold focus-visible:outline-none"
+              />
+            </FormControl>
+          )}
+        />
+        <div className="flex items-center gap-4 py-1">
+          <TascStatusButton
+            tascId={tascId}
+            status={data.status}
+            buttonProps={{ size: "xs", variant: "ghost" }}
           />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormControl>
-                <input
-                  {...field}
-                  placeholder="Untitled"
-                  className="text-3xl font-semibold focus-visible:outline-none"
-                />
-              </FormControl>
-            )}
+          <TascMembersButton
+            tascId={tascId}
+            membersUserIds={values.tascMembersUserIds ?? []}
           />
-          <div className="flex items-center gap-4 py-1">
-            <TascStatusButton
-              tascId={tascId}
-              status={data.status}
-              buttonProps={{ size: "xs", variant: "ghost" }}
-            />
-            <TascMembersButton
-              tascId={tascId}
-              membersUserIds={values.tascMembersUserIds ?? []}
-            />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant={"ghost"} size={"xs"}>
-                  {values.startDate ? (
-                    <>
-                      <CalendarIcon />
-                      {format(values.startDate, "dd MMM, yyy")}{" "}
-                      {values.endDate && (
-                        <>
-                          <ArrowRightIcon />
-                          {format(values.endDate, "dd MMM, yyy")}
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <CalendarPlus /> Set Due
-                    </>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="end"
-              >
-                <Calendar
-                  mode="range"
-                  selected={{
-                    from: values.startDate ?? undefined,
-                    to: values.endDate ?? undefined,
-                  }}
-                  onSelect={(selected) => {
-                    form.setValue("startDate", selected?.from, {
-                      shouldDirty: true,
-                    });
-                    form.setValue("endDate", selected?.to, {
-                      shouldDirty: true,
-                    });
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <Separator />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormControl>
-                <TextEditor
-                  markdown={field.value ?? ""}
-                  onChange={(markdown) => field.onChange(markdown)}
-                />
-              </FormControl>
-            )}
-          />
-        </Container>
-      </form>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant={"ghost"} size={"xs"}>
+                {values.startDate ? (
+                  <>
+                    <CalendarIcon />
+                    {format(values.startDate, "dd MMM, yyy")}{" "}
+                    {values.endDate && (
+                      <>
+                        <ArrowRightIcon />
+                        {format(values.endDate, "dd MMM, yyy")}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <CalendarPlus /> Set Due
+                  </>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto overflow-hidden p-0" align="end">
+              <Calendar
+                mode="range"
+                selected={{
+                  from: values.startDate ?? undefined,
+                  to: values.endDate ?? undefined,
+                }}
+                onSelect={(selected) => {
+                  form.setValue("startDate", selected?.from, {
+                    shouldDirty: true,
+                  });
+                  form.setValue("endDate", selected?.to, {
+                    shouldDirty: true,
+                  });
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <Separator />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormControl>
+              <TextEditor
+                markdown={field.value ?? ""}
+                onChange={(markdown) => field.onChange(markdown)}
+              />
+            </FormControl>
+          )}
+        />
+      </Container>
     </Form>
   );
 }
