@@ -3,6 +3,7 @@
 import type React from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -230,7 +231,9 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
           />
         </div>
         <DialogFooter>
-          <Button variant={"secondary"}>Cancel</Button>
+          <DialogClose asChild>
+            <Button variant={"secondary"}>Cancel</Button>
+          </DialogClose>
           <Button
             onClick={() =>
               createBoard({

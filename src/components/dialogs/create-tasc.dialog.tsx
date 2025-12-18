@@ -3,6 +3,7 @@
 import type React from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -286,7 +287,9 @@ export function CreateTascDialog({
           />
         </div>
         <DialogFooter>
-          <Button variant={"secondary"}>Cancel</Button>
+          <DialogClose asChild>
+            <Button variant={"secondary"}>Cancel</Button>
+          </DialogClose>
           <Button
             onClick={() =>
               createTasc({
