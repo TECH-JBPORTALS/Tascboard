@@ -223,7 +223,7 @@ export function CreateTascDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="flex max-h-[80%] min-h-[40%] flex-col sm:min-w-2xl">
+      <DialogContent className="flex max-h-[calc(100svh-15%)] min-h-[calc(100svh-15%)] flex-col sm:min-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-md font-medium">New tasc</DialogTitle>
         </DialogHeader>
