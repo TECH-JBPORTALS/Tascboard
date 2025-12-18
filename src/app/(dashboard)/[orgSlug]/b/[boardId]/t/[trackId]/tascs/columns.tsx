@@ -1,10 +1,20 @@
 "use client";
 
+import { DeleteTascAlertDialog } from "@/components/delete-tasc.alert-dialog";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { Button } from "@/components/ui/button";
-import type { RouterOutputs } from "@/trpc/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { type RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontalIcon } from "lucide-react";
+import { DeleteIcon, MoreHorizontalIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -57,14 +67,47 @@ export const columns: ColumnDef<Tasc>[] = [
   },
   {
     id: "more-action",
-    cell(_props) {
+    cell(props) {
+      const row = props.row.original;
       return (
         <div className="text-right">
-          <Button variant={"ghost"} size={"icon-sm"}>
-            <MoreHorizontalIcon />
-          </Button>
+          <TascMoreActionDropdown tascId={row.id}>
+            <Button variant={"ghost"} size={"icon-sm"}>
+              <MoreHorizontalIcon />
+            </Button>
+          </TascMoreActionDropdown>
         </div>
       );
     },
   },
 ];
+
+function TascMoreActionDropdown({
+  children,
+  tascId,
+}: {
+  children: React.ReactNode;
+  tascId: string;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel className="text-muted-foreground text-xs">
+          Actions
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DeleteTascAlertDialog tascId={tascId}>
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              variant="destructive"
+            >
+              <DeleteIcon /> Delete tasc
+            </DropdownMenuItem>
+          </DeleteTascAlertDialog>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
