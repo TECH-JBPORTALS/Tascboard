@@ -249,7 +249,7 @@ export function CreateTrackDialog({
                 membersUserIds,
               })
             }
-            disabled={!name || isPending}
+            disabled={!name || isPending || name.length < 3}
           >
             {isPending ? "Creating..." : "Create"}
           </Button>
