@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { and, asc, eq, not } from "drizzle-orm";
+import { and, asc, eq, ilike, not, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import {
@@ -216,11 +216,19 @@ export const tascRouter = {
     }),
 
   list: organizationProcedure
-    .input(z.object({ trackId: z.string().min(1) }))
+    .input(z.object({ trackId: z.string().min(1), q: z.string().optional() }))
     .query(({ ctx, input }) =>
       ctx.db.query.tasc
         .findMany({
-          where: eq(tasc.trackId, input.trackId),
+          where: input.q
+            ? and(
+                eq(tasc.trackId, input.trackId),
+                or(
+                  ilike(tasc.name, `%${input.q}%`),
+                  ilike(tasc.faceId, `%${input.q}%`),
+                ),
+              )
+            : eq(tasc.trackId, input.trackId),
           orderBy: asc(tasc.createdAt),
           with: {
             tascMembers: {
