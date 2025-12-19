@@ -244,7 +244,7 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
                 membersUserIds,
               })
             }
-            disabled={!name || isPending}
+            disabled={name.trim().length < 3 || isPending}
           >
             {isPending ? "Creating..." : "Create"}
           </Button>

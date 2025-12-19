@@ -232,7 +232,7 @@ export function CreateTascDialog({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Untitled"
+            placeholder="Tasc title"
             className="bg-transparent! px-0 text-2xl! font-semibold outline-none"
           />
           <div className="flex items-center gap-1.5">
@@ -302,7 +302,7 @@ export function CreateTascDialog({
                 status,
               })
             }
-            disabled={!name || isPending}
+            disabled={name.trim().length == 0 || isPending}
           >
             {isPending ? "Creating..." : "Create"}
           </Button>

@@ -26,7 +26,6 @@ import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { z } from "zod/v4";
 
 export function BoardDetailsPage() {
   const { boardId } = useParams<{ boardId: string }>();
