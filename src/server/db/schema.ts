@@ -84,7 +84,7 @@ export const CreateBoardSchema = createInsertSchema(board, {
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
-  name: z.string().optional(),
+  name: z.string().min(1, "Board name can't be empty"),
   id: z.string().min(1),
 })
   .omit({
@@ -224,5 +224,7 @@ export const UpdateTascSchema = createUpdateSchema(tasc, {
     updatedAt: true,
     faceId: true,
     trackId: true,
+    completedAt: true,
+    startedAt: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));

@@ -27,6 +27,7 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ZodError } from "zod/v4";
 
 export function TascDetailsPage() {
   const { tascId } = useParams<{ tascId: string }>();
@@ -59,8 +60,11 @@ export function TascDetailsPage() {
       },
       async onError(error) {
         toast.error(`Unable to save the changes`, {
-          description: error.message,
+          description: error.data?.zodError
+            ? error.data.zodError.formErrors.join(", ")
+            : error.message,
         });
+        form.reset();
       },
     }),
   );

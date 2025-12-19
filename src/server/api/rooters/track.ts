@@ -107,12 +107,7 @@ export const trackRouter = {
         .from(trackMember)
         .innerJoin(track, eq(track.boardId, input.boardId))
         .where(eq(trackMember.userId, ctx.auth.user.id))
-        .then((r) =>
-          r.map((r) => ({
-            ...r.track,
-            name: !r.track.name ? "Untitled" : r.track.name,
-          })),
-        );
+        .then((r) => r.map((r) => r.track));
     }),
 
   getById: organizationProcedure

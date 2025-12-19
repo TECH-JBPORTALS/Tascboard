@@ -77,11 +77,23 @@ export const tascRouter = {
           prefix: "#",
         });
 
+        const patch: Partial<(typeof tasc)["$inferInsert"]> = {
+          status: input.status,
+        };
+
+        if (input.status === "in_progress") {
+          patch.startedAt = new Date();
+        }
+
+        if (input.status === "completed") {
+          patch.completedAt = new Date();
+        }
+
         const created = await tx
           .insert(tasc)
           .values({
             ...input,
-            name: input.name ?? "Untitled",
+            ...patch,
             faceId,
           })
           .returning();
@@ -240,7 +252,6 @@ export const tascRouter = {
         .then((r) =>
           r.map((t) => ({
             ...t,
-            name: t.name ?? "Untitled",
             tascMemberUserIds: t.tascMembers.map((tm) => tm.userId),
           })),
         ),

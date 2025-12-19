@@ -61,8 +61,11 @@ export function TrackDetailsPage() {
           trackMembersUserIds: values.trackMembersUserIds,
         });
       },
-      async onError() {
-        toast.error(`Unable to save the changes`);
+      async onError(error) {
+        toast.error(`Unable to save the changes`, {
+          description: error.message,
+        });
+        form.reset();
       },
     }),
   );

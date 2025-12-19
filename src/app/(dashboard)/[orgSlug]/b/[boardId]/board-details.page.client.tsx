@@ -39,7 +39,7 @@ export function BoardDetailsPage() {
     resolver: zodResolver(UpdateBoardSchema),
     defaultValues: {
       id: boardId,
-      name: data?.name ?? "Untitled",
+      name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
@@ -60,15 +60,20 @@ export function BoardDetailsPage() {
           boardMembersUserIds: values.boardMembersUserIds,
         });
       },
-      async onError() {
-        toast.error(`Unable to save the changes`);
+      async onError(error) {
+        toast.error(`Unable to save the changes`, {
+          description: error.data?.zodError
+            ? JSON.stringify(error.data.zodError)
+            : error.message,
+        });
+        form.reset();
       },
     }),
   );
 
   useEffect(() => {
     form.reset({
-      name: data?.name ?? "Untitled",
+      name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
@@ -102,7 +107,7 @@ export function BoardDetailsPage() {
             <FormControl>
               <input
                 {...field}
-                placeholder="Untitled"
+                placeholder="Board name"
                 className="text-3xl font-semibold focus-visible:outline-none"
               />
             </FormControl>
