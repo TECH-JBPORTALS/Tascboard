@@ -116,7 +116,7 @@ function TrackList({ boardId }: { boardId: string }) {
     data: tracks,
     isLoading,
     isError,
-  } = useQuery(trpc.track.list.queryOptions());
+  } = useQuery(trpc.track.list.queryOptions({ boardId }));
 
   const pathname = usePathname();
   const params = useParams<{ orgSlug: string }>();
