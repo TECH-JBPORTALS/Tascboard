@@ -1,5 +1,5 @@
 {
-  "id": "f1cb2086-2dc4-4160-b712-65299c1df663",
+  "id": "07c75a1c-8e4b-4e30-82b0-fbaf1faa295c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -775,6 +775,12 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {
@@ -801,6 +807,19 @@
           "tableTo": "track",
           "columnsFrom": [
             "track_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "tasc_created_by_user_id_fk": {
+          "name": "tasc_created_by_user_id_fk",
+          "tableFrom": "tasc",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by"
           ],
           "columnsTo": [
             "id"
@@ -849,13 +868,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'member'"
         }
       },
       "indexes": {},
