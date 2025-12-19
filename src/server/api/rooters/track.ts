@@ -7,7 +7,7 @@ import {
   UpdateTrackSchema,
   boardMember,
 } from "@/server/db/schema";
-import { and, eq, not } from "drizzle-orm";
+import { and, eq, getTableColumns, not } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trackRouter = {
@@ -99,22 +99,21 @@ export const trackRouter = {
       return await ctx.db.delete(track).where(eq(track.id, input.id));
     }),
 
-  list: organizationProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.trackMember
-      .findMany({
-        where: eq(trackMember.userId, ctx.auth.user.id),
-        columns: {},
-        with: {
-          track: true,
-        },
-      })
-      .then((r) =>
-        r.map((r) => ({
-          ...r.track,
-          name: !r.track.name ? "Untitled" : r.track.name,
-        })),
-      );
-  }),
+  list: organizationProcedure
+    .input(z.object({ boardId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select({ track: getTableColumns(track) })
+        .from(trackMember)
+        .innerJoin(track, eq(track.boardId, input.boardId))
+        .where(eq(trackMember.userId, ctx.auth.user.id))
+        .then((r) =>
+          r.map((r) => ({
+            ...r.track,
+            name: !r.track.name ? "Untitled" : r.track.name,
+          })),
+        );
+    }),
 
   getById: organizationProcedure
     .input(z.object({ trackId: z.string() }))

@@ -240,6 +240,7 @@ export const tascRouter = {
         .then((r) =>
           r.map((t) => ({
             ...t,
+            name: t.name ?? "Untitled",
             tascMemberUserIds: t.tascMembers.map((tm) => tm.userId),
           })),
         ),
