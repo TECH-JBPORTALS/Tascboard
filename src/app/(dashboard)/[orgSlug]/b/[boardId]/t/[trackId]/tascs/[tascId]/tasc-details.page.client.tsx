@@ -60,7 +60,7 @@ export function TascDetailsPage() {
       async onError(error) {
         toast.error(`Unable to save the changes`, {
           description: error.data?.zodError
-            ? error.data.zodError.formErrors.join(", ")
+            ? error.data?.zodError.fieldErrors.name
             : error.message,
         });
         form.reset();

@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import z from "zod";
+import z from "zod/v4";
 import {
   Form,
   FormControl,
@@ -21,7 +21,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { ChevronRight, LockKeyhole, MailIcon } from "lucide-react";
+import { ChevronRight, MailIcon } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,

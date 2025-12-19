@@ -63,7 +63,9 @@ export function TrackDetailsPage() {
       },
       async onError(error) {
         toast.error(`Unable to save the changes`, {
-          description: error.message,
+          description: error.data?.zodError
+            ? error.data?.zodError.fieldErrors.name
+            : error.message,
         });
         form.reset();
       },

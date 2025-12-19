@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import React from "react";
-import z from "zod";
+import z from "zod/v4";
 import {
   Form,
   FormControl,

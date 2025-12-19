@@ -84,7 +84,7 @@ export const CreateBoardSchema = createInsertSchema(board, {
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateBoardSchema = createUpdateSchema(board, {
-  name: z.string().min(1, "Board name can't be empty"),
+  name: z.string().min(1, "Board name can not be empty"),
   id: z.string().min(1),
 })
   .omit({
@@ -122,7 +122,7 @@ export const CreateTrackSchema = createInsertSchema(track, {
 }).and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTrackSchema = createUpdateSchema(track, {
-  name: z.string().optional(),
+  name: z.string().min(3, "Track name can not be empty"),
   id: z.string().min(1),
 })
   .omit({
@@ -206,7 +206,7 @@ export const tascMemberRelations = relations(tascMember, ({ one }) => ({
 }));
 
 export const CreateTascSchema = createInsertSchema(tasc, {
-  name: z.string().min(3, "Tasc name cannot be less than 3 characters"),
+  name: z.string().min(3, "Tasc title cannot be less than 3 characters"),
   trackId: z.string().min(1, "Track Id is required to create tasc"),
   status: z.enum(["todo", "in_progress", "completed", "verified"]),
   description: z.string().trim().optional(),
@@ -215,7 +215,7 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
-  name: z.string().optional(),
+  name: z.string().min(3, "Tasc title can not be empty"),
   id: z.string().min(1),
   status: z.enum(["todo", "in_progress", "completed", "verified"]).optional(),
 })

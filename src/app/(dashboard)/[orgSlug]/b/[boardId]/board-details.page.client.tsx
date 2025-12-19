@@ -26,6 +26,7 @@ import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { z } from "zod/v4";
 
 export function BoardDetailsPage() {
   const { boardId } = useParams<{ boardId: string }>();
@@ -61,9 +62,10 @@ export function BoardDetailsPage() {
         });
       },
       async onError(error) {
+        console.log(error.data?.zodError);
         toast.error(`Unable to save the changes`, {
           description: error.data?.zodError
-            ? JSON.stringify(error.data.zodError)
+            ? error.data?.zodError.fieldErrors.name
             : error.message,
         });
         form.reset();
