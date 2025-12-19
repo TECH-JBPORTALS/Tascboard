@@ -11,6 +11,7 @@ import {
   trackMember,
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
+import { user } from "@/server/db/auth-schema";
 
 function getNextFaceId({
   lastFaceId,
@@ -94,6 +95,7 @@ export const tascRouter = {
           .values({
             ...input,
             faceId,
+            createdBy: ctx.auth.session.userId,
           })
           .returning();
 
@@ -109,7 +111,6 @@ export const tascRouter = {
         const creator: typeof tascMember.$inferInsert = {
           tascId: createdTasc.id,
           userId: ctx.auth.user.id,
-          role: "creator",
         };
 
         const initialMembers: (typeof tascMember.$inferInsert)[] =
@@ -230,16 +231,18 @@ export const tascRouter = {
   list: organizationProcedure
     .input(z.object({ trackId: z.string().min(1), q: z.string().optional() }))
     .query(async ({ ctx, input }) => {
+      const activeMember = await ctx.authApi.getActiveMember({
+        headers: ctx.headers,
+      });
+
       const tascs = await ctx.db
-        .select(getTableColumns(tasc))
+        .select({
+          ...getTableColumns(tasc),
+          createdByUser: getTableColumns(user),
+        })
         .from(tasc)
-        .innerJoin(
-          tascMember,
-          and(
-            eq(tascMember.tascId, tasc.id),
-            eq(tascMember.userId, ctx.auth.session.userId),
-          ),
-        )
+        .leftJoin(tascMember, eq(tasc.id, tascMember.tascId))
+        .innerJoin(user, eq(tasc.createdBy, user.id))
         .where(
           input.q
             ? and(
@@ -249,22 +252,25 @@ export const tascRouter = {
                   ilike(tasc.faceId, `%${input.q}%`),
                 ),
               )
-            : eq(tasc.trackId, input.trackId),
+            : and(
+                eq(tasc.trackId, input.trackId),
+                activeMember?.role == "employee"
+                  ? or(
+                      eq(tascMember.userId, ctx.auth.session.userId),
+                      eq(tasc.createdBy, ctx.auth.session.userId),
+                    )
+                  : undefined,
+              ),
         )
-        .orderBy(asc(tasc.createdAt));
+        .orderBy(asc(tasc.createdAt))
+        .groupBy(tasc.id, user.id);
 
       return Promise.all(
         tascs.map((tasc) =>
           ctx.db
             .select()
             .from(tascMember)
-            .where(
-              and(
-                eq(tascMember.tascId, tasc.id),
-                not(eq(tascMember.userId, ctx.auth.session.userId)),
-                eq(tascMember.role, "member"),
-              ),
-            )
+            .where(and(eq(tascMember.tascId, tasc.id)))
             .then((tascMember) => ({
               ...tasc,
               tascMemberUserIds: tascMember.map((t) => t.userId),
@@ -281,6 +287,7 @@ export const tascRouter = {
           where: eq(tasc.id, input.tascId),
           with: {
             tascMembers: true,
+            createdByUser: true,
           },
         })
         .then((r) => ({

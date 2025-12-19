@@ -46,11 +46,7 @@ export const trackMemberRouter = {
     .input(z.object({ trackId: z.string().min(1) }))
     .query(({ ctx, input }) => {
       return ctx.db.query.trackMember.findMany({
-        where: and(
-          eq(trackMember.trackId, input.trackId),
-          not(eq(trackMember.userId, ctx.auth.session.userId)),
-          eq(trackMember.role, "member"),
-        ),
+        where: and(eq(trackMember.trackId, input.trackId)),
         with: {
           user: true,
         },

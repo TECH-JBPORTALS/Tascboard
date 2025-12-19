@@ -3,6 +3,7 @@ import { Container } from "@/components/container";
 import { TascMembersButton } from "@/components/tasc-members.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { TextEditor } from "@/components/text-editor";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField } from "@/components/ui/form";
@@ -12,6 +13,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AutoSyncButton } from "@/hooks/use-auto-sync";
 import { UpdateTascSchema } from "@/server/db/schema";
 import { useTRPC } from "@/trpc/react";
@@ -159,6 +165,25 @@ export function TascDetailsPage() {
               />
             </PopoverContent>
           </Popover>
+
+          <span className="text-muted-foreground inline-flex items-center gap-2 text-xs">
+            <span> Created by </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Avatar className="size-5">
+                  <AvatarImage
+                    src={data?.createdByUser?.image ?? "Creator profile"}
+                  />
+                  <AvatarFallback className="text-xs">
+                    {data?.createdByUser?.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {data?.createdByUser?.name}
+              </TooltipContent>
+            </Tooltip>
+          </span>
         </div>
         <Separator />
         <FormField

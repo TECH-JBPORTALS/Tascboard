@@ -3,6 +3,7 @@
 import { DeleteTascAlertDialog } from "@/components/delete-tasc.alert-dialog";
 import { TascMembersButton } from "@/components/tasc-members.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,6 +14,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { type RouterOutputs } from "@/trpc/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DeleteIcon, MoreHorizontalIcon } from "lucide-react";
@@ -66,6 +72,25 @@ export const columns: ColumnDef<Tasc>[] = [
             status={row.status}
             buttonProps={{ size: "xs", variant: "ghost" }}
           />
+
+          <span className="text-muted-foreground inline-flex gap-2 text-xs">
+            <span> Created by </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Avatar className="size-5">
+                  <AvatarImage
+                    src={row.createdByUser.image ?? "Creator profile"}
+                  />
+                  <AvatarFallback className="text-xs">
+                    {row.createdByUser.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {row.createdByUser.name}
+              </TooltipContent>
+            </Tooltip>
+          </span>
         </div>
       );
     },

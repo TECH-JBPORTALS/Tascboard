@@ -53,7 +53,10 @@ export function TrackMembersButton({
         >
           <span className="inline-flex -space-x-2">
             {membersOfTrack?.map((mem) => (
-              <Avatar key={mem.id} className="size-6">
+              <Avatar
+                key={mem.id}
+                className="border-background size-6 border-2"
+              >
                 <AvatarImage src={mem.user.image ?? "No image"} />
                 <AvatarFallback>{mem.user.name.charAt(0)}</AvatarFallback>
               </Avatar>

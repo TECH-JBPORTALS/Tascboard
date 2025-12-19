@@ -178,6 +178,10 @@ export const tasc = pgTable(
     startedAt: d.timestamp({ mode: "date", withTimezone: true }),
     /** Tasc status changed to `completed` status timestamp */
     completedAt: d.timestamp({ mode: "date", withTimezone: true }),
+    createdBy: d
+      .text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
   }),
   (t) => [index().on(t.name)],
 );
@@ -185,6 +189,7 @@ export const tasc = pgTable(
 export const tascRelations = relations(tasc, ({ many, one }) => ({
   tascMembers: many(tascMember),
   track: one(track, { fields: [tasc.trackId], references: [track.id] }),
+  createdByUser: one(user, { fields: [tasc.createdBy], references: [user.id] }),
 }));
 
 export const tascMember = pgTable("tasc_member", (d) => ({
@@ -197,7 +202,6 @@ export const tascMember = pgTable("tasc_member", (d) => ({
     .text()
     .references(() => user.id, { onDelete: "cascade" })
     .notNull(),
-  role: d.text().$type<TascRole>().notNull().default("member"),
 }));
 
 export const tascMemberRelations = relations(tascMember, ({ one }) => ({
@@ -211,7 +215,7 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   status: z.enum(["todo", "in_progress", "completed", "verified"]),
   description: z.string().trim().optional(),
 })
-  .omit({ faceId: true })
+  .omit({ faceId: true, createdBy: true })
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
@@ -226,5 +230,6 @@ export const UpdateTascSchema = createUpdateSchema(tasc, {
     trackId: true,
     completedAt: true,
     startedAt: true,
+    createdBy: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));
