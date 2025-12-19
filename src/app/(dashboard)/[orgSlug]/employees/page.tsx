@@ -39,7 +39,7 @@ export default async function Employees(props: PageProps) {
       />
       <Container>
         <div className="flex justify-between">
-          <SearchInput />
+          <SearchInput placeholder="Search employees..." />
 
           <InviteEmployeesButton />
         </div>
