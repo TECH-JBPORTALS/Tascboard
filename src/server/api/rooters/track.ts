@@ -105,7 +105,13 @@ export const trackRouter = {
       return ctx.db
         .select({ track: getTableColumns(track) })
         .from(track)
-        .innerJoin(trackMember, eq(trackMember.userId, ctx.auth.user.id))
+        .innerJoin(
+          trackMember,
+          and(
+            eq(trackMember.trackId, track.id),
+            eq(trackMember.userId, ctx.auth.session.userId),
+          ),
+        )
         .where(eq(track.boardId, input.boardId))
         .then((r) => r.map((r) => r.track));
     }),
