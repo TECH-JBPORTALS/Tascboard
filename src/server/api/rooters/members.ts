@@ -1,4 +1,4 @@
-import { organizationProcedure } from "../trpc";
+import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 
 import { and, eq, not } from "drizzle-orm";
 import { member } from "@/server/db/auth-schema";
@@ -18,6 +18,12 @@ export const memberRouter = {
     });
   }),
   remove: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { member: ["delete"] } },
+        "You don't have permission to remove employee",
+      ),
+    )
     .input(z.object({ memberId: z.string(), userId: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.db.transaction(async (tx) => {

@@ -59,6 +59,8 @@ export const columns: ColumnDef<Employee>[] = [
     cell(props) {
       const row = props.row.original;
 
+      if (row.role === "owner") return null;
+
       return (
         <div className="text-right">
           <EmployeeActionDropdownMenu memberId={row.id} userId={row.userId}>
