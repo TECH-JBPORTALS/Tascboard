@@ -98,9 +98,12 @@ function MemberItem({ mem }: { mem: RouterOutputs["member"]["list"][number] }) {
   const { mutate: removeMember, isPending } = useMutation(
     trpc.boardMember.remove.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.board.getById.queryOptions({ boardId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.board.pathFilter()),
+          queryClient.invalidateQueries(trpc.track.pathFilter()),
+          queryClient.invalidateQueries(trpc.tasc.pathFilter()),
+          queryClient.invalidateQueries(trpc.boardMember.list.pathFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);
@@ -136,9 +139,12 @@ function RemainingMemberItem({
   const { mutate: addMember, isPending } = useMutation(
     trpc.boardMember.add.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.board.getById.queryOptions({ boardId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.board.pathFilter()),
+          queryClient.invalidateQueries(trpc.track.pathFilter()),
+          queryClient.invalidateQueries(trpc.tasc.pathFilter()),
+          queryClient.invalidateQueries(trpc.boardMember.list.pathFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);

@@ -105,9 +105,11 @@ function MemberItem({
   const { mutate: removeMember, isPending } = useMutation(
     trpc.trackMember.remove.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.track.getById.queryOptions({ trackId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.track.pathFilter()),
+          queryClient.invalidateQueries(trpc.tasc.pathFilter()),
+          queryClient.invalidateQueries(trpc.trackMember.list.pathFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);
@@ -143,9 +145,11 @@ function RemainingMemberItem({
   const { mutate: addMember, isPending } = useMutation(
     trpc.trackMember.add.mutationOptions({
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          trpc.track.getById.queryOptions({ trackId }),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.track.pathFilter()),
+          queryClient.invalidateQueries(trpc.tasc.pathFilter()),
+          queryClient.invalidateQueries(trpc.trackMember.list.pathFilter()),
+        ]);
       },
       onError(error) {
         toast.error(error.message);
