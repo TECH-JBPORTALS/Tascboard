@@ -44,9 +44,17 @@ export const trackMemberRouter = {
     }),
   list: protectedProcedure
     .input(z.object({ trackId: z.string().min(1) }))
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
+      const activeMember = await ctx.authApi.getActiveMember({
+        headers: ctx.headers,
+      });
       return ctx.db.query.trackMember.findMany({
-        where: and(eq(trackMember.trackId, input.trackId)),
+        where: and(
+          eq(trackMember.trackId, input.trackId),
+          activeMember?.role == "employee"
+            ? not(eq(trackMember.userId, ctx.auth.session.userId))
+            : undefined,
+        ),
         with: {
           user: true,
         },

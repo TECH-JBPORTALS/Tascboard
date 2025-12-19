@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { and, asc, eq, getTableColumns, ilike, not, or } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, ilike, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import {

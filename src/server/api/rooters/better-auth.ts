@@ -4,7 +4,7 @@ import {
   publicProcedure,
 } from "../trpc";
 import { z } from "zod/v4";
-import { and, eq, getTableColumns, ilike } from "drizzle-orm";
+import { and, eq, getTableColumns, ilike, not } from "drizzle-orm";
 import { invitation, member, user } from "@/server/db/auth-schema";
 
 export const betterAuthRouter = {
@@ -43,6 +43,7 @@ export const betterAuthRouter = {
           and(
             eq(user.id, member.userId),
             eq(member.organizationId, ctx.auth.session.activeOrganizationId),
+            not(eq(member.role, "owner")),
           ),
         )
         .where(input?.q ? ilike(user.email, `%${input.q}%`) : undefined),
