@@ -38,7 +38,7 @@ export function TascDetailsPage() {
     resolver: zodResolver(UpdateTascSchema),
     defaultValues: {
       id: tascId,
-      name: data?.name ?? "Untitled",
+      name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
@@ -70,7 +70,7 @@ export function TascDetailsPage() {
 
   useEffect(() => {
     form.reset({
-      name: data?.name ?? "Untitled",
+      name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
@@ -104,7 +104,7 @@ export function TascDetailsPage() {
             <FormControl>
               <input
                 {...field}
-                placeholder="Untitled"
+                placeholder="Tasc title"
                 className="text-3xl font-semibold focus-visible:outline-none"
               />
             </FormControl>

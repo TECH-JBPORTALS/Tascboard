@@ -35,7 +35,7 @@ export function TascStatusButton({
     const trpc = useTRPC();
     const queryClient = useQueryClient();
     const { mutate: updateTasc, isPending } = useMutation(
-      trpc.tasc.update.mutationOptions({
+      trpc.tasc.updateStatus.mutationOptions({
         async onSuccess() {
           await Promise.all([
             queryClient.invalidateQueries(trpc.tasc.getById.queryFilter()),
