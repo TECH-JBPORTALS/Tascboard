@@ -71,7 +71,7 @@ export function TrackMembersButton({
             <CommandEmpty>No members found.</CommandEmpty>
             {membersOfTrack.length > 0 && (
               <>
-                <CommandGroup heading={"Members of board"}>
+                <CommandGroup heading={"Members of track"}>
                   {membersOfTrack?.map((mem) => (
                     <MemberItem key={mem.id} mem={mem} />
                   ))}
@@ -81,7 +81,7 @@ export function TrackMembersButton({
             )}
 
             {remainingMembers?.length !== 0 && (
-              <CommandGroup heading="Members of organization">
+              <CommandGroup heading="Members of board">
                 {remainingMembers?.map((mem) => (
                   <RemainingMemberItem mem={mem} key={mem.id} />
                 ))}

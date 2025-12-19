@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { and, asc, eq, ilike, not, or } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, ilike, not, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import {
@@ -93,7 +93,6 @@ export const tascRouter = {
           .insert(tasc)
           .values({
             ...input,
-            ...patch,
             faceId,
           })
           .returning();
@@ -110,6 +109,7 @@ export const tascRouter = {
         const creator: typeof tascMember.$inferInsert = {
           tascId: createdTasc.id,
           userId: ctx.auth.user.id,
+          role: "creator",
         };
 
         const initialMembers: (typeof tascMember.$inferInsert)[] =
@@ -229,10 +229,19 @@ export const tascRouter = {
 
   list: organizationProcedure
     .input(z.object({ trackId: z.string().min(1), q: z.string().optional() }))
-    .query(({ ctx, input }) =>
-      ctx.db.query.tasc
-        .findMany({
-          where: input.q
+    .query(async ({ ctx, input }) => {
+      const tascs = await ctx.db
+        .select(getTableColumns(tasc))
+        .from(tasc)
+        .innerJoin(
+          tascMember,
+          and(
+            eq(tascMember.tascId, tasc.id),
+            eq(tascMember.userId, ctx.auth.session.userId),
+          ),
+        )
+        .where(
+          input.q
             ? and(
                 eq(tasc.trackId, input.trackId),
                 or(
@@ -241,21 +250,28 @@ export const tascRouter = {
                 ),
               )
             : eq(tasc.trackId, input.trackId),
-          orderBy: asc(tasc.createdAt),
-          with: {
-            tascMembers: {
-              columns: { tascId: true, userId: true },
-              where: not(eq(tascMember.userId, ctx.auth.session.userId)),
-            },
-          },
-        })
-        .then((r) =>
-          r.map((t) => ({
-            ...t,
-            tascMemberUserIds: t.tascMembers.map((tm) => tm.userId),
-          })),
+        )
+        .orderBy(asc(tasc.createdAt));
+
+      return Promise.all(
+        tascs.map((tasc) =>
+          ctx.db
+            .select()
+            .from(tascMember)
+            .where(
+              and(
+                eq(tascMember.tascId, tasc.id),
+                not(eq(tascMember.userId, ctx.auth.session.userId)),
+                eq(tascMember.role, "member"),
+              ),
+            )
+            .then((tascMember) => ({
+              ...tasc,
+              tascMemberUserIds: tascMember.map((t) => t.userId),
+            })),
         ),
-    ),
+      );
+    }),
 
   getById: organizationProcedure
     .input(z.object({ tascId: z.string().min(1) }))

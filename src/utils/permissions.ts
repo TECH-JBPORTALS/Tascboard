@@ -27,6 +27,6 @@ export const owner = ac.newRole({
 export const employee = ac.newRole({
   board: [],
   track: [],
-  tasc: [],
+  tasc: ["create", "delete", "update"],
   ...memberAc.statements,
 });

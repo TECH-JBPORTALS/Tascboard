@@ -95,7 +95,7 @@ export function TascMembersButton({
             <CommandEmpty>No members found.</CommandEmpty>
             {membersOfTasc.length > 0 && (
               <>
-                <CommandGroup heading={"Members of board"}>
+                <CommandGroup heading={"Members of tasc"}>
                   {membersOfTasc?.map((mem) => (
                     <MemberItem tascId={tascId} key={mem.id} mem={mem} />
                   ))}
@@ -105,7 +105,7 @@ export function TascMembersButton({
             )}
 
             {remainingMembers?.length !== 0 && (
-              <CommandGroup heading="Members of organization">
+              <CommandGroup heading="Members of track">
                 {remainingMembers?.map((mem) => (
                   <RemainingMemberItem tascId={tascId} mem={mem} key={mem.id} />
                 ))}

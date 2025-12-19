@@ -57,6 +57,7 @@ export const trackRouter = {
         const creator: typeof trackMember.$inferInsert = {
           userId: ctx.auth.user.id,
           trackId: createdtrack.id,
+          role: "creator",
         };
 
         const initialMembers: (typeof trackMember.$inferInsert)[] =

@@ -126,7 +126,7 @@ export function CreateTascDialog({
               <CommandEmpty>No members found.</CommandEmpty>
               {membersOfBoard && membersOfBoard.length > 0 && (
                 <>
-                  <CommandGroup heading={"Members of track"}>
+                  <CommandGroup heading={"Members of tasc"}>
                     {membersOfBoard?.map((mem) => (
                       <CommandItem
                         key={mem.id}
@@ -152,7 +152,7 @@ export function CreateTascDialog({
               )}
 
               {remainingMembers?.length !== 0 && (
-                <CommandGroup heading="Members of board">
+                <CommandGroup heading="Members of track">
                   {remainingMembers?.map((mem) => (
                     <CommandItem
                       key={mem.id}
