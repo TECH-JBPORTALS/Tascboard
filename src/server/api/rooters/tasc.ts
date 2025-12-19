@@ -235,6 +235,16 @@ export const tascRouter = {
         headers: ctx.headers,
       });
 
+      const whereClause = and(
+        eq(tasc.trackId, input.trackId),
+        activeMember?.role == "employee"
+          ? or(
+              eq(tascMember.userId, ctx.auth.session.userId),
+              eq(tasc.createdBy, ctx.auth.session.userId),
+            )
+          : undefined,
+      );
+
       const tascs = await ctx.db
         .select({
           ...getTableColumns(tasc),
@@ -246,21 +256,13 @@ export const tascRouter = {
         .where(
           input.q
             ? and(
-                eq(tasc.trackId, input.trackId),
+                whereClause,
                 or(
                   ilike(tasc.name, `%${input.q}%`),
                   ilike(tasc.faceId, `%${input.q}%`),
                 ),
               )
-            : and(
-                eq(tasc.trackId, input.trackId),
-                activeMember?.role == "employee"
-                  ? or(
-                      eq(tascMember.userId, ctx.auth.session.userId),
-                      eq(tasc.createdBy, ctx.auth.session.userId),
-                    )
-                  : undefined,
-              ),
+            : whereClause,
         )
         .orderBy(asc(tasc.createdAt))
         .groupBy(tasc.id, user.id);

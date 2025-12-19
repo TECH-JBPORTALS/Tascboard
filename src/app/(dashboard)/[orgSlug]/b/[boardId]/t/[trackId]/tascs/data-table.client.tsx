@@ -12,7 +12,7 @@ export default function DataTableClient() {
   const { trackId } = useParams<{ trackId: string }>();
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
-  const debouncedQuery = useDebounce(q, 200);
+  const debouncedQuery = useDebounce(q, 600);
   const { data } = useSuspenseQuery(
     trpc.tasc.list.queryOptions({ trackId, q: debouncedQuery }),
   );
