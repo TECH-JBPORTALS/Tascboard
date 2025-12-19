@@ -57,6 +57,7 @@ export function CreateBoardDialog({ children }: { children: React.ReactNode }) {
         setName("");
         setDescription("");
         setDueDate(undefined);
+        setMembersUserIds([]);
       },
       onError(error) {
         toast.error(error.message);
