@@ -27,7 +27,6 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ZodError } from "zod/v4";
 
 export function TascDetailsPage() {
   const { tascId } = useParams<{ tascId: string }>();

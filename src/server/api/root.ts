@@ -6,7 +6,7 @@ import { trackRouter } from "./rooters/track";
 import { memberRouter } from "./rooters/members";
 import { tascRouter } from "./rooters/tasc";
 import { trackMemberRouter } from "./rooters/track-member";
-import { tascMemberRouter } from "./rooters/track-member copy";
+import { tascMemberRouter } from "./rooters/tasc-member";
 
 /**
  * This is the primary router for your server.

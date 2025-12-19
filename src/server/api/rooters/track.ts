@@ -104,9 +104,9 @@ export const trackRouter = {
     .query(async ({ ctx, input }) => {
       return ctx.db
         .select({ track: getTableColumns(track) })
-        .from(trackMember)
-        .innerJoin(track, eq(track.boardId, input.boardId))
-        .where(eq(trackMember.userId, ctx.auth.user.id))
+        .from(track)
+        .innerJoin(trackMember, eq(trackMember.userId, ctx.auth.user.id))
+        .where(eq(track.boardId, input.boardId))
         .then((r) => r.map((r) => r.track));
     }),
 
