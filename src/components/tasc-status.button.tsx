@@ -23,11 +23,13 @@ export function TascStatusButton({
   status,
   buttonProps,
   tascId,
+  showLabel = true,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   status?: TascStatus;
   tascId: string;
   buttonProps?: React.ComponentProps<typeof Button>;
+  showLabel?: boolean;
 }) {
   const currentStatus = TASC_STATUS_LIST.find((item) => item.value === status);
 
@@ -71,9 +73,12 @@ export function TascStatusButton({
   return (
     <Popover {...props}>
       <PopoverTrigger asChild>
-        <Button {...buttonProps} className={cn(currentStatus.className)}>
+        <Button
+          {...buttonProps}
+          className={cn(currentStatus.className, buttonProps?.className)}
+        >
           <currentStatus.icon />
-          {currentStatus.label}
+          {showLabel && currentStatus.label}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">

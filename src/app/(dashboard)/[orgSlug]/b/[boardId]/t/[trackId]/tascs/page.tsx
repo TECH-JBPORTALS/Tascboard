@@ -8,8 +8,9 @@ import { loadQuerySearchParams } from "@/lib/search-params";
 import type { SearchParams } from "nuqs";
 import { SearchInput } from "@/components/search-input";
 import { Suspense } from "react";
+import { SiteHeaderClient } from "../site-header.client";
 
-export default async function Employees({
+export default async function Tascs({
   params,
   searchParams,
 }: {
@@ -20,25 +21,28 @@ export default async function Employees({
   const { q } = await loadQuerySearchParams(searchParams);
 
   return (
-    <Container>
-      <div className="flex justify-between">
-        <SearchInput placeholder="Search tascs..." />
+    <>
+      <SiteHeaderClient />
+      <Container>
+        <div className="flex justify-between">
+          <SearchInput placeholder="Search tascs..." />
 
-        <CreateTascDialog trackId={trackId}>
-          <Button>
-            <Plus /> New
-          </Button>
-        </CreateTascDialog>
-      </div>
+          <CreateTascDialog trackId={trackId}>
+            <Button>
+              <Plus /> New
+            </Button>
+          </CreateTascDialog>
+        </div>
 
-      <Suspense fallback={"loading..."}>
-        <EmployeesSuspenseArea q={q} trackId={trackId} />
-      </Suspense>
-    </Container>
+        <Suspense fallback={"loading..."}>
+          <TascsSuspenseArea q={q} trackId={trackId} />
+        </Suspense>
+      </Container>
+    </>
   );
 }
 
-async function EmployeesSuspenseArea({
+async function TascsSuspenseArea({
   trackId,
   q,
 }: {

@@ -8,7 +8,7 @@ export default async function Layout({
 }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar variant="inset" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );

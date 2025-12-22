@@ -6,7 +6,7 @@ import {
   CreateBoardSchema,
   UpdateBoardSchema,
 } from "@/server/db/schema";
-import { eq, not } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const boardRouter = {

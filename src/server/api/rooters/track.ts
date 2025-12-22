@@ -7,7 +7,7 @@ import {
   UpdateTrackSchema,
   boardMember,
 } from "@/server/db/schema";
-import { and, eq, getTableColumns, not } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trackRouter = {

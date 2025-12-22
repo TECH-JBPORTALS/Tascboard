@@ -15,12 +15,14 @@ import {
 import { BoxIcon, Squircle } from "lucide-react";
 import React from "react";
 import { TrackTabs } from "./track-tabs";
+import Link from "next/link";
 
 export function SiteHeaderClient() {
   const trpc = useTRPC();
-  const { boardId, trackId } = useParams<{
+  const { boardId, trackId, orgSlug } = useParams<{
     boardId: string;
     trackId: string;
+    orgSlug: string;
   }>();
   const [board, track] = useSuspenseQueries({
     queries: [
@@ -36,8 +38,10 @@ export function SiteHeaderClient() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink className="flex items-center gap-1.5">
-                  <BoxIcon className="size-4" /> {board.data?.name}
+                <BreadcrumbLink asChild className="flex items-center gap-1.5">
+                  <Link href={`/${orgSlug}/b/${boardId}`}>
+                    <BoxIcon className="size-4" /> {board.data?.name}
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />

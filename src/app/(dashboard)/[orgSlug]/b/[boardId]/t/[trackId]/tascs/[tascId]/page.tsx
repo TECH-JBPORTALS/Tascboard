@@ -1,6 +1,7 @@
 import { Container } from "@/components/container";
 import { TascDetailsPage } from "./tasc-details.page.client";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { SiteHeaderClient } from "./site-header.client";
 
 export default async function Track({
   params,
@@ -12,6 +13,7 @@ export default async function Track({
 
   return (
     <HydrateClient>
+      <SiteHeaderClient />
       <Container>
         <TascDetailsPage />
       </Container>
