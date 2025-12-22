@@ -71,7 +71,7 @@ export function BoardMembersButton({
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Assign to..." />
           <CommandList>
             <CommandEmpty>No members found.</CommandEmpty>
             {membersOfBoard.length > 0 && (

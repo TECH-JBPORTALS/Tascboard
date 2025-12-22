@@ -35,13 +35,22 @@ function TascItem({ row }: { row: Tasc }) {
   }>();
 
   return (
-    <Link
-      href={`/${orgSlug}/b/${boardId}/t/${trackId}/tascs/${row.id}`}
-      className="flex w-full max-w-full min-w-full flex-1 items-center gap-2"
-    >
+    <div className="flex w-full max-w-full min-w-full flex-1 items-center gap-2">
       <span className="text-muted-foreground">{row.faceId}</span>
-      <p className="font-medium">{row.name}</p>
-    </Link>
+      <TascStatusButton
+        tascId={row.id}
+        status={row.status}
+        buttonProps={{ size: "xs", variant: "ghost" }}
+        showLabel={false}
+      />
+
+      <Link
+        href={`/${orgSlug}/b/${boardId}/t/${trackId}/tascs/${row.id}`}
+        className="font-medium hover:underline"
+      >
+        {row.name}
+      </Link>
+    </div>
   );
 }
 
@@ -67,11 +76,6 @@ export const columns: ColumnDef<Tasc>[] = [
             tascId={row.id}
             membersUserIds={row.tascMemberUserIds}
             showLabel={false}
-          />
-          <TascStatusButton
-            tascId={row.id}
-            status={row.status}
-            buttonProps={{ size: "xs", variant: "ghost" }}
           />
 
           <span className="text-muted-foreground inline-flex gap-2 text-xs">

@@ -97,7 +97,7 @@ export function TascMembersButton({
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Assign to..." />
           <CommandList>
             <CommandEmpty>No members found.</CommandEmpty>
             {membersOfTasc.length > 0 && (

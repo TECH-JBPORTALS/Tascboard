@@ -74,7 +74,7 @@ export function TrackMembersButton({
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Assign to..." />
           <CommandList>
             <CommandEmpty>No members found.</CommandEmpty>
             {membersOfTrack.length > 0 && (

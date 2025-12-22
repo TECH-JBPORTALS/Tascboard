@@ -83,7 +83,7 @@ export function TascStatusButton({
       </PopoverTrigger>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Change status..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Members of organization">
