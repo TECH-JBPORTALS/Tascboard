@@ -39,8 +39,9 @@ import {
 } from "../ui/command";
 import { Skeleton } from "../ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import type { TascStatus } from "@/server/db/schema";
-import { TASC_STATUS_LIST } from "@/lib/constants";
+import type { TascPriority, TascStatus } from "@/server/db/schema";
+import { TASC_PRIORITY_LIST, TASC_STATUS_LIST } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export function CreateTascDialog({
   children,
@@ -54,6 +55,7 @@ export function CreateTascDialog({
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<DateRange>();
   const [status, setStatus] = useState<TascStatus>("todo");
+  const [priority, setPriority] = useState<TascPriority>("no_priority");
   const [membersUserIds, setMembersUserIds] = useState<string[]>([]);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -190,7 +192,10 @@ export function CreateTascDialog({
         <PopoverTrigger asChild>
           <Button
             variant={"secondary"}
-            className="data-[state=open]:bg-accent"
+            className={cn(
+              "data-[state=open]:bg-accent",
+              selectedStatus.className,
+            )}
             size={"xs"}
           >
             <selectedStatus.icon />
@@ -207,10 +212,59 @@ export function CreateTascDialog({
                   <CommandItem
                     key={item.value}
                     onSelect={() => setStatus(item.value)}
+                    className={cn(item.className)}
                   >
-                    <item.icon />
+                    <item.icon className={cn(item.className)} />
                     <span>{item.label}</span>
                     {item.value == status && <CheckIcon className="ml-auto" />}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  function PriorityButton() {
+    const selectedPriority = TASC_PRIORITY_LIST.find(
+      (item) => item.value == priority,
+    );
+
+    if (!selectedPriority) return null;
+
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"secondary"}
+            className={cn(
+              "data-[state=open]:bg-accent",
+              selectedPriority.className,
+            )}
+            size={"xs"}
+          >
+            <selectedPriority.icon />
+            {selectedPriority.label}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="max-w-44 p-0">
+          <Command>
+            <CommandInput placeholder="Search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup heading={"Members of track"}>
+                {TASC_PRIORITY_LIST.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    onSelect={() => setPriority(item.value)}
+                  >
+                    <item.icon className={cn(item.className)} />
+                    <span>{item.label}</span>
+                    {item.value == priority && (
+                      <CheckIcon className="ml-auto" />
+                    )}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -238,6 +292,7 @@ export function CreateTascDialog({
             placeholder="Tasc title"
           />
           <div className="flex items-center gap-1.5">
+            <PriorityButton />
             <StatusButton />
             <MembersButton />
             <Popover>
@@ -303,6 +358,7 @@ export function CreateTascDialog({
                 endDate: dueDate?.to,
                 membersUserIds,
                 status,
+                priority,
               })
             }
             disabled={name.trim().length == 0 || isPending}
