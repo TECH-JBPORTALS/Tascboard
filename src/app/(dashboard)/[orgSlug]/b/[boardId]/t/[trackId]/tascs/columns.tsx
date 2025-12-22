@@ -2,7 +2,7 @@
 
 import { DeleteTascAlertDialog } from "@/components/delete-tasc.alert-dialog";
 import { TascMembersButton } from "@/components/tasc-members.button";
-import { TascPriorityButton } from "@/components/tasc-priority.button copy";
+import { TascPriorityButton } from "@/components/tasc-priority.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

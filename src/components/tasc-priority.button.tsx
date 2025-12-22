@@ -83,7 +83,6 @@ export function TascPriorityButton({
               className={cn(
                 currentPriority.className,
                 buttonProps?.className,
-                showLabel && "min-w-[80px]",
                 "justify-start",
               )}
             >

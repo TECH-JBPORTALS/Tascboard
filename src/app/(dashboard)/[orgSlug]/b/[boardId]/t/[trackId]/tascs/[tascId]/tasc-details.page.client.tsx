@@ -1,7 +1,7 @@
 "use client";
 import { Container } from "@/components/container";
 import { TascMembersButton } from "@/components/tasc-members.button";
-import { TascPriorityButton } from "@/components/tasc-priority.button copy";
+import { TascPriorityButton } from "@/components/tasc-priority.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
