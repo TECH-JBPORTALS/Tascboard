@@ -114,7 +114,9 @@ export const boardRouter = {
                 id: true,
                 userId: true,
               },
-              where: not(eq(boardMember.userId, ctx.auth.session.userId)),
+              with: {
+                user: true,
+              },
             },
           },
         })

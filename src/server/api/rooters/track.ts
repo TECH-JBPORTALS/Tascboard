@@ -129,7 +129,9 @@ export const trackRouter = {
                 id: true,
                 userId: true,
               },
-              where: not(eq(trackMember.userId, ctx.auth.session.userId)),
+              with: {
+                user: true,
+              },
             },
           },
         })

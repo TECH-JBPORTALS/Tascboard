@@ -28,11 +28,15 @@ export function TascMembersButton({
   membersUserIds = [],
   tascId,
   showLabel = true,
+  tascMembers = [],
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
   tascId: string;
   showLabel?: boolean;
+  tascMembers:
+    | RouterOutputs["tasc"]["list"][number]["tascMembers"]
+    | RouterOutputs["tasc"]["getById"]["tascMembers"];
 }) {
   const trpc = useTRPC();
   const { trackId } = useParams<{ trackId: string }>();
@@ -56,11 +60,11 @@ export function TascMembersButton({
           className="data-[state=open]:bg-accent"
           size={"xs"}
         >
-          {membersOfTasc.length > 0 && (
+          {tascMembers.length > 0 && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="inline-flex -space-x-2">
-                  {membersOfTasc?.map((mem) => (
+                  {tascMembers?.map((mem) => (
                     <Avatar
                       key={mem.id}
                       className="border-background size-6 border-2"
@@ -72,12 +76,12 @@ export function TascMembersButton({
                 </span>
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {membersOfTasc.map((mem) => mem.user.name).join(", ")}
+                {tascMembers.map((mem) => mem.user.name).join(", ")}
               </TooltipContent>
             </Tooltip>
           )}
-          {membersOfTasc?.length > 0 ? (
-            showLabel && `${membersOfTasc.length} members`
+          {tascMembers?.length > 0 ? (
+            showLabel && `${tascMembers.length} members`
           ) : (
             <>
               <UserCircleIcon

@@ -26,10 +26,12 @@ import { Loader2Icon } from "lucide-react";
 export function TrackMembersButton({
   membersUserIds = [],
   hasAccessToEdit,
+  trackMembers = [],
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
   hasAccessToEdit: boolean;
+  trackMembers: RouterOutputs["track"]["getById"]["trackMembers"];
 }) {
   const trpc = useTRPC();
   const { boardId } = useParams<{ boardId: string }>();
@@ -55,7 +57,7 @@ export function TrackMembersButton({
           disabled={!hasAccessToEdit}
         >
           <span className="inline-flex -space-x-2">
-            {membersOfTrack?.map((mem) => (
+            {trackMembers?.map((mem) => (
               <Avatar
                 key={mem.id}
                 className="border-background size-6 border-2"
@@ -65,8 +67,8 @@ export function TrackMembersButton({
               </Avatar>
             ))}
           </span>
-          {membersOfTrack?.length > 0
-            ? `${membersOfTrack.length} members`
+          {trackMembers?.length > 0
+            ? `${trackMembers.length} members`
             : "Assign members"}
         </Button>
       </PopoverTrigger>

@@ -26,10 +26,12 @@ import { Loader2Icon } from "lucide-react";
 export function BoardMembersButton({
   membersUserIds = [],
   hasAccessToEdit,
+  boardMembers = [],
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
   hasAccessToEdit: boolean;
+  boardMembers: RouterOutputs["board"]["getById"]["boardMembers"];
 }) {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.member.list.queryOptions());
@@ -52,7 +54,7 @@ export function BoardMembersButton({
           size={"xs"}
         >
           <span className="inline-flex -space-x-2">
-            {membersOfBoard?.map((mem) => (
+            {boardMembers?.map((mem) => (
               <Avatar
                 key={mem.id}
                 className="border-background size-6 border-2"
@@ -62,8 +64,8 @@ export function BoardMembersButton({
               </Avatar>
             ))}
           </span>
-          {membersOfBoard?.length > 0
-            ? `${membersOfBoard.length} members`
+          {boardMembers?.length > 0
+            ? `${boardMembers.length} members`
             : "Assign members"}
         </Button>
       </PopoverTrigger>

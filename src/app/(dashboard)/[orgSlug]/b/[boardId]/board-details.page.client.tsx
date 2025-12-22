@@ -170,6 +170,7 @@ export function BoardDetailsPage({
           </Popover>
 
           <BoardMembersButton
+            boardMembers={data.boardMembers}
             hasAccessToEdit={hasAccessToEdit}
             membersUserIds={values.boardMembersUserIds}
           />

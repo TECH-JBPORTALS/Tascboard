@@ -269,13 +269,17 @@ export const tascRouter = {
 
       return Promise.all(
         tascs.map((tasc) =>
-          ctx.db
-            .select()
-            .from(tascMember)
-            .where(and(eq(tascMember.tascId, tasc.id)))
-            .then((tascMember) => ({
+          ctx.db.query.tascMember
+            .findMany({
+              where: and(eq(tascMember.tascId, tasc.id)),
+              with: {
+                user: true,
+              },
+            })
+            .then((tascMembers) => ({
               ...tasc,
-              tascMemberUserIds: tascMember.map((t) => t.userId),
+              tascMembers,
+              tascMemberUserIds: tascMembers.map((t) => t.userId),
             })),
         ),
       );
@@ -288,7 +292,11 @@ export const tascRouter = {
         .findFirst({
           where: eq(tasc.id, input.tascId),
           with: {
-            tascMembers: true,
+            tascMembers: {
+              with: {
+                user: true,
+              },
+            },
             createdByUser: true,
           },
         })

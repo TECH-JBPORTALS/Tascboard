@@ -63,6 +63,7 @@ export const columns: ColumnDef<Tasc>[] = [
       return (
         <div className="flex min-w-xs items-center justify-end gap-6 text-right">
           <TascMembersButton
+            tascMembers={row.tascMembers}
             tascId={row.id}
             membersUserIds={row.tascMemberUserIds}
             showLabel={false}

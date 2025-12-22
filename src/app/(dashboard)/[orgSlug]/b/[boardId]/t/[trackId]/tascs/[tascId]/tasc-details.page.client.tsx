@@ -123,6 +123,7 @@ export function TascDetailsPage() {
             buttonProps={{ size: "xs", variant: "ghost" }}
           />
           <TascMembersButton
+            tascMembers={data.tascMembers}
             tascId={tascId}
             membersUserIds={values.tascMembersUserIds ?? []}
           />

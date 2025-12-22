@@ -97,14 +97,16 @@ export function TrackDetailsPage({
   return (
     <Form {...form}>
       <Container className="px-52">
-        <AutoSyncButton
-          isDirty={form.formState.isDirty}
-          values={{
-            ...values,
-            id: trackId,
-          }}
-          onSave={updateBoard}
-        />
+        {hasAccessToEdit && (
+          <AutoSyncButton
+            isDirty={form.formState.isDirty}
+            values={{
+              ...values,
+              id: trackId,
+            }}
+            onSave={updateBoard}
+          />
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -169,6 +171,7 @@ export function TrackDetailsPage({
           <TrackMembersButton
             hasAccessToEdit={hasAccessToEdit}
             membersUserIds={values.trackMembersUserIds}
+            trackMembers={data?.trackMembers}
           />
         </div>
         <Separator />

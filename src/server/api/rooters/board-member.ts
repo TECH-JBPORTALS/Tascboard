@@ -13,18 +13,29 @@ import {
 
 import { z } from "zod/v4";
 import { and, eq, not, or } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const boardMemberRouter = {
   add: organizationProcedure
     .use(hasPermissionMiddleware({ permission: { board: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), boardId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
+      if (input.userId == ctx.auth.session.userId)
+        throw new TRPCError({
+          message: "You can't add yourself to the board",
+          code: "BAD_REQUEST",
+        });
       return await ctx.db.insert(boardMember).values(input);
     }),
   remove: organizationProcedure
     .use(hasPermissionMiddleware({ permission: { board: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), boardId: z.string().min(1) }))
     .mutation(({ ctx, input }) => {
+      if (input.userId == ctx.auth.session.userId)
+        throw new TRPCError({
+          message: "You can't remove yourself from the board",
+          code: "BAD_REQUEST",
+        });
       return ctx.db.transaction(async (tx) => {
         // 1. Delete boardMember
         await tx

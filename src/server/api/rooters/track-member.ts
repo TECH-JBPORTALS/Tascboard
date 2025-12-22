@@ -7,18 +7,29 @@ import {
 
 import { z } from "zod/v4";
 import { and, eq, not, or } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const trackMemberRouter = {
   add: organizationProcedure
     .use(hasPermissionMiddleware({ permission: { track: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), trackId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
+      if (input.userId == ctx.auth.session.userId)
+        throw new TRPCError({
+          message: "You can't add yourself to the track",
+          code: "BAD_REQUEST",
+        });
       return await ctx.db.insert(trackMember).values(input);
     }),
   remove: organizationProcedure
     .use(hasPermissionMiddleware({ permission: { track: ["update"] } }))
     .input(z.object({ userId: z.string().min(1), trackId: z.string().min(1) }))
     .mutation(({ ctx, input }) => {
+      if (input.userId == ctx.auth.session.userId)
+        throw new TRPCError({
+          message: "You can't remove yourself from the track",
+          code: "BAD_REQUEST",
+        });
       return ctx.db.transaction(async (tx) => {
         // 1. Delete trackMember
         await tx
