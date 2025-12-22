@@ -1,6 +1,8 @@
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { BoardDetailsPage } from "./board-details.page.client";
 import { SiteHeaderClient } from "./site-header.client";
+import { auth } from "@/utils/auth";
+import { headers } from "next/headers";
 
 export default async function Board({
   params,
@@ -11,10 +13,15 @@ export default async function Board({
   prefetch(trpc.board.getById.queryOptions({ boardId }));
   prefetch(trpc.member.list.queryOptions());
 
+  const hasAccessToEdit = await auth.api.hasPermission({
+    body: { permission: { board: ["update"] } },
+    headers: await headers(),
+  });
+
   return (
     <HydrateClient>
       <SiteHeaderClient />
-      <BoardDetailsPage />
+      <BoardDetailsPage hasAccessToEdit={hasAccessToEdit.success} />
     </HydrateClient>
   );
 }

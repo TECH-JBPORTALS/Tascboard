@@ -27,7 +27,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-export function TrackDetailsPage() {
+export function TrackDetailsPage({
+  hasAccessToEdit,
+}: {
+  hasAccessToEdit: boolean;
+}) {
   const { trackId } = useParams<{ trackId: string }>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -106,10 +110,12 @@ export function TrackDetailsPage() {
           name="name"
           render={({ field }) => (
             <FormControl>
-              <input
-                {...field}
-                placeholder="Untitled"
-                className="text-3xl font-semibold focus-visible:outline-none"
+              <TextEditor
+                markdown={field.value ?? ""}
+                onChange={(markdown) => field.onChange(markdown)}
+                placeholder="Track name"
+                className="text-3xl font-semibold"
+                editable={hasAccessToEdit}
               />
             </FormControl>
           )}
@@ -117,7 +123,12 @@ export function TrackDetailsPage() {
         <div className="flex items-center gap-4 py-1">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant={"ghost"} size={"xs"}>
+              <Button
+                disabled={!hasAccessToEdit}
+                className="disabled:opacity-100"
+                variant={"ghost"}
+                size={"xs"}
+              >
                 {values.startDate ? (
                   <>
                     <CalendarIcon />
@@ -155,7 +166,10 @@ export function TrackDetailsPage() {
             </PopoverContent>
           </Popover>
 
-          <TrackMembersButton membersUserIds={values.trackMembersUserIds} />
+          <TrackMembersButton
+            hasAccessToEdit={hasAccessToEdit}
+            membersUserIds={values.trackMembersUserIds}
+          />
         </div>
         <Separator />
         <FormField
@@ -166,6 +180,8 @@ export function TrackDetailsPage() {
               <TextEditor
                 markdown={field.value ?? ""}
                 onChange={(markdown) => field.onChange(markdown)}
+                placeholder={hasAccessToEdit ? "Add description..." : ""}
+                editable={hasAccessToEdit}
               />
             </FormControl>
           )}

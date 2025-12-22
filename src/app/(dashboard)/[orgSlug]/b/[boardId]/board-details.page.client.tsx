@@ -27,7 +27,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
-export function BoardDetailsPage() {
+export function BoardDetailsPage({
+  hasAccessToEdit,
+}: {
+  hasAccessToEdit: boolean;
+}) {
   const { boardId } = useParams<{ boardId: string }>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -93,23 +97,27 @@ export function BoardDetailsPage() {
   return (
     <Form {...form}>
       <Container className="px-52">
-        <AutoSyncButton
-          isDirty={form.formState.isDirty}
-          values={{
-            ...values,
-            id: boardId,
-          }}
-          onSave={updateBoard}
-        />
+        {hasAccessToEdit && (
+          <AutoSyncButton
+            isDirty={form.formState.isDirty}
+            values={{
+              ...values,
+              id: boardId,
+            }}
+            onSave={updateBoard}
+          />
+        )}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormControl>
-              <input
-                {...field}
+              <TextEditor
                 placeholder="Board name"
-                className="text-3xl font-semibold focus-visible:outline-none"
+                className="text-3xl font-semibold"
+                markdown={field.value ?? ""}
+                onChange={(markdown) => field.onChange(markdown)}
+                editable={hasAccessToEdit}
               />
             </FormControl>
           )}
@@ -117,7 +125,12 @@ export function BoardDetailsPage() {
         <div className="flex items-center gap-4 py-1">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant={"ghost"} size={"xs"}>
+              <Button
+                variant={"ghost"}
+                className="disabled:opacity-100"
+                disabled={!hasAccessToEdit}
+                size={"xs"}
+              >
                 {values.startDate ? (
                   <>
                     <CalendarIcon />
@@ -139,6 +152,7 @@ export function BoardDetailsPage() {
             <PopoverContent className="w-auto overflow-hidden p-0" align="end">
               <Calendar
                 mode="range"
+                disabled={!hasAccessToEdit}
                 selected={{
                   from: values.startDate ?? undefined,
                   to: values.endDate ?? undefined,
@@ -155,7 +169,10 @@ export function BoardDetailsPage() {
             </PopoverContent>
           </Popover>
 
-          <BoardMembersButton membersUserIds={values.boardMembersUserIds} />
+          <BoardMembersButton
+            hasAccessToEdit={hasAccessToEdit}
+            membersUserIds={values.boardMembersUserIds}
+          />
         </div>
         <Separator />
         <FormField
@@ -166,6 +183,8 @@ export function BoardDetailsPage() {
               <TextEditor
                 markdown={field.value ?? ""}
                 onChange={(markdown) => field.onChange(markdown)}
+                editable={hasAccessToEdit}
+                placeholder={hasAccessToEdit ? "Add description..." : ""}
               />
             </FormControl>
           )}

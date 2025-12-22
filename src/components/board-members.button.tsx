@@ -25,9 +25,11 @@ import { Loader2Icon } from "lucide-react";
 
 export function BoardMembersButton({
   membersUserIds = [],
+  hasAccessToEdit,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
+  hasAccessToEdit: boolean;
 }) {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.member.list.queryOptions());
@@ -44,8 +46,9 @@ export function BoardMembersButton({
     <Popover {...props}>
       <PopoverTrigger asChild>
         <Button
+          disabled={!hasAccessToEdit}
           variant={"ghost"}
-          className="data-[state=open]:bg-accent"
+          className="data-[state=open]:bg-accent disabled:opacity-100"
           size={"xs"}
         >
           <span className="inline-flex -space-x-2">
