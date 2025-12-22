@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool } from "@neondatabase/serverless";
 
 import { env } from "@/env";
 import * as appSchema from "./schema";
@@ -15,10 +15,11 @@ const schema = {
  * update.
  */
 const globalForDb = globalThis as unknown as {
-  sql: ReturnType<typeof neon> | undefined;
+  pool: Pool | undefined;
 };
 
-const sql = globalForDb.sql ?? neon(env.DATABASE_URL);
-if (env.NODE_ENV !== "production") globalForDb.sql = sql;
+const pool =
+  globalForDb.pool ?? new Pool({ connectionString: env.DATABASE_URL });
+if (env.NODE_ENV !== "production") globalForDb.pool = pool;
 
-export const db = drizzle({ client: sql, schema, casing: "snake_case" });
+export const db = drizzle({ client: pool, schema, casing: "snake_case" });
