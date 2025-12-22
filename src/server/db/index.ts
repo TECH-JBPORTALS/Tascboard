@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
 
 import { env } from "@/env";
 import * as appSchema from "./schema";
@@ -15,10 +15,10 @@ const schema = {
  * update.
  */
 const globalForDb = globalThis as unknown as {
-  conn: postgres.Sql | undefined;
+  sql: ReturnType<typeof neon> | undefined;
 };
 
-const conn = globalForDb.conn ?? postgres(env.DATABASE_URL);
-if (env.NODE_ENV !== "production") globalForDb.conn = conn;
+const sql = globalForDb.sql ?? neon(env.DATABASE_URL);
+if (env.NODE_ENV !== "production") globalForDb.sql = sql;
 
-export const db = drizzle(conn, { schema, casing: "snake_case" });
+export const db = drizzle({ client: sql, schema, casing: "snake_case" });
