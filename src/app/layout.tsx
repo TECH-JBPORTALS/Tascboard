@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
@@ -26,14 +27,25 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      className={`${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="">
-        <NuqsAdapter>
-          <TRPCReactProvider>
-            {children}
-            <Toaster richColors />
-          </TRPCReactProvider>
-        </NuqsAdapter>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NuqsAdapter>
+            <TRPCReactProvider>
+              {children}
+              <Toaster richColors />
+            </TRPCReactProvider>
+          </NuqsAdapter>
+        </ThemeProvider>
       </body>
     </html>
   );
