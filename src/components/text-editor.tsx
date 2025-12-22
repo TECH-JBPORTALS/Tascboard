@@ -11,7 +11,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin.js";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { type EditorThemeClasses, type LexicalEditor } from "lexical";
+import { type EditorThemeClasses } from "lexical";
 import {
   TRANSFORMERS,
   $convertFromMarkdownString,
@@ -22,7 +22,6 @@ import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeNode, CodeHighlightNode } from "@lexical/code";
 import { LinkNode, AutoLinkNode } from "@lexical/link";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { useRef } from "react";
 
 const theme: EditorThemeClasses = {
   // Theme styling goes here
@@ -46,11 +45,15 @@ interface TextEditorProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   onChange?: (markdown: string) => void;
   markdown?: string;
+  placeholder?: string;
+  editable?: boolean;
 }
 
 export function TextEditor({
   className,
   markdown = "",
+  placeholder = "",
+  editable = true,
   onChange,
   ...props
 }: TextEditorProps) {
@@ -69,7 +72,7 @@ export function TextEditor({
     ],
     editorState: () =>
       $convertFromMarkdownString(markdown, TRANSFORMERS, undefined, true, true),
-    editable: true,
+    editable,
     theme,
   };
 
@@ -86,7 +89,7 @@ export function TextEditor({
             }
             placeholder={
               <p className="text-muted-foreground pointer-events-none absolute top-0 w-full">
-                Add description...
+                {placeholder}
               </p>
             }
             ErrorBoundary={LexicalErrorBoundary}

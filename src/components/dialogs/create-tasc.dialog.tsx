@@ -229,11 +229,13 @@ export function CreateTascDialog({
           <DialogTitle className="text-md font-medium">New tasc</DialogTitle>
         </DialogHeader>
         <div className="h-full flex-1 space-y-2 overflow-y-scroll">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+          <TextEditor
+            markdown={name}
+            onChange={(markdown) => {
+              setName(markdown);
+            }}
+            className="w-full text-2xl! font-semibold outline-none"
             placeholder="Tasc title"
-            className="bg-transparent! px-0 text-2xl! font-semibold outline-none"
           />
           <div className="flex items-center gap-1.5">
             <StatusButton />
@@ -279,6 +281,7 @@ export function CreateTascDialog({
           </div>
           <Separator />
           <TextEditor
+            placeholder="Add description..."
             markdown={description}
             onChange={(markdown) => {
               setDescription(markdown);

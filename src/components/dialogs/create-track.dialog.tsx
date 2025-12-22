@@ -181,11 +181,13 @@ export function CreateTrackDialog({
           <DialogTitle className="text-md font-medium">New track</DialogTitle>
         </DialogHeader>
         <div className="h-full flex-1 space-y-2 overflow-y-scroll">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+          <TextEditor
+            markdown={name}
+            onChange={(markdown) => {
+              setName(markdown);
+            }}
+            className="w-full text-2xl! font-semibold outline-none"
             placeholder="Track name"
-            className="bg-transparent! px-0 text-2xl! font-semibold outline-none"
           />
           <div className="flex items-center gap-1.5">
             <MembersButton />
@@ -234,6 +236,7 @@ export function CreateTrackDialog({
             onChange={(markdown) => {
               setDescription(markdown);
             }}
+            placeholder="Add description...."
             className="h-full"
           />
         </div>
