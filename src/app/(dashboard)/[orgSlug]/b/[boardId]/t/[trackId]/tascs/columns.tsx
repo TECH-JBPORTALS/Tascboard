@@ -37,7 +37,7 @@ function TascItem({ row }: { row: Tasc }) {
 
   return (
     <div className="flex w-full max-w-full min-w-full flex-1 items-center gap-2">
-      <span className="text-muted-foreground">{row.faceId}</span>
+      <span className="text-muted-foreground font-medium">#{row.faceId}</span>
       <TascPriorityButton
         tascId={row.id}
         priority={row.priority}

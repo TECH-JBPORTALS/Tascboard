@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { and, asc, eq, getTableColumns, ilike, or } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, ilike, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import {
@@ -13,22 +13,6 @@ import {
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import { user } from "@/server/db/auth-schema";
-
-function getNextFaceId({
-  lastFaceId,
-  prefix,
-}: {
-  lastFaceId?: string | null;
-  prefix: string;
-}) {
-  if (!lastFaceId) return `${prefix}-01`;
-
-  const [, numPart] = lastFaceId.split("-");
-  const current = Number.parseInt(numPart ?? "0", 10) || 0;
-  const next = current + 1;
-
-  return `${prefix}-${next.toString().padStart(2, "0")}`;
-}
 
 export const tascRouter = {
   create: organizationProcedure
@@ -47,18 +31,6 @@ export const tascRouter = {
             eq(trackMember.trackId, input.trackId),
             eq(trackMember.userId, ctx.auth.user.id),
           ),
-          columns: {
-            id: true,
-            trackId: true,
-          },
-          with: {
-            track: {
-              columns: {
-                id: true,
-                name: true,
-              },
-            },
-          },
         });
 
         if (!membership) {
@@ -68,16 +40,6 @@ export const tascRouter = {
               "You must be a member of this track to create tascs for it.",
           });
         }
-
-        const lastTasc = await tx.query.tasc.findFirst({
-          where: eq(tasc.trackId, input.trackId),
-          orderBy: asc(tasc.createdAt),
-        });
-
-        const faceId = getNextFaceId({
-          lastFaceId: lastTasc?.faceId,
-          prefix: "#",
-        });
 
         const patch: Partial<(typeof tasc)["$inferInsert"]> = {
           status: input.status,
@@ -95,7 +57,7 @@ export const tascRouter = {
           .insert(tasc)
           .values({
             ...input,
-            faceId,
+            faceId: sql<string>`COALESCE((SELECT (MAX(CAST(${tasc.faceId} AS integer)) + 1)::text FROM ${tasc} WHERE ${tasc.trackId} = ${input.trackId}),'1')`,
             createdBy: ctx.auth.session.userId,
           })
           .returning();
