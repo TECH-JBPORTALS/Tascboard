@@ -8,7 +8,7 @@
     "check": "next lint && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:drop": "drizzle-kit drop",
-    "db:migrate": "ts-node src/server/db/migrate.ts",
+    "db:migrate": "ts-node ./src/server/db/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "auth:generate": "pnpx @better-auth/cli generate --config ./src/utils/auth.tsx --output ./src/server/db/auth-schema.ts",
