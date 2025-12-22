@@ -2,6 +2,7 @@
 
 import { DeleteTascAlertDialog } from "@/components/delete-tasc.alert-dialog";
 import { TascMembersButton } from "@/components/tasc-members.button";
+import { TascPriorityButton } from "@/components/tasc-priority.button copy";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,12 @@ function TascItem({ row }: { row: Tasc }) {
   return (
     <div className="flex w-full max-w-full min-w-full flex-1 items-center gap-2">
       <span className="text-muted-foreground">{row.faceId}</span>
+      <TascPriorityButton
+        tascId={row.id}
+        priority={row.priority}
+        buttonProps={{ size: "xs", variant: "ghost" }}
+        showLabel={false}
+      />
       <TascStatusButton
         tascId={row.id}
         status={row.status}

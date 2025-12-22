@@ -1,6 +1,7 @@
 "use client";
 import { Container } from "@/components/container";
 import { TascMembersButton } from "@/components/tasc-members.button";
+import { TascPriorityButton } from "@/components/tasc-priority.button copy";
 import { TascStatusButton } from "@/components/tasc-status.button";
 import { TextEditor } from "@/components/text-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -50,6 +51,7 @@ export function TascDetailsPage() {
       startDate: data?.startDate,
       status: data.status,
       tascMembersUserIds: data.tascMembersUserIds ?? [],
+      priority: data.priority,
     },
   });
   const values = form.watch();
@@ -81,6 +83,7 @@ export function TascDetailsPage() {
       endDate: data?.endDate,
       startDate: data?.startDate,
       tascMembersUserIds: data.tascMembersUserIds,
+      priority: data.priority,
     });
   }, [
     data.name,
@@ -88,6 +91,7 @@ export function TascDetailsPage() {
     data.endDate,
     data.startDate,
     data.tascMembersUserIds,
+    data.priority,
     form,
     tascId,
   ]);
@@ -117,6 +121,11 @@ export function TascDetailsPage() {
           )}
         />
         <div className="flex items-center gap-4 py-1">
+          <TascPriorityButton
+            tascId={tascId}
+            priority={data.priority}
+            buttonProps={{ size: "xs", variant: "ghost" }}
+          />
           <TascStatusButton
             tascId={tascId}
             status={data.status}

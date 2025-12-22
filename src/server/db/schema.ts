@@ -159,6 +159,8 @@ export const trackMemberRelations = relations(trackMember, ({ one }) => ({
 
 export type TascStatus = "todo" | "in_progress" | "completed" | "verified";
 
+export type TascPriority = "no_priority" | "urgent" | "high" | "medium" | "low";
+
 export type TascRole = "creator" | "member";
 
 export const tasc = pgTable(
@@ -174,6 +176,7 @@ export const tasc = pgTable(
       .references(() => track.id, { onDelete: "cascade" })
       .notNull(),
     status: d.text().$type<TascStatus>().notNull().default("todo"),
+    priority: d.text().$type<TascPriority>().notNull().default("no_priority"),
     /** Tasc status changed form `todo` to `in_progress` status timestamp */
     startedAt: d.timestamp({ mode: "date", withTimezone: true }),
     /** Tasc status changed to `completed` status timestamp */
@@ -212,7 +215,8 @@ export const tascMemberRelations = relations(tascMember, ({ one }) => ({
 export const CreateTascSchema = createInsertSchema(tasc, {
   name: z.string().min(3, "Tasc title cannot be less than 3 characters"),
   trackId: z.string().min(1, "Track Id is required to create tasc"),
-  status: z.enum(["todo", "in_progress", "completed", "verified"]),
+  status: z.custom<TascStatus>(),
+  priority: z.custom<TascPriority>(),
   description: z.string().trim().optional(),
 })
   .omit({ faceId: true, createdBy: true })

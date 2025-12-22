@@ -27,7 +27,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body className="dark">
+      <body className="">
         <NuqsAdapter>
           <TRPCReactProvider>
             {children}

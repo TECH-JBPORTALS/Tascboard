@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Command,
@@ -15,30 +15,32 @@ import { useTRPC } from "@/trpc/react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { CheckIcon, Loader2Icon } from "lucide-react";
-import type { TascStatus } from "@/server/db/schema";
-import { TASC_STATUS_LIST, type TascStatusItem } from "@/lib/constants";
+import type { TascPriority } from "@/server/db/schema";
+import { TASC_PRIORITY_LIST, type TascPriorityItem } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-export function TascStatusButton({
-  status,
+export function TascPriorityButton({
+  priority,
   buttonProps,
   tascId,
   showLabel = true,
   ...props
 }: React.ComponentProps<typeof Popover> & {
-  status?: TascStatus;
+  priority?: TascPriority;
   tascId: string;
   buttonProps?: React.ComponentProps<typeof Button>;
   showLabel?: boolean;
 }) {
-  const currentStatus = TASC_STATUS_LIST.find((item) => item.value === status);
+  const currentPriority = TASC_PRIORITY_LIST.find(
+    (item) => item.value === priority,
+  );
 
-  function StatusItem({ item }: { item: TascStatusItem }) {
+  function PriorityItem({ item }: { item: TascPriorityItem }) {
     const trpc = useTRPC();
     const queryClient = useQueryClient();
     const { mutate: updateTasc, isPending } = useMutation(
-      trpc.tasc.updateStatus.mutationOptions({
+      trpc.tasc.updatePriority.mutationOptions({
         async onSuccess() {
           await Promise.all([
             queryClient.invalidateQueries(trpc.tasc.getById.queryFilter()),
@@ -54,7 +56,7 @@ export function TascStatusButton({
     return (
       <CommandItem
         onSelect={() => {
-          updateTasc({ status: item.value, id: tascId });
+          updateTasc({ priority: item.value, id: tascId });
         }}
         disabled={isPending}
       >
@@ -62,14 +64,14 @@ export function TascStatusButton({
         <span>{item.label}</span>
         {isPending ? (
           <Loader2Icon className="ml-auto size-4 animate-spin" />
-        ) : item.value == status ? (
+        ) : item.value == priority ? (
           <CheckIcon className="ml-auto" />
         ) : null}
       </CommandItem>
     );
   }
 
-  if (!currentStatus) return null;
+  if (!currentPriority) return null;
 
   return (
     <Popover {...props}>
@@ -78,25 +80,30 @@ export function TascStatusButton({
           <PopoverTrigger asChild>
             <Button
               {...buttonProps}
-              className={cn(currentStatus.className, buttonProps?.className)}
+              className={cn(
+                currentPriority.className,
+                buttonProps?.className,
+                showLabel && "min-w-[80px]",
+                "justify-start",
+              )}
             >
-              <currentStatus.icon />
-              {showLabel && currentStatus.label}
+              <currentPriority.icon />
+              {showLabel && currentPriority.label}
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
         <TooltipContent side="bottom" className={cn(showLabel && "hidden")}>
-          {currentStatus.label}
+          {currentPriority.label}
         </TooltipContent>
       </Tooltip>
       <PopoverContent className="max-w-52 p-0">
         <Command>
-          <CommandInput placeholder="Change status..." />
+          <CommandInput placeholder="Set priority..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {TASC_STATUS_LIST?.map((item) => (
-                <StatusItem item={item} key={item.value} />
+              {TASC_PRIORITY_LIST?.map((item) => (
+                <PriorityItem item={item} key={item.value} />
               ))}
             </CommandGroup>
           </CommandList>

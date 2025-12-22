@@ -9,6 +9,7 @@ import {
   tasc,
   tascMember,
   trackMember,
+  type TascPriority,
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import { user } from "@/server/db/auth-schema";
@@ -202,6 +203,47 @@ export const tascRouter = {
       const [updated] = await ctx.db
         .update(tasc)
         .set(patch)
+        .where(eq(tasc.id, input.id))
+        .returning();
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update tasc status",
+        });
+      }
+
+      return updated;
+    }),
+
+  updatePriority: organizationProcedure
+    .use(
+      hasPermissionMiddleware(
+        { permission: { tasc: ["update"] } },
+        "You don't have permission to update tasc status",
+      ),
+    )
+    .input(
+      z.object({
+        id: z.string().min(1),
+        priority: z.custom<TascPriority>(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.query.tasc.findFirst({
+        where: eq(tasc.id, input.id),
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Tasc not found",
+        });
+      }
+
+      const [updated] = await ctx.db
+        .update(tasc)
+        .set({ priority: input.priority })
         .where(eq(tasc.id, input.id))
         .returning();
 

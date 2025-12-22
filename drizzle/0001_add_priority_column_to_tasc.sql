@@ -1,0 +1,1 @@
+ALTER TABLE "tasc" ADD COLUMN "priority" text DEFAULT 'no_priority' NOT NULL;

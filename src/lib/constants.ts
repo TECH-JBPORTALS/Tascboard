@@ -1,7 +1,12 @@
-import type { TascStatus } from "@/server/db/schema";
+import type { TascPriority, TascStatus } from "@/server/db/schema";
 import {
   CircleCheckIcon,
   CircleIcon,
+  Minus,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+  Siren,
   TimerIcon,
   VerifiedIcon,
   type LucideIcon,
@@ -38,5 +43,45 @@ export const TASC_STATUS_LIST: TascStatusItem[] = [
     label: "Verified",
     icon: VerifiedIcon,
     className: "hover:text-teal-600 text-teal-600",
+  },
+];
+
+export type TascPriorityItem = {
+  value: TascPriority;
+  label: string;
+  icon: LucideIcon;
+  className?: string;
+};
+
+export const TASC_PRIORITY_LIST: TascPriorityItem[] = [
+  {
+    value: "no_priority",
+    label: "No priority",
+    icon: Minus,
+    className: "text-muted-foreground hover:text-muted-foreground",
+  },
+  {
+    value: "urgent",
+    label: "Urgent",
+    icon: Siren,
+    className: "text-rose-600 hover:text-rose-600",
+  },
+  {
+    value: "high",
+    label: "High",
+    icon: SignalHigh,
+    className: "text-rose-400 hover:text-amber-400",
+  },
+  {
+    value: "medium",
+    label: "Medium",
+    icon: SignalMedium,
+    className: "text-rose-300 hover:text-amber-300",
+  },
+  {
+    value: "low",
+    label: "Low",
+    icon: SignalLow,
+    className: "text-muted-foreground hover:text-muted-foreground",
   },
 ];
