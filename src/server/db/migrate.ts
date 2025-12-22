@@ -5,6 +5,6 @@ console.log("Applying migrations....");
 
 await migrate(db, { migrationsFolder: "drizzle" })
   .then(() => {
-    console.log("Migration Appli");
+    console.log("Migration Applied ✅");
   })
-  .catch((e) => console.error("Migration failed: ", e));
+  .catch((e) => console.error("❌ Migration failed: ", e));
