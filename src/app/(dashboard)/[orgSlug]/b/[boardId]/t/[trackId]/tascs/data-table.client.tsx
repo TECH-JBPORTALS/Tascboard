@@ -9,7 +9,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import type { TascPriority, TascStatus } from "@/server/db/schema";
 import { useQueryStates } from "nuqs";
 import { tascFilterSearchParams } from "@/lib/search-params";
-import { TASC_STATUS_LIST } from "@/lib/constants";
+import { TASC_PRIORITY_LIST, TASC_STATUS_LIST } from "@/lib/constants";
 import {
   Popover,
   PopoverContent,
@@ -66,7 +66,7 @@ export function FiltersRow() {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant={"outline"}
+            variant={filter.status ? "secondary" : "outline"}
             className={cn("data-[state=open]:bg-accent border-dashed")}
             size={"sm"}
           >
@@ -90,7 +90,10 @@ export function FiltersRow() {
                   <CommandItem
                     key={item.value}
                     onSelect={() =>
-                      setFilter((prev) => ({ ...prev, status: item.value }))
+                      setFilter((prev) => ({
+                        ...prev,
+                        status: prev.status !== item.value ? item.value : null,
+                      }))
                     }
                   >
                     <item.icon className={cn(item.className)} />
@@ -112,18 +115,18 @@ export function FiltersRow() {
     const [open, setOpen] = useState(false);
     const trpc = useTRPC();
     const { trackId } = useParams<{ trackId: string }>();
-    const { data, isLoading, isError } = useQuery(
+    const { data, isLoading } = useQuery(
       trpc.trackMember.list.queryOptions({ trackId }, { enabled: open }),
     );
 
     const selectedMember = data?.find((mem) => mem.userId === filter.assignee);
 
     return (
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant={"outline"}
-            className="data-[state=open]:bg-accent border-dashed"
+            variant={filter.assignee ? "secondary" : "outline"}
+            className={cn("data-[state=open]:bg-accent border-dashed")}
             size={"sm"}
           >
             {selectedMember ? (
@@ -163,7 +166,8 @@ export function FiltersRow() {
                       onSelect={() =>
                         setFilter((prev) => ({
                           ...prev,
-                          assignee: mem.userId,
+                          assignee:
+                            prev.assignee !== mem.userId ? mem.userId : null,
                         }))
                       }
                     >
@@ -188,9 +192,69 @@ export function FiltersRow() {
     );
   }
 
+  function PriorityButton() {
+    const selectedPriority = TASC_PRIORITY_LIST.find(
+      (item) => item.value == filter.priority,
+    );
+
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={filter.priority ? "secondary" : "outline"}
+            className={cn(
+              "data-[state=open]:bg-accent border-dashed",
+              selectedPriority?.className,
+            )}
+            size={"sm"}
+          >
+            {selectedPriority ? (
+              <>
+                <selectedPriority.icon />
+                {selectedPriority.label}
+              </>
+            ) : (
+              "Priority"
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="max-w-44 p-0">
+          <Command>
+            <CommandInput placeholder="Search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {TASC_PRIORITY_LIST.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    onSelect={() =>
+                      setFilter((prev) => ({
+                        ...prev,
+                        priority:
+                          prev.priority !== item.value ? item.value : null,
+                      }))
+                    }
+                  >
+                    <item.icon className={cn(item.className)} />
+                    <span>{item.label}</span>
+                    {item.value == filter.priority && (
+                      <CheckIcon className="ml-auto" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
   return (
     <div className="flex items-center gap-3.5">
       <SearchInput placeholder="Search tascs..." />
+
+      <PriorityButton />
       <StatusButton />
       <MembersButton />
       {!!filter.status || !!filter.priority || !!filter.assignee ? (
