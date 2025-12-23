@@ -177,10 +177,6 @@ export const tasc = pgTable(
       .notNull(),
     status: d.text().$type<TascStatus>().notNull().default("todo"),
     priority: d.text().$type<TascPriority>().notNull().default("no_priority"),
-    /** Tasc status changed form `todo` to `in_progress` status timestamp */
-    startedAt: d.timestamp({ mode: "date", withTimezone: true }),
-    /** Tasc status changed to `completed` status timestamp */
-    completedAt: d.timestamp({ mode: "date", withTimezone: true }),
     createdBy: d
       .text()
       .notNull()
@@ -224,16 +220,39 @@ export const CreateTascSchema = createInsertSchema(tasc, {
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
   name: z.string().min(3, "Tasc title can not be empty"),
-  status: z.enum(["todo", "in_progress", "completed", "verified"]).optional(),
   faceId: z.string().min(1, "Face ID is required"),
   trackId: z.string().min(1, "Track ID is required"),
 })
   .omit({
+    status: true,
     createdAt: true,
     updatedAt: true,
     id: true,
     completedAt: true,
     startedAt: true,
     createdBy: true,
+    priority: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));
+
+export type TascActivityAction =
+  | "status_changed"
+  | "priority_changed"
+  | "due_changed"
+  | "title_chaged"
+  | "assignee_changed";
+
+// TODO:
+export const tascActivity = pgTable("tasc_activity", (d) => ({
+  ...initialColumns,
+  tascId: d
+    .text()
+    .references(() => tasc.id, { onDelete: "cascade" })
+    .notNull(),
+  action: d.text().$type<TascActivityAction>().notNull(),
+  performedBy: d
+    .text()
+    .references(() => user.id, { onDelete: "set null" })
+    .notNull(),
+  reason: d.jsonb().$type().notNull(),
+}));

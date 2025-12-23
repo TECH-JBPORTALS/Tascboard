@@ -10,9 +10,11 @@ import {
   tascMember,
   trackMember,
   type TascPriority,
+  tascActivity,
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import { user } from "@/server/db/auth-schema";
+import { format } from "date-fns";
 
 export const tascRouter = {
   create: organizationProcedure
@@ -39,18 +41,6 @@ export const tascRouter = {
             message:
               "You must be a member of this track to create tascs for it.",
           });
-        }
-
-        const patch: Partial<(typeof tasc)["$inferInsert"]> = {
-          status: input.status,
-        };
-
-        if (input.status === "in_progress") {
-          patch.startedAt = new Date();
-        }
-
-        if (input.status === "completed") {
-          patch.completedAt = new Date();
         }
 
         const created = await tx
@@ -97,28 +87,56 @@ export const tascRouter = {
     )
     .input(UpdateTascSchema)
     .mutation(async ({ ctx, input }) => {
-      const [updated] = await ctx.db
-        .update(tasc)
-        .set({
-          name: input.name,
-          description: input.description,
-          startDate: input.startDate,
-          endDate: input.endDate,
-          status: input.status,
-        })
-        .where(
-          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
-        )
-        .returning();
-
-      if (!updated) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Tasc not found",
+      return ctx.db.transaction(async (tx) => {
+        const existing = await tx.query.tasc.findFirst({
+          where: and(
+            eq(tasc.faceId, input.faceId),
+            eq(tasc.trackId, input.trackId),
+          ),
         });
-      }
 
-      return updated;
+        if (!existing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Tasc not found",
+          });
+        }
+
+        const activityPatch: Partial<typeof tascActivity.$inferInsert> = {
+          tascId: existing.id,
+          performedBy: ctx.auth.session.userId,
+        };
+
+        if (
+          existing.startDate !== input.startDate ||
+          existing.endDate !== input.endDate
+        ) {
+          activityPatch.action = "due_changed";
+          activityPatch.reason = `${input.startDate && format(input.startDate, "MMM, dd yyyy")}`;
+        }
+
+        const [updated] = await tx
+          .update(tasc)
+          .set({
+            name: input.name,
+            description: input.description,
+            startDate: input.startDate,
+            endDate: input.endDate,
+          })
+          .where(
+            and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+          )
+          .returning();
+
+        if (!updated) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Tasc not found",
+          });
+        }
+
+        return updated;
+      });
     }),
 
   updateStatus: organizationProcedure
@@ -136,54 +154,57 @@ export const tascRouter = {
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const existing = await ctx.db.query.tasc.findFirst({
-        where: and(
-          eq(tasc.faceId, input.faceId),
-          eq(tasc.trackId, input.trackId),
-        ),
-      });
-
-      if (!existing) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Tasc not found",
+      return ctx.db.transaction(async (tx) => {
+        const existing = await tx.query.tasc.findFirst({
+          where: and(
+            eq(tasc.faceId, input.faceId),
+            eq(tasc.trackId, input.trackId),
+          ),
         });
-      }
 
-      const patch: Partial<(typeof tasc)["$inferInsert"]> = {
-        status: input.status,
-      };
-
-      if (existing.status === "todo" && input.status === "in_progress") {
-        patch.startedAt = new Date();
-      }
-
-      if (
-        (existing.status === "in_progress" || existing.status === "todo") &&
-        input.status === "completed"
-      ) {
-        patch.completedAt = new Date();
-        if (!existing.startedAt) {
-          patch.startedAt = existing.startedAt ?? new Date();
+        if (!existing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Tasc not found",
+          });
         }
-      }
 
-      const [updated] = await ctx.db
-        .update(tasc)
-        .set(patch)
-        .where(
-          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
-        )
-        .returning();
+        if (existing.status == input.status) return;
 
-      if (!updated) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update tasc status",
-        });
-      }
+        const [updated] = await tx
+          .update(tasc)
+          .set({ status: input.status })
+          .where(
+            and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+          )
+          .returning();
 
-      return updated;
+        if (!updated) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update tasc status",
+          });
+        }
+
+        const [updatedActivity] = await tx
+          .insert(tascActivity)
+          .values({
+            tascId: updated.id,
+            action: "status_changed",
+            performedBy: ctx.auth.session.userId,
+            reason: updated.status,
+          })
+          .returning();
+
+        if (!updatedActivity) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update tasc activity",
+          });
+        }
+
+        return updated;
+      });
     }),
 
   updatePriority: organizationProcedure
@@ -201,36 +222,57 @@ export const tascRouter = {
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const existing = await ctx.db.query.tasc.findFirst({
-        where: and(
-          eq(tasc.faceId, input.faceId),
-          eq(tasc.trackId, input.trackId),
-        ),
+      return ctx.db.transaction(async (tx) => {
+        const existing = await tx.query.tasc.findFirst({
+          where: and(
+            eq(tasc.faceId, input.faceId),
+            eq(tasc.trackId, input.trackId),
+          ),
+        });
+
+        if (!existing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Tasc not found",
+          });
+        }
+
+        if (existing.priority == input.priority) return;
+
+        const [updated] = await tx
+          .update(tasc)
+          .set({ priority: input.priority })
+          .where(
+            and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+          )
+          .returning();
+
+        if (!updated) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update tasc priority",
+          });
+        }
+
+        const [updatedActivity] = await tx
+          .insert(tascActivity)
+          .values({
+            tascId: updated.id,
+            action: "priority_changed",
+            performedBy: ctx.auth.session.userId,
+            reason: updated.priority,
+          })
+          .returning();
+
+        if (!updatedActivity) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update tasc activity",
+          });
+        }
+
+        return updated;
       });
-
-      if (!existing) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Tasc not found",
-        });
-      }
-
-      const [updated] = await ctx.db
-        .update(tasc)
-        .set({ priority: input.priority })
-        .where(
-          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
-        )
-        .returning();
-
-      if (!updated) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update tasc status",
-        });
-      }
-
-      return updated;
     }),
 
   delete: organizationProcedure
