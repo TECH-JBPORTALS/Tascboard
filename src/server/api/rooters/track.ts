@@ -7,7 +7,7 @@ import {
   UpdateTrackSchema,
   boardMember,
 } from "@/server/db/schema";
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trackRouter = {
@@ -114,6 +114,9 @@ export const trackRouter = {
           ),
         )
         .where(eq(track.boardId, input.boardId))
+        .orderBy(
+          asc(sql`CAST(SUBSTRING(${track.name} FROM '^[0-9]+') AS INTEGER)`),
+        )
         .then((r) => r.map((r) => r.track));
     }),
 
