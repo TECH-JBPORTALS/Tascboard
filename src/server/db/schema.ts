@@ -2,7 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { relations } from "drizzle-orm";
-import { index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { invitation, member, organization, user } from "./auth-schema";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -186,7 +186,7 @@ export const tasc = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   }),
-  (t) => [index().on(t.name)],
+  (t) => [index().on(t.name), uniqueIndex().on(t.trackId, t.faceId)],
 );
 
 export const tascRelations = relations(tasc, ({ many, one }) => ({
