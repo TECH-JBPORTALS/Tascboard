@@ -52,9 +52,7 @@ export function TascDetailsPage() {
       description: data?.description ?? "",
       endDate: data?.endDate,
       startDate: data?.startDate,
-      status: data.status,
       tascMembersUserIds: data.tascMembersUserIds ?? [],
-      priority: data.priority,
     },
   });
   const values = form.watch();
@@ -88,7 +86,6 @@ export function TascDetailsPage() {
       endDate: data?.endDate,
       startDate: data?.startDate,
       tascMembersUserIds: data.tascMembersUserIds,
-      priority: data.priority,
     });
   }, [
     data.faceId,
@@ -98,7 +95,6 @@ export function TascDetailsPage() {
     data.endDate,
     data.startDate,
     data.tascMembersUserIds,
-    data.priority,
     form,
   ]);
 
