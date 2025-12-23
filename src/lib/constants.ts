@@ -1,5 +1,6 @@
 import type { TascPriority, TascStatus } from "@/server/db/schema";
 import {
+  CheckCircle,
   CircleCheckIcon,
   CircleIcon,
   Minus,
@@ -41,8 +42,8 @@ export const TASC_STATUS_LIST: TascStatusItem[] = [
   {
     value: "verified",
     label: "Verified",
-    icon: VerifiedIcon,
-    className: "hover:text-teal-600 text-teal-600",
+    icon: CheckCircle,
+    className: "hover:text-indigo-500 text-indigo-500",
   },
 ];
 
