@@ -70,7 +70,7 @@ export const TASC_PRIORITY_LIST: TascPriorityItem[] = [
     value: "high",
     label: "High",
     icon: SignalHigh,
-    className: "text-amber-800 hover:text-amber-800",
+    className: "text-orange-500 hover:text-orange-500",
   },
   {
     value: "medium",

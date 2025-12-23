@@ -41,13 +41,13 @@ function TascItem({ row }: { row: Tasc }) {
       <TascPriorityButton
         tascId={row.id}
         priority={row.priority}
-        buttonProps={{ size: "xs", variant: "ghost" }}
+        buttonProps={{ size: "icon-sm", variant: "ghost" }}
         showLabel={false}
       />
       <TascStatusButton
         tascId={row.id}
         status={row.status}
-        buttonProps={{ size: "xs", variant: "ghost" }}
+        buttonProps={{ size: "icon-sm", variant: "ghost" }}
         showLabel={false}
       />
 

@@ -80,11 +80,7 @@ export function TascPriorityButton({
           <PopoverTrigger asChild>
             <Button
               {...buttonProps}
-              className={cn(
-                currentPriority.className,
-                buttonProps?.className,
-                "justify-start",
-              )}
+              className={cn(currentPriority.className, buttonProps?.className)}
             >
               <currentPriority.icon />
               {showLabel && currentPriority.label}
