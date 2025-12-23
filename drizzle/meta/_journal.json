@@ -15,6 +15,13 @@
       "when": 1766396528915,
       "tag": "0001_add_priority_column_to_tasc",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766465213459,
+      "tag": "0002_add_unique_index_trackId_faceId",
+      "breakpoints": true
     }
   ]
 }

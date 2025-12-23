@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "tasc_track_id_face_id_index" ON "tasc" USING btree ("track_id","face_id");
