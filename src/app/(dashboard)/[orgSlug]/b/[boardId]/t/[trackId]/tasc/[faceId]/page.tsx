@@ -6,10 +6,10 @@ import { SiteHeaderClient } from "./site-header.client";
 export default async function Track({
   params,
 }: {
-  params: Promise<{ tascId: string }>;
+  params: Promise<{ faceId: string; trackId: string }>;
 }) {
-  const { tascId } = await params;
-  prefetch(trpc.tasc.getById.queryOptions({ tascId }));
+  const { faceId, trackId } = await params;
+  prefetch(trpc.tasc.getById.queryOptions({ faceId, trackId }));
 
   return (
     <HydrateClient>

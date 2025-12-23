@@ -27,12 +27,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 export function TascMembersButton({
   membersUserIds = [],
   tascId,
+  faceId,
   showLabel = true,
   tascMembers = [],
   ...props
 }: React.ComponentProps<typeof Popover> & {
   membersUserIds: string[];
   tascId: string;
+  faceId: string;
   showLabel?: boolean;
   tascMembers:
     | RouterOutputs["tasc"]["list"][number]["tascMembers"]
@@ -104,7 +106,11 @@ export function TascMembersButton({
               <>
                 <CommandGroup heading={"Members of tasc"}>
                   {membersOfTasc?.map((mem) => (
-                    <MemberItem tascId={tascId} key={mem.id} mem={mem} />
+                    <MemberItem
+                      {...{ faceId, tascId, trackId }}
+                      key={mem.id}
+                      mem={mem}
+                    />
                   ))}
                 </CommandGroup>
                 <CommandSeparator />
@@ -114,7 +120,11 @@ export function TascMembersButton({
             {remainingMembers?.length !== 0 && (
               <CommandGroup heading="Members of track">
                 {remainingMembers?.map((mem) => (
-                  <RemainingMemberItem tascId={tascId} mem={mem} key={mem.id} />
+                  <RemainingMemberItem
+                    {...{ faceId, tascId, trackId }}
+                    mem={mem}
+                    key={mem.id}
+                  />
                 ))}
               </CommandGroup>
             )}
@@ -128,9 +138,13 @@ export function TascMembersButton({
 function MemberItem({
   mem,
   tascId,
+  faceId,
+  trackId,
 }: {
   mem: RouterOutputs["trackMember"]["list"][number];
   tascId: string;
+  faceId: string;
+  trackId: string;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -139,7 +153,7 @@ function MemberItem({
       async onSuccess() {
         await Promise.all([
           queryClient.invalidateQueries(
-            trpc.tasc.getById.queryOptions({ tascId }),
+            trpc.tasc.getById.queryOptions({ faceId, trackId }),
           ),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
         ]);
@@ -170,9 +184,13 @@ function MemberItem({
 function RemainingMemberItem({
   mem,
   tascId,
+  faceId,
+  trackId,
 }: {
   mem: RouterOutputs["trackMember"]["list"][number];
   tascId: string;
+  faceId: string;
+  trackId: string;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -181,7 +199,7 @@ function RemainingMemberItem({
       async onSuccess() {
         await Promise.all([
           queryClient.invalidateQueries(
-            trpc.tasc.getById.queryOptions({ tascId }),
+            trpc.tasc.getById.queryOptions({ faceId, trackId }),
           ),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
         ]);

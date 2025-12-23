@@ -106,7 +106,9 @@ export const tascRouter = {
           endDate: input.endDate,
           status: input.status,
         })
-        .where(eq(tasc.id, input.id))
+        .where(
+          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+        )
         .returning();
 
       if (!updated) {
@@ -128,13 +130,17 @@ export const tascRouter = {
     )
     .input(
       z.object({
-        id: z.string().min(1),
+        faceId: z.string().min(1),
+        trackId: z.string().min(1),
         status: z.custom<TascStatus>(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.query.tasc.findFirst({
-        where: eq(tasc.id, input.id),
+        where: and(
+          eq(tasc.faceId, input.faceId),
+          eq(tasc.trackId, input.trackId),
+        ),
       });
 
       if (!existing) {
@@ -165,7 +171,9 @@ export const tascRouter = {
       const [updated] = await ctx.db
         .update(tasc)
         .set(patch)
-        .where(eq(tasc.id, input.id))
+        .where(
+          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+        )
         .returning();
 
       if (!updated) {
@@ -187,13 +195,17 @@ export const tascRouter = {
     )
     .input(
       z.object({
-        id: z.string().min(1),
+        faceId: z.string().min(1),
+        trackId: z.string().min(1),
         priority: z.custom<TascPriority>(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.query.tasc.findFirst({
-        where: eq(tasc.id, input.id),
+        where: and(
+          eq(tasc.faceId, input.faceId),
+          eq(tasc.trackId, input.trackId),
+        ),
       });
 
       if (!existing) {
@@ -206,7 +218,9 @@ export const tascRouter = {
       const [updated] = await ctx.db
         .update(tasc)
         .set({ priority: input.priority })
-        .where(eq(tasc.id, input.id))
+        .where(
+          and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
+        )
         .returning();
 
       if (!updated) {
@@ -290,11 +304,14 @@ export const tascRouter = {
     }),
 
   getById: organizationProcedure
-    .input(z.object({ tascId: z.string().min(1) }))
+    .input(z.object({ faceId: z.string().min(1), trackId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       const data = await ctx.db.query.tasc
         .findFirst({
-          where: eq(tasc.id, input.tascId),
+          where: and(
+            eq(tasc.faceId, input.faceId),
+            eq(tasc.trackId, input.trackId),
+          ),
           with: {
             tascMembers: {
               with: {

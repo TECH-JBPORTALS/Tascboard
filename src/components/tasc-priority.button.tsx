@@ -23,12 +23,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 export function TascPriorityButton({
   priority,
   buttonProps,
-  tascId,
+  faceId,
+  trackId,
   showLabel = true,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   priority?: TascPriority;
-  tascId: string;
+  faceId: string;
+  trackId: string;
   buttonProps?: React.ComponentProps<typeof Button>;
   showLabel?: boolean;
 }) {
@@ -56,7 +58,7 @@ export function TascPriorityButton({
     return (
       <CommandItem
         onSelect={() => {
-          updateTasc({ priority: item.value, id: tascId });
+          updateTasc({ priority: item.value, faceId, trackId });
         }}
         disabled={isPending}
       >

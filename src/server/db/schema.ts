@@ -224,14 +224,14 @@ export const CreateTascSchema = createInsertSchema(tasc, {
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
   name: z.string().min(3, "Tasc title can not be empty"),
-  id: z.string().min(1),
   status: z.enum(["todo", "in_progress", "completed", "verified"]).optional(),
+  faceId: z.string().min(1, "Face ID is required"),
+  trackId: z.string().min(1, "Track ID is required"),
 })
   .omit({
     createdAt: true,
     updatedAt: true,
-    faceId: true,
-    trackId: true,
+    id: true,
     completedAt: true,
     startedAt: true,
     createdBy: true,

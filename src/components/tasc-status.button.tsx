@@ -23,12 +23,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 export function TascStatusButton({
   status,
   buttonProps,
-  tascId,
+  faceId,
+  trackId,
   showLabel = true,
   ...props
 }: React.ComponentProps<typeof Popover> & {
   status?: TascStatus;
-  tascId: string;
+  faceId: string;
+  trackId: string;
   buttonProps?: React.ComponentProps<typeof Button>;
   showLabel?: boolean;
 }) {
@@ -54,7 +56,7 @@ export function TascStatusButton({
     return (
       <CommandItem
         onSelect={() => {
-          updateTasc({ status: item.value, id: tascId });
+          updateTasc({ status: item.value, faceId, trackId });
         }}
         disabled={isPending}
       >

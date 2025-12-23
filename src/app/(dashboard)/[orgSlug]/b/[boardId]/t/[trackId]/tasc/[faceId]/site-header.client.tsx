@@ -18,17 +18,17 @@ import { TascStatusButton } from "@/components/tasc-status.button";
 
 export function SiteHeaderClient() {
   const trpc = useTRPC();
-  const { boardId, trackId, orgSlug, tascId } = useParams<{
+  const { boardId, trackId, orgSlug, faceId } = useParams<{
     boardId: string;
     trackId: string;
     orgSlug: string;
-    tascId: string;
+    faceId: string;
   }>();
   const [board, track, tasc] = useSuspenseQueries({
     queries: [
       trpc.board.getById.queryOptions({ boardId }),
       trpc.track.getById.queryOptions({ trackId }),
-      trpc.tasc.getById.queryOptions({ tascId }),
+      trpc.tasc.getById.queryOptions({ faceId, trackId }),
     ],
   });
 
@@ -64,7 +64,8 @@ export function SiteHeaderClient() {
             <BreadcrumbItem>
               <BreadcrumbPage className="flex items-center gap-1">
                 <TascStatusButton
-                  tascId={tascId}
+                  faceId={faceId}
+                  trackId={trackId}
                   status={tasc.data.status}
                   buttonProps={{
                     disabled: true,

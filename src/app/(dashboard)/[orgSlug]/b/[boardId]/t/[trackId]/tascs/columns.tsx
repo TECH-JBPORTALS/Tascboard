@@ -39,20 +39,22 @@ function TascItem({ row }: { row: Tasc }) {
     <div className="flex w-full max-w-full min-w-full flex-1 items-center gap-2">
       <span className="text-muted-foreground font-medium">#{row.faceId}</span>
       <TascPriorityButton
-        tascId={row.id}
+        faceId={row.faceId}
+        trackId={row.trackId}
         priority={row.priority}
         buttonProps={{ size: "icon-sm", variant: "ghost" }}
         showLabel={false}
       />
       <TascStatusButton
-        tascId={row.id}
+        faceId={row.faceId}
+        trackId={row.trackId}
         status={row.status}
         buttonProps={{ size: "icon-sm", variant: "ghost" }}
         showLabel={false}
       />
 
       <Link
-        href={`/${orgSlug}/b/${boardId}/t/${trackId}/tascs/${row.id}`}
+        href={`/${orgSlug}/b/${boardId}/t/${trackId}/tasc/${row.faceId}`}
         className="font-medium hover:underline"
       >
         {row.name}
@@ -79,6 +81,7 @@ export const columns: ColumnDef<Tasc>[] = [
       return (
         <div className="flex min-w-xs items-center justify-end gap-6 text-right">
           <TascMembersButton
+            faceId={row.faceId}
             tascMembers={row.tascMembers}
             tascId={row.id}
             membersUserIds={row.tascMemberUserIds}

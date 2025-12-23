@@ -36,15 +36,18 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export function TascDetailsPage() {
-  const { tascId } = useParams<{ tascId: string }>();
+  const { faceId, trackId } = useParams<{ faceId: string; trackId: string }>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery(trpc.tasc.getById.queryOptions({ tascId }));
+  const { data } = useSuspenseQuery(
+    trpc.tasc.getById.queryOptions({ faceId, trackId }),
+  );
 
   const form = useForm({
     resolver: zodResolver(UpdateTascSchema),
     defaultValues: {
-      id: tascId,
+      faceId: data.faceId,
+      trackId: data.trackId,
       name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
@@ -78,6 +81,8 @@ export function TascDetailsPage() {
 
   useEffect(() => {
     form.reset({
+      faceId: data.faceId,
+      trackId: data.trackId,
       name: data?.name,
       description: data?.description ?? "",
       endDate: data?.endDate,
@@ -86,6 +91,8 @@ export function TascDetailsPage() {
       priority: data.priority,
     });
   }, [
+    data.faceId,
+    data.trackId,
     data.name,
     data.description,
     data.endDate,
@@ -93,7 +100,6 @@ export function TascDetailsPage() {
     data.tascMembersUserIds,
     data.priority,
     form,
-    tascId,
   ]);
 
   return (
@@ -103,7 +109,7 @@ export function TascDetailsPage() {
           isDirty={form.formState.isDirty}
           values={{
             ...values,
-            id: tascId,
+            id: data.id,
           }}
           onSave={updateTasc}
         />
@@ -122,18 +128,19 @@ export function TascDetailsPage() {
         />
         <div className="flex items-center gap-4 py-1">
           <TascPriorityButton
-            tascId={tascId}
+            {...{ faceId, trackId }}
             priority={data.priority}
             buttonProps={{ size: "xs", variant: "ghost" }}
           />
           <TascStatusButton
-            tascId={tascId}
+            {...{ faceId, trackId }}
             status={data.status}
             buttonProps={{ size: "xs", variant: "ghost" }}
           />
           <TascMembersButton
+            faceId={faceId}
             tascMembers={data.tascMembers}
-            tascId={tascId}
+            tascId={data.id!}
             membersUserIds={values.tascMembersUserIds ?? []}
           />
           <Popover>
