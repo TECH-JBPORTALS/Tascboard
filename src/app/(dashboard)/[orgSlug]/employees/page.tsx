@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/site-header";
-import { Users } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import type { SearchParams } from "nuqs/server";
 import { DataTableClient } from "./data-table.client";
 import { Container } from "@/components/container";
@@ -43,7 +43,13 @@ export default async function Employees(props: PageProps) {
 
           <InviteEmployeesButton />
         </div>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="flex min-h-[calc(100svh-50%)] items-center justify-center">
+              <Loader2 className="text-muted-foreground size-8 animate-spin" />
+            </div>
+          }
+        >
           <DataTableClient />
         </Suspense>
       </Container>

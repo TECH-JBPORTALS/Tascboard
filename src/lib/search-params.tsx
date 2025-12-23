@@ -8,7 +8,8 @@
  * Server side usage of 'nuqs'
  * @link https://nuqs.dev/docs/server-side
  */
-import { createLoader, parseAsString } from "nuqs/server";
+import type { TascPriority, TascStatus } from "@/server/db/schema";
+import { createLoader, parseAsString, parseAsStringEnum } from "nuqs/server";
 
 // Describe your search params, and reuse this in useQueryStates / createSerializer:
 export const authSearchParams = {
@@ -22,3 +23,22 @@ export const querySearchParams = {
 };
 
 export const loadQuerySearchParams = createLoader(querySearchParams);
+
+export const tascFilterSearchParams = {
+  status: parseAsStringEnum<TascStatus>([
+    "todo",
+    "in_progress",
+    "completed",
+    "verified",
+  ]).withOptions({ clearOnDefault: true }),
+  priority: parseAsStringEnum<TascPriority>([
+    "no_priority",
+    "urgent",
+    "high",
+    "medium",
+    "low",
+  ]).withOptions({ clearOnDefault: true }),
+  assignee: parseAsString.withOptions({ clearOnDefault: true }),
+};
+
+export const loadTascFilterSearchParams = createLoader(tascFilterSearchParams);

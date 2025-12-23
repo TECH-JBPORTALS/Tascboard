@@ -289,7 +289,15 @@ export const tascRouter = {
     }),
 
   list: organizationProcedure
-    .input(z.object({ trackId: z.string().min(1), q: z.string().optional() }))
+    .input(
+      z.object({
+        trackId: z.string().min(1),
+        q: z.string().optional(),
+        status: z.custom<TascStatus>().optional().nullable(),
+        priority: z.custom<TascPriority>().optional().nullable(),
+        assignee: z.string().optional().nullable(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const activeMember = await ctx.authApi.getActiveMember({
         headers: ctx.headers,
@@ -305,6 +313,22 @@ export const tascRouter = {
           : undefined,
       );
 
+      const filterClause = and(
+        input.status ? eq(tasc.status, input.status) : undefined,
+        input.priority ? eq(tasc.priority, input.priority) : undefined,
+        input.assignee
+          ? or(
+              eq(tasc.createdBy, input.assignee),
+              eq(tascMember.userId, input.assignee),
+            )
+          : undefined,
+      );
+
+      const queryClause = or(
+        ilike(tasc.name, `%${input.q}%`),
+        ilike(tasc.faceId, `%${input.q}%`),
+      );
+
       const tascs = await ctx.db
         .select({
           ...getTableColumns(tasc),
@@ -315,14 +339,8 @@ export const tascRouter = {
         .innerJoin(user, eq(tasc.createdBy, user.id))
         .where(
           input.q
-            ? and(
-                whereClause,
-                or(
-                  ilike(tasc.name, `%${input.q}%`),
-                  ilike(tasc.faceId, `%${input.q}%`),
-                ),
-              )
-            : whereClause,
+            ? and(whereClause, queryClause, filterClause)
+            : and(whereClause, filterClause),
         )
         .orderBy(asc(tasc.createdAt))
         .groupBy(tasc.id, user.id);

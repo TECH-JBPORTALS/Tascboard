@@ -1,14 +1,17 @@
 import { Container } from "@/components/container";
-import { Plus } from "lucide-react";
-import DataTableClient from "./data-table.client";
+import { Loader2, Plus } from "lucide-react";
+import { DataTableClient, FiltersRow } from "./data-table.client";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { CreateTascDialog } from "@/components/dialogs/create-tasc.dialog";
-import { loadQuerySearchParams } from "@/lib/search-params";
+import {
+  loadQuerySearchParams,
+  loadTascFilterSearchParams,
+} from "@/lib/search-params";
 import type { SearchParams } from "nuqs";
-import { SearchInput } from "@/components/search-input";
 import { Suspense } from "react";
 import { SiteHeaderClient } from "../site-header.client";
+import type { TascPriority, TascStatus } from "@/server/db/schema";
 
 export default async function Tascs({
   params,
@@ -19,13 +22,15 @@ export default async function Tascs({
 }) {
   const { trackId } = await params;
   const { q } = await loadQuerySearchParams(searchParams);
+  const { assignee, priority, status } =
+    await loadTascFilterSearchParams(searchParams);
 
   return (
     <>
       <SiteHeaderClient />
       <Container>
         <div className="flex justify-between">
-          <SearchInput placeholder="Search tascs..." />
+          <FiltersRow />
 
           <CreateTascDialog trackId={trackId}>
             <Button>
@@ -34,8 +39,18 @@ export default async function Tascs({
           </CreateTascDialog>
         </div>
 
-        <Suspense fallback={"loading..."}>
-          <TascsSuspenseArea q={q} trackId={trackId} />
+        <Suspense
+          fallback={
+            <div className="flex min-h-[calc(100svh-50%)] items-center justify-center">
+              <Loader2 className="text-muted-foreground size-8 animate-spin" />
+            </div>
+          }
+        >
+          <TascsSuspenseArea
+            {...{ status, priority, assignee }}
+            q={q}
+            trackId={trackId}
+          />
         </Suspense>
       </Container>
     </>
@@ -45,11 +60,19 @@ export default async function Tascs({
 async function TascsSuspenseArea({
   trackId,
   q,
+  status,
+  priority,
+  assignee,
 }: {
   trackId: string;
   q: string;
+  status: TascStatus | null;
+  priority: TascPriority | null;
+  assignee: string | null;
 }) {
-  prefetch(trpc.tasc.list.queryOptions({ trackId, q }));
+  prefetch(
+    trpc.tasc.list.queryOptions({ trackId, q, status, priority, assignee }),
+  );
   return (
     <HydrateClient>
       <DataTableClient />
