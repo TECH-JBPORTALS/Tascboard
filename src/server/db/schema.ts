@@ -227,7 +227,7 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   priority: z.custom<TascPriority>(),
   description: z.string().trim().optional(),
 })
-  .omit({ faceId: true, createdBy: true, completedAt: true, startedAt: true })
+  .omit({ faceId: true, createdBy: true })
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
@@ -242,8 +242,6 @@ export const UpdateTascSchema = createUpdateSchema(tasc, {
     id: true,
     createdBy: true,
     priority: true,
-    startedAt: true,
-    completedAt: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));
 
