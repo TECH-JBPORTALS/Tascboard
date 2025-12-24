@@ -3,10 +3,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { TASC_PRIORITY_LIST, TASC_STATUS_LIST } from "@/lib/constants";
-import type { ActivityPayloadByAction, TascStatus } from "@/server/db/schema";
+import { cn } from "@/lib/utils";
 import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { format, formatDistanceToNowStrict } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
+import { ALargeSmallIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function ActivitiesListClient() {
@@ -30,13 +31,8 @@ export default function ActivitiesListClient() {
           key={ta.id}
           className="relative mb-3 flex w-full items-center pl-8"
         >
-          <div className="absolute top-2.5 left-0">
-            <Avatar className="bg-foreground flex size-4 items-center justify-center rounded-full">
-              <AvatarImage src={ta.performedByUser?.image ?? ""} alt="Avatar" />
-              <AvatarFallback className="text-[10px]">
-                {ta.performedByUser?.name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+          <div className="bg-background absolute top-1.5 -left-1 flex size-6 items-center justify-center rounded-full">
+            <Icon tascActivity={ta} />
           </div>
 
           <span className="text-muted-foreground inline-flex rounded-xl py-2 text-sm tracking-tight">
@@ -121,7 +117,7 @@ function Title({
 
       return (
         <span className="flex-nowrap">
-          {tascActivity.performedByUser?.name} changed the title of the tasc to{" "}
+          {tascActivity.performedByUser?.name} changed the title to{" "}
           <b>
             {payload.to.length > 40
               ? payload.to.slice(0, 40).concat("...")
@@ -135,6 +131,53 @@ function Title({
           </time>
         </span>
       );
+    }
+  }
+}
+
+function Icon({
+  tascActivity,
+}: {
+  tascActivity: RouterOutputs["tascActivity"]["list"][number];
+}) {
+  switch (tascActivity.reason.action) {
+    case "created":
+      return (
+        <Avatar className="bg-foreground flex size-4 items-center justify-center rounded-full">
+          <AvatarImage
+            src={tascActivity.performedByUser?.image ?? ""}
+            alt="Avatar"
+          />
+          <AvatarFallback className="text-[10px]">
+            {tascActivity.performedByUser?.name?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+      );
+
+    case "status_changed": {
+      const payload = tascActivity.reason.payload;
+
+      const status = TASC_STATUS_LIST.find((item) => item.value == payload.to);
+
+      if (!status) return null;
+
+      return <status.icon className={cn("size-4", status.className)} />;
+    }
+
+    case "priority_changed": {
+      const payload = tascActivity.reason.payload;
+
+      const priority = TASC_PRIORITY_LIST.find(
+        (item) => item.value == payload.to,
+      );
+
+      if (!priority) return null;
+
+      return <priority.icon className={cn("size-4", priority.className)} />;
+    }
+
+    case "title_changed": {
+      return <ALargeSmallIcon className="text-accent-foreground size-4" />;
     }
   }
 }
