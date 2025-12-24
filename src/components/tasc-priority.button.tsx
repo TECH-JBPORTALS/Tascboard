@@ -47,6 +47,7 @@ export function TascPriorityButton({
           await Promise.all([
             queryClient.invalidateQueries(trpc.tasc.getById.queryFilter()),
             queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+            queryClient.invalidateQueries(trpc.tascActivity.list.queryFilter()),
           ]);
         },
         onError(error) {

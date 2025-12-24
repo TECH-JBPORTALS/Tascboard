@@ -228,19 +228,54 @@ export const UpdateTascSchema = createUpdateSchema(tasc, {
     createdAt: true,
     updatedAt: true,
     id: true,
-    completedAt: true,
-    startedAt: true,
     createdBy: true,
     priority: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));
 
 export type TascActivityAction =
+  | "created"
   | "status_changed"
   | "priority_changed"
   | "due_changed"
   | "title_chaged"
-  | "assignee_changed";
+  | "assigned";
+
+export type TascActivityReason =
+  | {
+      action: "created";
+      payload: {
+        status: TascStatus;
+        priority: TascPriority;
+        due?: { startDate?: Date | null; endDate?: Date | null };
+        assignedTo?: string[];
+      };
+    }
+  | {
+      action: "status_changed";
+      payload: { from: TascStatus; to: TascStatus };
+    }
+  | {
+      action: "priority_changed";
+      payload: { from: TascPriority; to: TascPriority };
+    }
+  | {
+      action: "due_changed";
+      payload: { setTo: { startDate?: Date | null; endDate?: Date | null } };
+    }
+  | {
+      action: "title_changed";
+      payload: { to: string };
+    }
+  | {
+      action: "assigned";
+      payload: { assignedTo: string[] };
+    };
+
+export type ActivityPayloadByAction<T extends TascActivityAction> = Extract<
+  TascActivityReason,
+  { action: T }
+>["payload"];
 
 // TODO:
 export const tascActivity = pgTable("tasc_activity", (d) => ({
@@ -249,10 +284,14 @@ export const tascActivity = pgTable("tasc_activity", (d) => ({
     .text()
     .references(() => tasc.id, { onDelete: "cascade" })
     .notNull(),
-  action: d.text().$type<TascActivityAction>().notNull(),
-  performedBy: d
-    .text()
-    .references(() => user.id, { onDelete: "set null" })
-    .notNull(),
-  reason: d.jsonb().$type().notNull(),
+  performedBy: d.text().references(() => user.id, { onDelete: "set null" }),
+  reason: d.jsonb().$type<TascActivityReason>().notNull(),
+}));
+
+export const tascActivityRelations = relations(tascActivity, ({ one }) => ({
+  performedByUser: one(user, {
+    fields: [tascActivity.performedBy],
+    references: [user.id],
+  }),
+  tasc: one(tasc, { fields: [tascActivity.tascId], references: [tasc.id] }),
 }));

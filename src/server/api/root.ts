@@ -7,6 +7,7 @@ import { memberRouter } from "./rooters/members";
 import { tascRouter } from "./rooters/tasc";
 import { trackMemberRouter } from "./rooters/track-member";
 import { tascMemberRouter } from "./rooters/tasc-member";
+import { tascActivityRouter } from "./rooters/tasc-activity";
 
 /**
  * This is the primary router for your server.
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   member: memberRouter,
   tasc: tascRouter,
   tascMember: tascMemberRouter,
+  tascActivity: tascActivityRouter,
 });
 
 // export type definition of API

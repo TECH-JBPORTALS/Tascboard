@@ -14,7 +14,6 @@ import {
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import { user } from "@/server/db/auth-schema";
-import { format } from "date-fns";
 
 export const tascRouter = {
   create: organizationProcedure
@@ -74,6 +73,20 @@ export const tascRouter = {
 
         await tx.insert(tascMember).values([creator, ...initialMembers]);
 
+        await tx.insert(tascActivity).values({
+          tascId: createdTasc.id,
+          performedBy: ctx.auth.session.userId,
+          reason: {
+            action: "created",
+            payload: {
+              status: input.status,
+              priority: input.priority,
+              due: { startDate: input.startDate, endDate: input.endDate },
+              assignedTo: input.membersUserIds,
+            },
+          },
+        });
+
         return createdTasc;
       });
     }),
@@ -102,17 +115,37 @@ export const tascRouter = {
           });
         }
 
-        const activityPatch: Partial<typeof tascActivity.$inferInsert> = {
-          tascId: existing.id,
-          performedBy: ctx.auth.session.userId,
-        };
+        const activityValues: (typeof tascActivity.$inferInsert)[] = [];
 
+        // Add due date activity if any changes
         if (
           existing.startDate !== input.startDate ||
           existing.endDate !== input.endDate
         ) {
-          activityPatch.action = "due_changed";
-          activityPatch.reason = `${input.startDate && format(input.startDate, "MMM, dd yyyy")}`;
+          activityValues.push({
+            tascId: existing.id,
+            performedBy: ctx.auth.session.userId,
+            reason: {
+              action: "due_changed",
+              payload: {
+                setTo: { startDate: input.startDate, endDate: input.endDate },
+              },
+            },
+          });
+        }
+
+        // Add tasc name changes
+        if (existing.name !== input.name) {
+          activityValues.push({
+            tascId: existing.id,
+            performedBy: ctx.auth.session.userId,
+            reason: {
+              action: "title_changed",
+              payload: {
+                to: input.name,
+              },
+            },
+          });
         }
 
         const [updated] = await tx
@@ -130,8 +163,20 @@ export const tascRouter = {
 
         if (!updated) {
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Tasc not found",
+            code: "BAD_REQUEST",
+            message: "Unable to update the tasc",
+          });
+        }
+
+        const [newActivity] = await tx
+          .insert(tascActivity)
+          .values(activityValues)
+          .returning();
+
+        if (!newActivity) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Tasc activity not added",
           });
         }
 
@@ -190,9 +235,11 @@ export const tascRouter = {
           .insert(tascActivity)
           .values({
             tascId: updated.id,
-            action: "status_changed",
             performedBy: ctx.auth.session.userId,
-            reason: updated.status,
+            reason: {
+              action: "status_changed",
+              payload: { from: existing.status, to: input.status },
+            },
           })
           .returning();
 
@@ -258,9 +305,11 @@ export const tascRouter = {
           .insert(tascActivity)
           .values({
             tascId: updated.id,
-            action: "priority_changed",
             performedBy: ctx.auth.session.userId,
-            reason: updated.priority,
+            reason: {
+              action: "priority_changed",
+              payload: { from: existing.priority, to: input.priority },
+            },
           })
           .returning();
 

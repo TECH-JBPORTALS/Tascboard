@@ -156,6 +156,7 @@ function MemberItem({
             trpc.tasc.getById.queryOptions({ faceId, trackId }),
           ),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.tascActivity.list.queryFilter()),
         ]);
       },
       onError(error) {
@@ -202,6 +203,7 @@ function RemainingMemberItem({
             trpc.tasc.getById.queryOptions({ faceId, trackId }),
           ),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.tascActivity.list.queryFilter()),
         ]);
       },
       onError(error) {

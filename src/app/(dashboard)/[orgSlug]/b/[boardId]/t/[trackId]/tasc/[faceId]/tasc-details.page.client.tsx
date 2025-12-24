@@ -1,5 +1,4 @@
 "use client";
-import { Container } from "@/components/container";
 import { TascMembersButton } from "@/components/tasc-members.button";
 import { TascPriorityButton } from "@/components/tasc-priority.button";
 import { TascStatusButton } from "@/components/tasc-status.button";
@@ -63,6 +62,7 @@ export function TascDetailsPage() {
         await Promise.all([
           queryClient.invalidateQueries(trpc.tasc.getById.queryFilter()),
           queryClient.invalidateQueries(trpc.tasc.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.tascActivity.list.queryFilter()),
         ]);
         form.reset({ ...data, tascMembersUserIds: values.tascMembersUserIds });
       },
@@ -100,7 +100,7 @@ export function TascDetailsPage() {
 
   return (
     <Form {...form}>
-      <Container className="px-52">
+      <section className="flex flex-4 flex-col gap-6 py-6 pr-6">
         <AutoSyncButton
           isDirty={form.formState.isDirty}
           values={{
@@ -114,8 +114,9 @@ export function TascDetailsPage() {
           name="name"
           render={({ field }) => (
             <FormControl>
-              <input
-                {...field}
+              <TextEditor
+                markdown={field.value ?? ""}
+                onChange={(markdown) => field.onChange(markdown)}
                 placeholder="Tasc title"
                 className="text-3xl font-semibold focus-visible:outline-none"
               />
@@ -199,6 +200,7 @@ export function TascDetailsPage() {
           </span>
         </div>
         <Separator />
+
         <FormField
           control={form.control}
           name="description"
@@ -207,11 +209,13 @@ export function TascDetailsPage() {
               <TextEditor
                 markdown={field.value ?? ""}
                 onChange={(markdown) => field.onChange(markdown)}
+                className="min-h-20"
+                placeholder="Add description..."
               />
             </FormControl>
           )}
         />
-      </Container>
+      </section>
     </Form>
   );
 }
