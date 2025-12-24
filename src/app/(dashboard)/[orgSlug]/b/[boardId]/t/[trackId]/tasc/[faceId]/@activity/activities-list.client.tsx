@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
-import { ALargeSmallIcon, UserMinus2, UserPlus2, Users } from "lucide-react";
+import { ALargeSmallIcon, UserMinus2, UserPlus2 } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function ActivitiesListClient() {
