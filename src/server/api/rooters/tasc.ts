@@ -203,7 +203,11 @@ export const tascRouter = {
 
         const [updated] = await tx
           .update(tasc)
-          .set({ status: input.status })
+          .set({
+            status: input.status,
+            completedAt: input.status == "completed" ? new Date() : null,
+            startedAt: input.status == "in_progress" ? new Date() : null,
+          })
           .where(
             and(eq(tasc.faceId, input.faceId), eq(tasc.trackId, input.trackId)),
           )

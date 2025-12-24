@@ -55,22 +55,26 @@ export const boardRelations = relations(board, ({ many }) => ({
 export type BoardRole = "member" | "creator";
 
 /** ## Board Member */
-export const boardMember = pgTable("board_member", (d) => ({
-  ...initialColumns,
-  userId: d
-    .text()
-    .references(() => user.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  boardId: d
-    .text()
-    .references(() => board.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  role: d.text().$type<BoardRole>().notNull().default("member"),
-}));
+export const boardMember = pgTable(
+  "board_member",
+  (d) => ({
+    ...initialColumns,
+    userId: d
+      .text()
+      .references(() => user.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    boardId: d
+      .text()
+      .references(() => board.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    role: d.text().$type<BoardRole>().notNull().default("member"),
+  }),
+  (t) => [uniqueIndex().on(t.boardId, t.userId)],
+);
 
 export const boardMemberRelations = relations(boardMember, ({ one }) => ({
   user: one(user, { fields: [boardMember.userId], references: [user.id] }),
@@ -135,20 +139,24 @@ export const UpdateTrackSchema = createUpdateSchema(track, {
 export type TrackRole = "member" | "creator" | "leader";
 
 /** ## Track Member */
-export const trackMember = pgTable("track_member", (d) => ({
-  ...initialColumns,
-  trackId: d
-    .text()
-    .references(() => track.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  userId: d
-    .text()
-    .references(() => user.id, { onDelete: "cascade" })
-    .notNull(),
-  role: d.text().$type<TrackRole>().notNull().default("member"),
-}));
+export const trackMember = pgTable(
+  "track_member",
+  (d) => ({
+    ...initialColumns,
+    trackId: d
+      .text()
+      .references(() => track.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    userId: d
+      .text()
+      .references(() => user.id, { onDelete: "cascade" })
+      .notNull(),
+    role: d.text().$type<TrackRole>().notNull().default("member"),
+  }),
+  (t) => [uniqueIndex().on(t.trackId, t.userId)],
+);
 
 export const trackMemberRelations = relations(trackMember, ({ one }) => ({
   track: one(track, { fields: [trackMember.trackId], references: [track.id] }),
@@ -177,6 +185,8 @@ export const tasc = pgTable(
       .notNull(),
     status: d.text().$type<TascStatus>().notNull().default("todo"),
     priority: d.text().$type<TascPriority>().notNull().default("no_priority"),
+    startedAt: d.timestamp(),
+    completedAt: d.timestamp(),
     createdBy: d
       .text()
       .notNull()
@@ -191,17 +201,21 @@ export const tascRelations = relations(tasc, ({ many, one }) => ({
   createdByUser: one(user, { fields: [tasc.createdBy], references: [user.id] }),
 }));
 
-export const tascMember = pgTable("tasc_member", (d) => ({
-  ...initialColumns,
-  tascId: d
-    .text()
-    .references(() => tasc.id, { onDelete: "cascade" })
-    .notNull(),
-  userId: d
-    .text()
-    .references(() => user.id, { onDelete: "cascade" })
-    .notNull(),
-}));
+export const tascMember = pgTable(
+  "tasc_member",
+  (d) => ({
+    ...initialColumns,
+    tascId: d
+      .text()
+      .references(() => tasc.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: d
+      .text()
+      .references(() => user.id, { onDelete: "cascade" })
+      .notNull(),
+  }),
+  (t) => [uniqueIndex().on(t.tascId, t.userId)],
+);
 
 export const tascMemberRelations = relations(tascMember, ({ one }) => ({
   tasc: one(tasc, { fields: [tascMember.tascId], references: [tasc.id] }),
@@ -215,7 +229,7 @@ export const CreateTascSchema = createInsertSchema(tasc, {
   priority: z.custom<TascPriority>(),
   description: z.string().trim().optional(),
 })
-  .omit({ faceId: true, createdBy: true })
+  .omit({ faceId: true, createdBy: true, completedAt: true, startedAt: true })
   .and(z.object({ membersUserIds: z.array(z.string()) }));
 
 export const UpdateTascSchema = createUpdateSchema(tasc, {
@@ -230,6 +244,8 @@ export const UpdateTascSchema = createUpdateSchema(tasc, {
     id: true,
     createdBy: true,
     priority: true,
+    startedAt: true,
+    completedAt: true,
   })
   .and(z.object({ tascMembersUserIds: z.array(z.string()).optional() }));
 
