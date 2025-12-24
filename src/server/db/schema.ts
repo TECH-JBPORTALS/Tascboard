@@ -185,8 +185,8 @@ export const tasc = pgTable(
       .notNull(),
     status: d.text().$type<TascStatus>().notNull().default("todo"),
     priority: d.text().$type<TascPriority>().notNull().default("no_priority"),
-    startedAt: d.timestamp(),
-    completedAt: d.timestamp(),
+    startedAt: d.timestamp({ withTimezone: true }),
+    completedAt: d.timestamp({ withTimezone: true }),
     createdBy: d
       .text()
       .notNull()

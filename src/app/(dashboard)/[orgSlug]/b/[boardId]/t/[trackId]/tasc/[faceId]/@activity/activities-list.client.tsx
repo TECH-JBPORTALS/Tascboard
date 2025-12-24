@@ -135,7 +135,7 @@ function Title({
 
     case "member_assigned": {
       return (
-        <span className="flex-nowrap">
+        <span className="inline-flex flex-wrap gap-1.5">
           {tascActivity.performedByUser?.name} assigned tasc to{" "}
           <Avatar className="flex size-4 items-center justify-center rounded-full">
             <AvatarImage
@@ -146,6 +146,7 @@ function Title({
               {tascActivity.assignedUser?.name?.charAt(0)}
             </AvatarFallback>
           </Avatar>{" "}
+          <b>{tascActivity.assignedUser?.name}</b>{" "}
           <time className="text-muted-foreground top-3 rounded-xl text-xs tracking-tight">
             ·{" "}
             {formatDistanceToNowStrict(tascActivity.createdAt, {
@@ -158,7 +159,7 @@ function Title({
 
     case "member_removed": {
       return (
-        <span className="flex-nowrap">
+        <span className="inline-flex flex-wrap gap-1.5">
           {tascActivity.performedByUser?.name} removed{" "}
           <Avatar className="flex size-4 items-center justify-center rounded-full">
             <AvatarImage
@@ -169,7 +170,7 @@ function Title({
               {tascActivity.assignedUser?.name?.charAt(0)}
             </AvatarFallback>
           </Avatar>{" "}
-          from the tasc
+          <b>{tascActivity.assignedUser?.name}</b> from the tasc
           <time className="text-muted-foreground top-3 rounded-xl text-xs tracking-tight">
             ·{" "}
             {formatDistanceToNowStrict(tascActivity.createdAt, {
