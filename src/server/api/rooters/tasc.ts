@@ -117,22 +117,7 @@ export const tascRouter = {
 
         const activityValues: (typeof tascActivity.$inferInsert)[] = [];
 
-        // Add due date activity if any changes
-        if (
-          existing.startDate !== input.startDate ||
-          existing.endDate !== input.endDate
-        ) {
-          activityValues.push({
-            tascId: existing.id,
-            performedBy: ctx.auth.session.userId,
-            reason: {
-              action: "due_changed",
-              payload: {
-                setTo: { startDate: input.startDate, endDate: input.endDate },
-              },
-            },
-          });
-        }
+        // Track the setDue date activity -- Future tasc
 
         // Add tasc name changes
         if (existing.name !== input.name) {

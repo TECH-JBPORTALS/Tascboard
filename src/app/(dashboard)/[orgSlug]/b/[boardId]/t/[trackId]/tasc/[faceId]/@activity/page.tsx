@@ -21,7 +21,7 @@ export default async function Page({
     <HydrateClient>
       <section className="container w-full max-w-lg flex-2 border-l px-8 py-6">
         <ScrollArea>
-          <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+          <h4 className="mb-4 scroll-m-20 text-xl font-semibold tracking-tight">
             Activity
           </h4>
           <ActivitiesListClient />

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useTRPC, type RouterOutputs } from "@/trpc/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
-import { ALargeSmallIcon } from "lucide-react";
+import { ALargeSmallIcon, UserMinus2, UserPlus2, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function ActivitiesListClient() {
@@ -31,11 +31,11 @@ export default function ActivitiesListClient() {
           key={ta.id}
           className="relative mb-3 flex w-full items-center pl-8"
         >
-          <div className="bg-background absolute top-1.5 -left-1 flex size-6 items-center justify-center rounded-full">
+          <div className="bg-background absolute top-2 -left-1 flex size-6 justify-center rounded-full">
             <Icon tascActivity={ta} />
           </div>
 
-          <span className="text-muted-foreground inline-flex rounded-xl py-2 text-sm tracking-tight">
+          <span className="text-muted-foreground inline-flex rounded-xl py-2 text-xs tracking-tight">
             <Title tascActivity={ta} />
           </span>
         </div>
@@ -119,10 +119,57 @@ function Title({
         <span className="flex-nowrap">
           {tascActivity.performedByUser?.name} changed the title to{" "}
           <b>
-            {payload.to.length > 40
-              ? payload.to.slice(0, 40).concat("...")
+            {payload.to.length > 80
+              ? payload.to.slice(0, 80).concat("...")
               : payload.to}
           </b>{" "}
+          <time className="text-muted-foreground top-3 rounded-xl text-xs tracking-tight">
+            ·{" "}
+            {formatDistanceToNowStrict(tascActivity.createdAt, {
+              addSuffix: true,
+            })}
+          </time>
+        </span>
+      );
+    }
+
+    case "member_assigned": {
+      return (
+        <span className="flex-nowrap">
+          {tascActivity.performedByUser?.name} assigned tasc to{" "}
+          <Avatar className="flex size-4 items-center justify-center rounded-full">
+            <AvatarImage
+              src={tascActivity.assignedUser?.image ?? ""}
+              alt="Avatar"
+            />
+            <AvatarFallback className="text-[10px]">
+              {tascActivity.assignedUser?.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>{" "}
+          <time className="text-muted-foreground top-3 rounded-xl text-xs tracking-tight">
+            ·{" "}
+            {formatDistanceToNowStrict(tascActivity.createdAt, {
+              addSuffix: true,
+            })}
+          </time>
+        </span>
+      );
+    }
+
+    case "member_removed": {
+      return (
+        <span className="flex-nowrap">
+          {tascActivity.performedByUser?.name} removed{" "}
+          <Avatar className="flex size-4 items-center justify-center rounded-full">
+            <AvatarImage
+              src={tascActivity.assignedUser?.image ?? ""}
+              alt="Avatar"
+            />
+            <AvatarFallback className="text-[10px]">
+              {tascActivity.assignedUser?.name?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>{" "}
+          from the tasc
           <time className="text-muted-foreground top-3 rounded-xl text-xs tracking-tight">
             ·{" "}
             {formatDistanceToNowStrict(tascActivity.createdAt, {
@@ -178,6 +225,14 @@ function Icon({
 
     case "title_changed": {
       return <ALargeSmallIcon className="text-accent-foreground size-4" />;
+    }
+
+    case "member_assigned": {
+      return <UserPlus2 className="text-accent-foreground size-4" />;
+    }
+
+    case "member_removed": {
+      return <UserMinus2 className="text-accent-foreground size-4" />;
     }
   }
 }

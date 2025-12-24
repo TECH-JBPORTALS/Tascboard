@@ -268,8 +268,12 @@ export type TascActivityReason =
       payload: { to: string };
     }
   | {
-      action: "assigned";
-      payload: { assignedTo: string[] };
+      action: "member_assigned";
+      payload: { userId: string };
+    }
+  | {
+      action: "member_removed";
+      payload: { userId: string };
     };
 
 export type ActivityPayloadByAction<T extends TascActivityAction> = Extract<
