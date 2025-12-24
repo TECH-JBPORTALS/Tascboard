@@ -14,6 +14,7 @@ import {
 } from "@/server/db/schema";
 import { hasPermissionMiddleware, organizationProcedure } from "../trpc";
 import { user } from "@/server/db/auth-schema";
+import { isEmpty } from "lodash";
 
 export const tascRouter = {
   create: organizationProcedure
@@ -153,16 +154,18 @@ export const tascRouter = {
           });
         }
 
-        const [newActivity] = await tx
-          .insert(tascActivity)
-          .values(activityValues)
-          .returning();
+        if (!isEmpty(activityValues)) {
+          const [newActivity] = await tx
+            .insert(tascActivity)
+            .values(activityValues)
+            .returning();
 
-        if (!newActivity) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Tasc activity not added",
-          });
+          if (!newActivity) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Tasc activity not added",
+            });
+          }
         }
 
         return updated;
