@@ -116,6 +116,7 @@ export const trackRouter = {
         .where(eq(track.boardId, input.boardId))
         .orderBy(
           asc(sql`CAST(SUBSTRING(${track.name} FROM '^[0-9]+') AS INTEGER)`),
+          asc(track.name),
         )
         .then((r) => r.map((r) => r.track));
     }),

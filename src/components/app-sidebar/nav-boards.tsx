@@ -157,7 +157,7 @@ function TrackList({ boardId }: { boardId: string }) {
               <span>{subItem.name}</span>
             </Link>
           </SidebarMenuSubButton>
-          <TrackActionDropdownMenu trackId={subItem.id}>
+          <TrackActionDropdownMenu boardId={boardId} trackId={subItem.id}>
             <SidebarMenuAction className="data-[state=open]:bg-sidebar-accent opacity-0 peer-hover/menu-sub-button:opacity-100 hover:opacity-100 data-[state=open]:opacity-100">
               <MoreHorizontalIcon />
             </SidebarMenuAction>

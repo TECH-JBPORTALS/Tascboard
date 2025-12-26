@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { DeleteIcon } from "lucide-react";
+import { DeleteIcon, ListIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -25,26 +25,31 @@ import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/react";
 import { toast } from "sonner";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "nextjs-toploader/app";
 
 export function TrackActionDropdownMenu({
   children,
   trackId,
+  boardId,
 }: {
   children: React.ReactNode;
   trackId: string;
+  boardId: string;
 }) {
+  const router = useRouter();
+  const params = useParams<{
+    orgSlug: string;
+    boardId: string;
+    trackId?: string;
+  }>();
+
   function DeleteTrackAlertDialog({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const trpc = useTRPC();
     const queryClient = useQueryClient();
-    const router = useRouter();
-    const params = useParams<{
-      orgSlug: string;
-      boardId: string;
-      trackId?: string;
-    }>();
+
     const { mutate: deleteTrack, isPending } = useMutation(
       trpc.track.delete.mutationOptions({
         async onSuccess() {
@@ -99,6 +104,13 @@ export function TrackActionDropdownMenu({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem
+            onSelect={() =>
+              router.push(`/${params.orgSlug}/b/${boardId}/t/${trackId}/tascs`)
+            }
+          >
+            <ListIcon /> Go to tascs
+          </DropdownMenuItem>
           <DeleteTrackAlertDialog>
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
